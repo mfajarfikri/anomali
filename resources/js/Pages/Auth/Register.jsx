@@ -6,8 +6,10 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Dropdown } from 'primereact/dropdown';
+import SelectBox from '@/Components/SelectBox';
+import roles from "@/Components/data/roles.json";
 
-export default function Register() {
+export default function Register(role) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -15,12 +17,6 @@ export default function Register() {
         password_confirmation: '',
     });
 
-    const [value, setValue] = useState('')
-    const options = [
-        {label: "Red", Value: 1},
-        {label: "Green", Value: 2},
-        {label: "Blue", Value: 3}
-    ]
 
 
     useEffect(() => {
@@ -34,6 +30,7 @@ export default function Register() {
 
         post(route('register'));
     };
+    
 
     return (
         <GuestLayout>
@@ -70,6 +67,20 @@ export default function Register() {
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
+
+                    <div>
+                        <InputLabel htmlFor="role" value="Role" />
+
+                        <SelectBox 
+                            onChange={(e) => 
+                                setData("role",e.target.value)}
+                                id="role"
+                                currentValue={data.role}
+                            options={roles}
+                        />
+
+                        <InputError className="mt-2" message={errors.email} />
+                    </div>
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>

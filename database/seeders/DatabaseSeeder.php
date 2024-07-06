@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\anomali;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -18,6 +19,12 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        anomali::factory(20)->create();
+
+        $this->call([
+            RoleSeeder::class
         ]);
     }
 }

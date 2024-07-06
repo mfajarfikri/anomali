@@ -141,8 +141,19 @@ export default function DashboardLayout({children, user }) {
                     </ResponsiveNavLink>
                 </li>
 
+                <li>
+                    <ResponsiveNavLink href={route('anomali')} active={route().current('anomali')} className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg className="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <path fillRule="evenodd" d="M10.915 2.345a2 2 0 0 1 2.17 0l7 4.52A2 2 0 0 1 21 8.544V9.5a1.5 1.5 0 0 1-1.5 1.5H19v6h1a1 1 0 1 1 0 2H4a1 1 0 1 1 0-2h1v-6h-.5A1.5 1.5 0 0 1 3 9.5v-.955a2 2 0 0 1 .915-1.68l7-4.52ZM17 17v-6h-2v6h2Zm-6-6h2v6h-2v-6Zm-2 6v-6H7v6h2Z" clipRule="evenodd"/>
+                    <path d="M2 21a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1Z"/>
+                    </svg>
+                    <span className="flex-1 ms-3 whitespace-nowrap">Anomali</span>
+                    <span className="inline-flex items-center justify-center px-2 text-sm font-medium text-gray-800 bg-gray-100 rounded-full ms-3">Pro</span>
+                    </ResponsiveNavLink>
+                </li>
+
             </ul>
-            <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
+            <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200">
                 <li>
                     <ResponsiveNavLink href={route('user')} active={route().current('user')} className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                     <svg className="w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
