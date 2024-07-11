@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,9 +13,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
         return Inertia::render('User/User', [
-            'users' => UserResource::collection($users)
+            'users' => User::latest()->paginate(10)
         ]);
     }
 

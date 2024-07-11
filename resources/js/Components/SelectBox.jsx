@@ -1,10 +1,10 @@
 export default function Selectbox({ className = '',options,currentValue, ...props }) {
     return  (
-      <select 
+      <select
         {...props}
         defaultValue={currentValue}
         className={
-            'border-gray-400 text-indigo-400 focus:ring-indigo-400 rounded-md shadow-sm mt-1 block w-full' +
+            'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm w-full' +
             className
         }
        >
@@ -13,8 +13,8 @@ export default function Selectbox({ className = '',options,currentValue, ...prop
                 {option.label}
             </option>
         ))}
-        
+
       </select>
     );
-   
+
 }

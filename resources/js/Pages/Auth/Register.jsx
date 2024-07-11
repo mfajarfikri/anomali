@@ -1,3 +1,4 @@
+import React from 'react';
 import { useEffect, useState } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
@@ -5,9 +6,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Dropdown } from 'primereact/dropdown';
-import SelectBox from '@/Components/SelectBox';
-import roles from "@/Components/data/roles.json";
+import SelectOption from '@/Components/SelectOption';
 
 export default function Register(role) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -16,7 +15,6 @@ export default function Register(role) {
         password: '',
         password_confirmation: '',
     });
-
 
 
     useEffect(() => {
@@ -30,7 +28,9 @@ export default function Register(role) {
 
         post(route('register'));
     };
-    
+
+    console.log({role});
+
 
     return (
         <GuestLayout>
@@ -67,20 +67,6 @@ export default function Register(role) {
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
-
-                    <div>
-                        <InputLabel htmlFor="role" value="Role" />
-
-                        <SelectBox 
-                            onChange={(e) => 
-                                setData("role",e.target.value)}
-                                id="role"
-                                currentValue={data.role}
-                            options={roles}
-                        />
-
-                        <InputError className="mt-2" message={errors.email} />
-                    </div>
 
                     <InputError message={errors.email} className="mt-2" />
                 </div>

@@ -24,7 +24,7 @@ export default function Home ({auth}) {
                         <Link href={route('login')} className="inline-flex items-center justify-center w-full py-3 text-base font-semibold text-center text-white transition-all duration-500 bg-indigo-600 rounded-full shadow-xs md:w-auto mb-14 px-7 hover:bg-indigo-700">
                         Login account
                         <svg className="ml-2"width="20"height="20"viewBox="0 0 20 20"fill="none"xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7.5 15L11.0858 11.4142C11.7525 10.7475 12.0858 10.4142 12.0858 10C12.0858 9.58579 11.7525 9.25245 11.0858 8.58579L7.5 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7.5 15L11.0858 11.4142C11.7525 10.7475 12.0858 10.4142 12.0858 10C12.0858 9.58579 11.7525 9.25245 11.0858 8.58579L7.5 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                         </Link>
                 )}

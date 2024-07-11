@@ -16,15 +16,13 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        anomali::factory(20)->create();
-
         $this->call([
-            RoleSeeder::class
+            RoleSeeder::class,
+            // AnomaliSeeder::class,
+            GarduSeeder::class,
+            UserSeeder::class,
         ]);
+        User::factory(40)->create();
+        anomali::factory(100)->create();
     }
 }

@@ -15,14 +15,13 @@ export default function SelectOption() {
     return(
         <>
         <Dropdown
-          className="w-1/3 h-10 text-sm"
+          className="w-full h-10 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           value={selected}
           options={dropDownOptions[optionsIndex]}
           optionLabel="label"
           optionValue="value"
           onChange={({ value }) => setSelected(value)}
         />
-      <span>selected {selected}</span>
         </>
 
     );

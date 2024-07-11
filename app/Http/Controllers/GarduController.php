@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GarduResources;
+use App\Models\Gardu;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +16,10 @@ class GarduController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Gardu/Gardu');
+
+        return Inertia::render('Gardu/Gardu', [
+            'gardu' => Gardu::latest()->Paginate(10),
+        ]);
     }
 
     /**

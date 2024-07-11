@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\anomali;
+use App\Models\Gardu;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class AnomaliController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Inertia::render('Anomali/anomali', [
-            'anomali' => anomali::latest()->paginate(100)
+        return Inertia::render('Dashboard', [
+            'anomali' => anomali::latest()->paginate(5)
         ]);
     }
 
@@ -37,7 +38,7 @@ class AnomaliController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(anomali $anomali)
+    public function show(string $id)
     {
         //
     }
@@ -45,7 +46,7 @@ class AnomaliController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(anomali $anomali)
+    public function edit(string $id)
     {
         //
     }
@@ -53,7 +54,7 @@ class AnomaliController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, anomali $anomali)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -61,7 +62,7 @@ class AnomaliController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(anomali $anomali)
+    public function destroy(string $id)
     {
         //
     }

@@ -1,3 +1,4 @@
+import Pagination from "@/Components/Pagination";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head } from "@inertiajs/react";
 
@@ -22,8 +23,8 @@ export default function anomali({auth, anomali}){
                     </tr>
                 </thead>
                 <tbody>
-                    {anomali.data.map((anomali) => (
-                    <tr className="bg-white border-b hover:bg-gray-50">
+                    {anomali.data.map((anomali, index) => (
+                    <tr className="bg-white border-b hover:bg-gray-50" key={index}>
                         <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             {anomali.id}
                         </th>
@@ -37,6 +38,7 @@ export default function anomali({auth, anomali}){
                     ))}
                 </tbody>
             </table>
+            <Pagination className="" links={anomali.links}/>
         </div>
 
         </DashboardLayout>
