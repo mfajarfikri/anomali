@@ -3,6 +3,9 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
 
 export default function User({auth, users}) {
+
+    console.log(users);
+
     return (
         <>
         <Head title="User"/>
@@ -41,21 +44,25 @@ export default function User({auth, users}) {
                             {users.email}
                         </td>
                         <td className="px-6 py-4">
-                            <span className="p-2 text-sm bg-green-100 rounded-lg">admin</span>
+                            <span className="p-2 text-sm bg-green-100 rounded-lg">
+
+                            </span>
                         </td>
                         <td className="px-6 py-4 text-center">
                             <div className="flex">
                                 <Link href={route("user.edit",users.id)} className="mx-1">
-                                    <svg className="w-5 h-5 text-teal-600 transition duration-75 hover:text-teal-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M18.656.93,6.464,13.122A4.966,4.966,0,0,0,5,16.657V18a1,1,0,0,0,1,1H7.343a4.966,4.966,0,0,0,3.535-1.464L23.07,5.344a3.125,3.125,0,0,0,0-4.414A3.194,3.194,0,0,0,18.656.93Zm3,3L9.464,16.122A3.02,3.02,0,0,1,7.343,17H7v-.343a3.02,3.02,0,0,1,.878-2.121L20.07,2.344a1.148,1.148,0,0,1,1.586,0A1.123,1.123,0,0,1,21.656,3.93Z"/>
-                                        <path d="M23,8.979a1,1,0,0,0-1,1V15H18a3,3,0,0,0-3,3v4H5a3,3,0,0,1-3-3V5A3,3,0,0,1,5,2h9.042a1,1,0,0,0,0-2H5A5.006,5.006,0,0,0,0,5V19a5.006,5.006,0,0,0,5,5H16.343a4.968,4.968,0,0,0,3.536-1.464l2.656-2.658A4.968,4.968,0,0,0,24,16.343V9.979A1,1,0,0,0,23,8.979ZM18.465,21.122a2.975,2.975,0,0,1-1.465.8V18a1,1,0,0,1,1-1h3.925a3.016,3.016,0,0,1-.8,1.464Z"/>
-                                    </svg>
+                                    <button data-tooltip-target="tooltip-animation" className="flex p-2 text-white transition-all duration-300 bg-slate-500 rounded-xl hover:rounded-3xl hover:bg-slate-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
                                 </Link>
                                 <Link href="" className="mx-1">
-                                    <svg className="w-5 h-5 text-red-500 transition duration-75 hover:text-red-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><g id="_01_align_center" data-name="01 align center">
-                                        <path d="M22,4H17V2a2,2,0,0,0-2-2H9A2,2,0,0,0,7,2V4H2V6H4V21a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V6h2ZM9,2h6V4H9Zm9,19a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V6H18Z"/>
-                                        <rect x="9" y="10" width="2" height="8"/><rect x="13" y="10" width="2" height="8"/></g>
-                                    </svg>
+                                    <button className="flex p-2 text-white transition-all duration-300 bg-red-500 rounded-xl hover:rounded-3xl hover:bg-red-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                            <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </button>
                                 </Link>
                             </div>
                         </td>
@@ -64,13 +71,12 @@ export default function User({auth, users}) {
                 </tbody>
             </table>
             <div className="flex items-center mx-2">
-                <p class="text-sm text-gray-700">
+                <p className="text-sm text-gray-700">
                     Showing
-                    <span class="font-medium">1</span>
-                    to
-                    <span class="font-medium">10</span>
+                    <span className="font-medium">1</span>to
+                    <span className="font-medium">10</span>
                     of
-                    <span class="font-medium">97</span>
+                    <span className="font-medium">97</span>
                     results
                 </p>
             <Pagination links={users.links}/>

@@ -26,8 +26,7 @@ class UserSeeder extends Seeder
                 'name' => 'Muhammad Fajar Fikri Fadilah',
                 'email' => 'fajarfikri31@gmail.com',
                 'password' => bcrypt('Tjbt4pp04@'),
-                'role' => 'user',
-                'created_at' => now()->format('d-m-Y')
+                'role' => 'Admin',
             ),
         ));
     }

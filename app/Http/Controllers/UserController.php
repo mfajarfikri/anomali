@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -47,8 +48,9 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        // dd($user);
+
         return Inertia::render('User/Edit', [
+            'role' => Role::all(),
             'user' => $user
         ]);
     }
@@ -61,14 +63,13 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:8',
-            'password_confirmation' => 'nullable|same:password'
+            'role' => 'required'
         ]);
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => $request->password ? bcrypt($request->password) : $user->password,
+            'role' => $request->role
         ]);
 
         return redirect()->route('user');
