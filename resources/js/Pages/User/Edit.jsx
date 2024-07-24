@@ -7,22 +7,22 @@ import { Select } from '@headlessui/react';
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
-export default function UserEdit({ auth, user, role, gardu  }) {
+export default function UserEdit({ auth, users, roles, gardus  }) {
 
     const {data, setData, errors, patch} = useForm({
-        name: user.name,
-        email: user.email,
-        role: '',
-        gardu: ''
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        gardu: users.gardu
     })
 
 
 
     const [processing, setProcessing] = useState(false);
 
-    const submit = async (e) => {
+    const submit = (e) => {
         e.preventDefault();
-        patch(route('user.update',user.id),{
+        patch(route('user.update',users.id),{
             preserveScroll: true,
             onSuccess: () => {
                 alert("User Updated");
@@ -84,8 +84,8 @@ return (
                                 <InputLabel htmlFor="gardu" value="Gardu Induk"/>
                                 <Select name='gardu' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option></option>
-                                    {gardu.map((gardu, index) => (
-                                        <option id='gardu' key={index} value={data.gardu.name}
+                                    {gardus.map((gardu, index) => (
+                                        <option id='gardu' key={index} value={gardu.id}
                                         onChange={(e) => setData('gardu', e.target.value)}>{gardu.name}</option>
                                     ))}
                                 </Select>
@@ -97,8 +97,8 @@ return (
                                 <InputLabel htmlFor="role" value="Role"/>
                                 <Select name='role' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option></option>
-                                    {role.map((role, index) => (
-                                        <option id={role.id} key={index} value={data.role.name}
+                                    {roles.map((role, index) => (
+                                        <option id={role.id} key={index} value={role.id}
                                         onChange={(e) => setData('role', e.target.value)}>{role.name}</option>
                                     ))}
                                 </Select>

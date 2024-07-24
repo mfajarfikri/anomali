@@ -54,9 +54,9 @@ class UserController extends Controller
     {
 
         return Inertia::render('User/Edit', [
-            'gardu' => Gardu::all(),
-            'role' => Role::all(),
-            'user' => $user
+            'gardus' => Gardu::all(),
+            'roles' => Role::all(),
+            'users' => $user
         ]);
     }
 
@@ -71,7 +71,8 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'gardu'
+            'gardu' => 'required',
+            'role' => 'required'
         ]);
 
         $user->update([
