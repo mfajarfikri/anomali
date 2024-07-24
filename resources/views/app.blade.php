@@ -5,6 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        {{-- @notifyCss --}}
 
         <link rel="shortcut icon" href="{{ asset('img/LogoPLN.png') }}" type="image/x-icon" class="w-2">
 
@@ -20,5 +21,8 @@
     </head>
     <body class="font-sans antialiased">
         @inertia
+        {{-- <x-notify::notify /> --}}
+        {{-- @notifyJs --}}
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     </body>
 </html>

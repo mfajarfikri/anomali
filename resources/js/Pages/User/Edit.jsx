@@ -1,28 +1,27 @@
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
-import { Link, useForm, usePage } from '@inertiajs/react';
-import { Select, Transition } from '@headlessui/react';
-import { useRef, useState } from 'react';
+import { useForm, Head} from '@inertiajs/react';
+import { Select } from '@headlessui/react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
 
-export default function UserEdit({ auth, user, role  }) {
+export default function UserEdit({ auth, user, role, gardu  }) {
 
-    const [processing, setProcessing] = useState(false);
-    const { data, setData, patch, errors, recentlySuccessful } = useForm({
+    const {data, setData, errors, patch} = useForm({
         name: user.name,
         email: user.email,
         role: '',
+        gardu: ''
+    })
 
-    });
 
-    const submit = (e) => {
-        setProcessing(true);
+
+    const [processing, setProcessing] = useState(false);
+
+    const submit = async (e) => {
         e.preventDefault();
-
         patch(route('user.update',user.id),{
             preserveScroll: true,
             onSuccess: () => {
@@ -44,7 +43,6 @@ return (
     <div className="py-12">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div className="relative overflow-x-auto rounded-lg shadow">
-
                 <div className="p-4 bg-white sm:p-8 sm:rounded-lg">
                     <div className="p-6 text-gray-900">
                     <section className="max-w-xl">
@@ -53,8 +51,8 @@ return (
                             <p className="mt-1 text-sm text-gray-600">
                                 Update your account's profile information and email address.
                             </p>
-                        </header>
 
+                        </header>
                         <form onSubmit={submit} className="mt-6 space-y-6">
                             <div>
                                 <InputLabel htmlFor="name" value="Name" />
@@ -81,12 +79,26 @@ return (
 
                                 <InputError className="mt-2" message={errors.email} />
                             </div>
+
+                            <div className="">
+                                <InputLabel htmlFor="gardu" value="Gardu Induk"/>
+                                <Select name='gardu' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option></option>
+                                    {gardu.map((gardu, index) => (
+                                        <option id='gardu' key={index} value={data.gardu.name}
+                                        onChange={(e) => setData('gardu', e.target.value)}>{gardu.name}</option>
+                                    ))}
+                                </Select>
+
+                                <InputError className='mt-2' message={errors.gardu}/>
+                            </div>
+
                             <div className="">
                                 <InputLabel htmlFor="role" value="Role"/>
-                                <Select className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <Select name='role' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option></option>
                                     {role.map((role, index) => (
-                                        <option id='role' key={index} value={role.name}
+                                        <option id={role.id} key={index} value={data.role.name}
                                         onChange={(e) => setData('role', e.target.value)}>{role.name}</option>
                                     ))}
                                 </Select>
@@ -94,9 +106,9 @@ return (
                                 <InputError className='mt-2' message={errors.role}/>
                             </div>
                             <div className="flex items-center gap-4">
-                                <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                                <PrimaryButton>{processing ? "Loading....": "Save"}</PrimaryButton>
 
-                                <Transition
+                                {/* <Transition
                                     show={recentlySuccessful}
                                     enter="transition ease-in-out"
                                     enterFrom="opacity-0"
@@ -104,9 +116,9 @@ return (
                                     leaveTo="opacity-0"
                                 >
                                     <p className="text-sm text-gray-600">
-                                        {processing ? "Loading....": "Save"}
+
                                     </p>
-                                </Transition>
+                                </Transition> */}
                             </div>
                         </form>
                     </section>

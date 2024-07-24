@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\GarduResources;
 use App\Models\Gardu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 use function Termwind\render;
@@ -18,7 +19,7 @@ class GarduController extends Controller
     {
 
         return Inertia::render('Gardu/Gardu', [
-            'gardu' => Gardu::latest()->Paginate(10),
+            'gardus' => Gardu::latest()->Paginate(10),
         ]);
     }
 
@@ -27,7 +28,7 @@ class GarduController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Gardu/CreateGardu');
     }
 
     /**
@@ -35,7 +36,13 @@ class GarduController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required'
+        ]);
+
+        Gardu::create($data);
+        notify()->success('Welcome to Laravel Notify ⚡️');
+        return Redirect::route('gardu');
     }
 
     /**

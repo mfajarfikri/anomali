@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Gardu;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class UserController extends Controller
     public function index()
     {
         return Inertia::render('User/User', [
-            'users' => User::latest()->paginate(10)
+            'users' => User::with('Role')->latest()->paginate(10)
         ]);
     }
 
@@ -24,7 +25,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('User/CreateUser', [
+            'gardu' => Gardu::all(),
+            'role' => Role::all(),
+        ]);
     }
 
     /**
@@ -50,6 +54,7 @@ class UserController extends Controller
     {
 
         return Inertia::render('User/Edit', [
+            'gardu' => Gardu::all(),
             'role' => Role::all(),
             'user' => $user
         ]);
@@ -60,19 +65,24 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+
+        dd($request);
+
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required'
+            'gardu'
         ]);
 
         $user->update([
             'name' => $request->name,
             'email' => $request->email,
-            'role' => $request->role
+            'gardu' => $request->gardu,
+            'role' => $request->role,
+            'updated_at' => now()
         ]);
 
-        return redirect()->route('user');
+        return redirect()->route('user')->with('message', 'Berhasil diupdate');
     }
 
     /**

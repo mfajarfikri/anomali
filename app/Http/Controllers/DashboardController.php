@@ -14,6 +14,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
         return Inertia::render('Dashboard', [
             'anomali' => anomali::latest()->paginate(5)
         ]);
