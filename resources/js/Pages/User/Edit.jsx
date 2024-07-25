@@ -82,10 +82,9 @@ return (
 
                             <div className="">
                                 <InputLabel htmlFor="gardu" value="Gardu Induk"/>
-                                <Select name='gardu' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option></option>
+                                <Select name='gardu' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placho>
                                     {gardus.map((gardu, index) => (
-                                        <option id='gardu' key={index} value={gardu.id}
+                                        <option id='gardu' key={index} value={data.gardus}
                                         onChange={(e) => setData('gardu', e.target.value)}>{gardu.name}</option>
                                     ))}
                                 </Select>
@@ -98,7 +97,7 @@ return (
                                 <Select name='role' className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option></option>
                                     {roles.map((role, index) => (
-                                        <option id={role.id} key={index} value={role.id}
+                                        <option id={role.id} key={index} value={data.roles}
                                         onChange={(e) => setData('role', e.target.value)}>{role.name}</option>
                                     ))}
                                 </Select>

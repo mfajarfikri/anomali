@@ -1,11 +1,30 @@
-import {React, useState} from "react";
-import { Head, usePage } from "@inertiajs/react";
+import {React, useRef, useState} from "react";
+import { Head, router, usePage } from "@inertiajs/react";
 import Pagination from "@/Components/Pagination";
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import Dropdown from "@/Components/Dropdown";
+import InputLabel from "@/Components/InputLabel";
 
 
 export default function Gardu() {
+
+    const perPage = useRef(10);
+    const [isLoading, setisLoading] = useState(false);
+    const handleChangePerPage = (e) => {
+        perPage.current = e.target.value;
+        getData();
+    }
+
+    const getData = () => {
+        setisLoading(true)
+        router.get(route().current(), {
+            perPage: perPage.current
+        },{
+            preserveScroll : true,
+            preserveState : true,
+            onFinish : () => setisLoading(false)
+        });
+    }
 
     const {gardus, auth} = usePage().props
 
@@ -26,7 +45,7 @@ export default function Gardu() {
                     <Dropdown>
                         <Dropdown.Trigger>
                             <span className="inline-flex rounded-md">
-                                <button type="button" data-tooltip-target="data-tooltip" data-tooltip-placement="bottom" className="items-center justify-center hidden w-8 h-8 text-sm text-gray-500 rounded-lg sm:inline-flex hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 ">
+                                <button type="button" data-tooltip-target="data-tooltip" data-tooltip-placement="bottom" className="items-center justify-center w-8 h-8 text-sm text-gray-500 rounded-lg sm:inline-flex hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 ">
                                     <svg width="20px" height="20px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M603 192q0-43-30-73t-73-30-73 30.5-30 73 30 72.5 72.5 30 73-30.5T603 192zm0 616q0-43-30-73t-73-30-73 30-30 73 30 73 72.5 30 73-30.5T603 808zm0-308q0-43-30-73t-73-30-73 30-30 73 30 73 72.5 30 73-30.5T603 500z"/>
                                     </svg>
@@ -61,22 +80,37 @@ export default function Gardu() {
                     </tr>
                 </thead>
                 <tbody>
-                    {gardus.data.map((gardu, index) => (
-                    <tr className="bg-white border-b hover:bg-gray-50" key={index}>
-                        <td className="px-4 py-3 font-medium text-gray-900">
-                            {gardus.from + index}
-                        </td>
-                        <td className="px-4 py-3">
-                            {gardu.name}
-                        </td>
-                    </tr>
-                    ))}
+                    {isLoading ? (
+                            <tr>
+                                <td>Loading...</td>
+                            </tr>
+                        ) : gardus.data.map((gardu, index) => (
+                            <tr className="bg-white border-b hover:bg-gray-50" key={index}>
+                                <td className="px-4 py-3 font-medium text-gray-900">
+                                    {gardus.from + index}
+                                </td>
+                                <td className="px-4 py-3">
+                                    {gardu.name}
+                                </td>
+                            </tr>
+                            ))
+                        }
+
                 </tbody>
             </table>
             <div className="flex items-center justify-between mx-2">
                 <p className="text-sm font-medium text-gray-700">
                     Showing {gardus.from} to {gardus.to} total {" "}{gardus.total}
                 </p>
+                <div className="inline-flex items-center justify-center my-2">
+                    <InputLabel value='Filter'/>
+                    <select name="perpage" id="perpage" className="p-2 mx-2 text-sm border-none rounded-lg"
+                            value={perPage.current} onChange={handleChangePerPage}>
+                        <option>10</option>
+                        <option>20</option>
+                        <option>30</option>
+                    </select>
+                </div>
             <Pagination className="rounded-sm" links={gardus.links}/>
             </div>
         </div>

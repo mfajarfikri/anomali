@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\GarduResources;
 use App\Models\Gardu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
-use function Termwind\render;
 
 class GarduController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
 
         return Inertia::render('Gardu/Gardu', [
-            'gardus' => Gardu::latest()->Paginate(10),
+            'gardus' => Gardu::latest()->Paginate($request->perPage ?? 10),
         ]);
     }
 
