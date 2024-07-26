@@ -1,6 +1,8 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
+const flowbite = require('flowbite-react/tailwind')
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
@@ -13,6 +15,7 @@ export default {
         './pages/**/*.{js,ts,jsx,tsx,mdx}',
         './components/**/*.{js,ts,jsx,tsx,mdx}',
         "./node_modules/flowbite/**/*.js",
+        flowbite.content(),
 
         // Or if using `src` directory:
         './src/**/*.{js,ts,jsx,tsx,mdx}',
@@ -27,6 +30,7 @@ export default {
     },
 
     plugins: [
-        require('flowbite/plugin')
+        require('flowbite/plugin'),
+        flowbite.plugin(),
     ],
 };

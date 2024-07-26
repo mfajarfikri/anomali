@@ -1,15 +1,68 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
 import Dropdown from "@/Components/Dropdown";
+import { Button, Modal } from "flowbite-react";
+import { useState } from "react";
+import InputLabel from "@/Components/InputLabel";
+import TextInput from "@/Components/TextInput";
+import { Textarea } from "flowbite-react";
 
-export default function anomali({auth, anomali}){
+export default function anomali({auth}){
 
-    console.log(anomali);
+    console.log(auth);
+
+    const [openModal, setOpenModal] = useState(true);
 
     return(
         <>
         <Head title="Anomali"/>
         <DashboardLayout user={auth.user}>
+
+        <Modal size="7xl" show={openModal} onClose={() => setOpenModal(true)}>
+            <Modal.Header>
+                <div className="border rounded-lg shadow-2xl">
+                    <div className="m-2">
+                        <svg className="w-6 h-6 transition duration-75 text-cyan-800 group-hover:text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="m21,0H3C1.346,0,0,1.346,0,3v21h24V3c0-1.654-1.346-3-3-3Zm1,19.767l-5.354-4.53-1.292,1.526,6.189,5.237H2l10.104-5.179-.894-1.789-3.219,1.608.009-3.638-2-.005-.012,4.643-3.988,2.124V3c0-.551.449-1,1-1h4.023l3.099,6h3.29l2.214,3.986,1.748-.972-1.675-3.014h3.301v-2h-7.66l-2.066-4h11.726c.551,0,1,.449,1,1v16.767Z"/>
+                        </svg>
+                    </div>
+                </div>
+            </Modal.Header>
+                    <div className="mx-6 my-2">
+                        <p className="font-medium">Add New Anomali</p>
+                    </div>
+                <Modal.Body>
+                    <form action="">
+                        <div className="grid grid-cols-2">
+                            <div className="">
+                                <div className="mt-2">
+                                <InputLabel htmlFor="name" value="Name" />
+                                <TextInput
+                                    id="name"
+                                    name="name"
+                                    value={auth.user.name}
+                                    className="block w-full mt-1"
+                                    autoComplete="name"
+                                    isFocused={true}
+                                    onChange={(e) => setData('name', e.target.value)}
+                                    required/>
+                                </div>
+                                <div className="mt-2">
+                                    <InputLabel htmlFor="name" value="Name" />
+                                    <Textarea height="20"/>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </Modal.Body>
+            <Modal.Footer>
+            <Button onClick={() => setOpenModal(false)}>I accept</Button>
+            <Button color="gray" onClick={() => setOpenModal(false)}>
+                Decline
+            </Button>
+            </Modal.Footer>
+        </Modal>
+
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
             <table className="w-full text-sm text-gray-500 ">
 
@@ -19,27 +72,9 @@ export default function anomali({auth, anomali}){
                     <div className="inline-flex row-span-3">
                         <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
                     </div>
-                    <Dropdown>
-                            <Dropdown.Trigger>
-                                <span className="inline-flex rounded-md">
-                                    <button type="button" data-tooltip-target="data-tooltip" data-tooltip-placement="bottom" className="items-center justify-center hidden w-8 h-8 text-sm text-gray-500 rounded-lg sm:inline-flex hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 ">
-                                        <svg width="20px" height="20px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M603 192q0-43-30-73t-73-30-73 30.5-30 73 30 72.5 72.5 30 73-30.5T603 192zm0 616q0-43-30-73t-73-30-73 30-30 73 30 73 72.5 30 73-30.5T603 808zm0-308q0-43-30-73t-73-30-73 30-30 73 30 73 72.5 30 73-30.5T603 500z"/>
-                                        </svg>
-                                        <span className="sr-only">Download data</span>
-                                    </button>
-                                </span>
-                            </Dropdown.Trigger>
-                            <Dropdown.Content>
-                                <div className="flex">
-                                    <Dropdown.Link href={route('user.create')}>
-                                        <div className="inline-flex items-center">
-                                            <span className='text-sm'>Add User</span>
-                                        </div>
-                                    </Dropdown.Link>
-                                </div>
-                            </Dropdown.Content>
-                        </Dropdown>
+                    <Button color="info" onClick={setOpenModal}>
+                        +
+                    </Button>
                 </div>
                 </caption>
                     <thead>

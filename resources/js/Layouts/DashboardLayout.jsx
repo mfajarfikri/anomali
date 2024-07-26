@@ -8,7 +8,7 @@ export default function DashboardLayout({children, user}) {
     return (
         <>
 
-        <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
+        <nav className="fixed top-0 z-40 w-full bg-white border-b border-gray-200">
             <div className="px-3 py-3 lg:px-5 lg:pl-3">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center justify-start rtl:justify-end">
@@ -123,7 +123,7 @@ export default function DashboardLayout({children, user}) {
                 </div>
         </nav>
 
-        <aside id="logo-sidebar" className="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 shadow-2xl sm:translate-x-0" aria-label="Sidebar">
+        <aside id="logo-sidebar" className="fixed top-0 left-0 z-30 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 shadow-2xl sm:translate-x-0" aria-label="Sidebar">
             <div className="h-full px-3 pb-4 overflow-y-auto bg-white">
                 <ul className="space-y-2 font-medium">
                     <li>

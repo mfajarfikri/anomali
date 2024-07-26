@@ -34,7 +34,7 @@ export default function Gardu() {
         <>
         <Head title="Gardu"/>
         <DashboardLayout user={auth.user}>
-        <div className="relative overflow-x-auto shadow-lg sm:rounded-lg">
+        <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
             <table className="w-full text-sm text-gray-500 ">
                 <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
                 Gardu Induk
