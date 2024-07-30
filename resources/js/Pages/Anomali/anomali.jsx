@@ -5,23 +5,24 @@ import { createContext, useContext, useState } from "react";
 import { HiUser, HiHome, HiOutlineTicket } from "react-icons/hi";
 import { Select, Transition } from "@headlessui/react";
 
-export default function anomali({auth, types}){
+export default function anomali({auth, types, gardus}){
 
-    console.log(types);
+    console.log(auth);
 
-    const [openModal, setOpenModal] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
 
     return(
         <>
         <Head title="Anomali"/>
         <DashboardLayout user={auth.user}>
 
-        <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="top-right">
+
+        <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="center">
             <Modal.Header>
                 <div className="rounded-lg">
                     <div className="inline-flex">
-                        <div className="p-2 border rounded-full shadow-lg">
-                            <HiOutlineTicket color="success"/>
+                        <div className="p-2 border rounded-lg">
+                            <HiOutlineTicket style={{ color: "green", fontSize: "1.5em" }}/>
                         </div>
                         <div className="flex items-center justify-center mx-2">
                             <p className="font-bold">New Ticket</p>
@@ -39,7 +40,7 @@ export default function anomali({auth, types}){
                         <div className="mt-4">
                             <Label htmlFor="priority" value="Priority" className="font-semibold text-md"/>
                             <div className="mt-1">
-                            <div class="grid grid-cols-3 gap-4">
+                            <div className="grid grid-cols-3 gap-4">
                                 <div className="border rounded-lg">
                                 <label className="rounded-lg cursor-pointer">
                                     <input type="radio" className="sr-only peer" name="priority" />
@@ -109,7 +110,7 @@ export default function anomali({auth, types}){
                         <div className="mt-4">
                             <div className="inline-flex">
                                 <div className="">
-                                    <Label value="Date"/>
+                                    <Label htmlFor="date" value="Date" className="font-semibold text-md"/>
                                     <Datepicker className="cursor-pointer"/>
                                 </div>
                             </div>

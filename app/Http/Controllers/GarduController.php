@@ -39,7 +39,6 @@ class GarduController extends Controller
         ]);
 
         Gardu::create($data);
-        notify()->success('Welcome to Laravel Notify ⚡️');
         return Redirect::route('gardu');
     }
 

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\anomali;
+use App\Models\Gardu;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class AnomaliController extends Controller
@@ -12,7 +14,7 @@ class AnomaliController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('Anomali/anomali', [
             'anomali' => anomali::latest()->paginate(10),
