@@ -102,7 +102,7 @@ export default function User({auth, users}) {
                                 {user.email}
                             </td>
                             <td className="px-4 py-2">
-                                {user.gardu}
+                                {user.gardu.name}
                             </td>
                             <td className="px-4 py-2">
                                 {user.role.name === 'Admin' ?

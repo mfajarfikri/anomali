@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             // AnomaliSeeder::class,
             GarduSeeder::class,
-            // UserSeeder::class,
+            UserSeeder::class,
+            TypeSeeder::class,
         ]);
         User::factory(40)->create();
         anomali::factory(100)->create();

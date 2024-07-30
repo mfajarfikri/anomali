@@ -52,4 +52,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function Gardu() : BelongsTo
+    {
+        return $this->belongsTo(Gardu::class);
+    }
 }

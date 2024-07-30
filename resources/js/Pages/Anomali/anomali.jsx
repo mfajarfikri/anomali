@@ -1,15 +1,13 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
-import Dropdown from "@/Components/Dropdown";
-import { Button, Modal } from "flowbite-react";
-import { useState } from "react";
-import InputLabel from "@/Components/InputLabel";
-import TextInput from "@/Components/TextInput";
-import { Textarea } from "flowbite-react";
+import { Button, Datepicker, Label, Modal, Radio, Textarea, TextInput } from "flowbite-react";
+import { createContext, useContext, useState } from "react";
+import { HiUser, HiHome, HiOutlineTicket } from "react-icons/hi";
+import { Select, Transition } from "@headlessui/react";
 
-export default function anomali({auth}){
+export default function anomali({auth, types}){
 
-    console.log(auth);
+    console.log(types);
 
     const [openModal, setOpenModal] = useState(true);
 
@@ -18,75 +16,138 @@ export default function anomali({auth}){
         <Head title="Anomali"/>
         <DashboardLayout user={auth.user}>
 
-        <Modal size="7xl" show={openModal} onClose={() => setOpenModal(true)}>
+        <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="top-right">
             <Modal.Header>
-                <div className="border rounded-lg shadow-2xl">
-                    <div className="m-2">
-                        <svg className="w-6 h-6 transition duration-75 text-cyan-800 group-hover:text-gray-900" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="m21,0H3C1.346,0,0,1.346,0,3v21h24V3c0-1.654-1.346-3-3-3Zm1,19.767l-5.354-4.53-1.292,1.526,6.189,5.237H2l10.104-5.179-.894-1.789-3.219,1.608.009-3.638-2-.005-.012,4.643-3.988,2.124V3c0-.551.449-1,1-1h4.023l3.099,6h3.29l2.214,3.986,1.748-.972-1.675-3.014h3.301v-2h-7.66l-2.066-4h11.726c.551,0,1,.449,1,1v16.767Z"/>
-                        </svg>
+                <div className="rounded-lg">
+                    <div className="inline-flex">
+                        <div className="p-2 border rounded-full shadow-lg">
+                            <HiOutlineTicket color="success"/>
+                        </div>
+                        <div className="flex items-center justify-center mx-2">
+                            <p className="font-bold">New Ticket</p>
+                        </div>
                     </div>
+
                 </div>
             </Modal.Header>
-                    <div className="mx-6 my-2">
-                        <p className="font-medium">Add New Anomali</p>
-                    </div>
                 <Modal.Body>
                     <form action="">
-                        <div className="grid grid-cols-2">
-                            <div className="">
-                                <div className="mt-2">
-                                <InputLabel htmlFor="name" value="Name" />
-                                <TextInput
-                                    id="name"
-                                    name="name"
-                                    value={auth.user.name}
-                                    className="block w-full mt-1"
-                                    autoComplete="name"
-                                    isFocused={true}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    required/>
+                        <div className="">
+                            <Label htmlFor="ticketName" value="Ticket Name" className="font-semibold text-md"/>
+                            <TextInput type="text" icon={HiOutlineTicket} className="w-full mt-1 text-sm font-semibold text-gray-500 border-gray-300 rounded-md shadow-sm" placeholder="My Suggestion for this ticket"/>
+                        </div>
+                        <div className="mt-4">
+                            <Label htmlFor="priority" value="Priority" className="font-semibold text-md"/>
+                            <div className="mt-1">
+                            <div class="grid grid-cols-3 gap-4">
+                                <div className="border rounded-lg">
+                                <label className="rounded-lg cursor-pointer">
+                                    <input type="radio" className="sr-only peer" name="priority" />
+                                    <div className="p-3 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-sky-600 peer-checked:ring-cyan-500 peer-checked:ring-offset-2">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-semibold text-gray-500">Low</p>
+                                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="m10.6 13.8l-2.175-2.175q-.275-.275-.675-.275t-.7.3q-.275.275-.275.7q0 .425.275.7L9.9 15.9q.275.275.7.275q.425 0 .7-.275l5.675-5.675q.275-.275.275-.675t-.3-.7q-.275-.275-.7-.275q-.425 0-.7.275ZM12 22q-2.075 0-3.9-.788q-1.825-.787-3.175-2.137q-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175q1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138q1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175q-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
                                 </div>
-                                <div className="mt-2">
-                                    <InputLabel htmlFor="name" value="Name" />
-                                    <Textarea height="20"/>
+                                <div className="border rounded-lg">
+                                <label className="rounded-lg cursor-pointer">
+                                    <input type="radio" className="sr-only peer" name="priority" />
+                                    <div className="p-3 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-amber-600 peer-checked:ring-amber-500 peer-checked:ring-offset-2">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-semibold text-gray-500">Medium</p>
+                                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="m10.6 13.8l-2.175-2.175q-.275-.275-.675-.275t-.7.3q-.275.275-.275.7q0 .425.275.7L9.9 15.9q.275.275.7.275q.425 0 .7-.275l5.675-5.675q.275-.275.275-.675t-.3-.7q-.275-.275-.7-.275q-.425 0-.7.275ZM12 22q-2.075 0-3.9-.788q-1.825-.787-3.175-2.137q-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175q1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138q1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175q-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                                </div>
+                                <div className="border rounded-lg">
+                                <label className="rounded-lg cursor-pointer">
+                                    <input type="radio" className="sr-only peer" name="priority" />
+                                    <div className="p-3 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-red-600 peer-checked:ring-red-500 peer-checked:ring-offset-2">
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-semibold text-gray-500">High</p>
+                                                <svg width="24" height="24" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="m10.6 13.8l-2.175-2.175q-.275-.275-.675-.275t-.7.3q-.275.275-.275.7q0 .425.275.7L9.9 15.9q.275.275.7.275q.425 0 .7-.275l5.675-5.675q.275-.275.275-.675t-.3-.7q-.275-.275-.7-.275q-.425 0-.7.275ZM12 22q-2.075 0-3.9-.788q-1.825-.787-3.175-2.137q-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175q1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138q1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175q-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </label>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="">
+                                <Label htmlFor="ticketName" value="Requester" className="font-semibold text-md"/>
+                                    <TextInput type="text" className="w-full mt-1 text-sm font-semibold text-gray-500 border-gray-300 rounded-md shadow-sm" value={auth.user.name} icon={HiUser} disabled/>
+                                </div>
+                                <div className="">
+                                <Label htmlFor="ticketName" value="Type" className="font-semibold text-md"/>
+                                    <Select size="lg" name="type" className="w-full mt-1 text-sm font-semibold text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                        {types.map((type, index) => (
+                                            <option id='type' key={index} value={type.name} className="text-sm font-semibold text-gray-500"
+                                            onChange={(e) => setData('type', e.target.value)}>{type.name}</option>
+                                        ))}
+                                    </Select>
+                                    {/* <InputError className='mt-2' message={errors.gardu}/> */}
                                 </div>
                             </div>
                         </div>
+                        <div className="mt-4">
+                            <div className="inline-flex">
+                                <div className="">
+                                    <Label value="Date"/>
+                                    <Datepicker className="cursor-pointer"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+
+                        </div>
+
                     </form>
                 </Modal.Body>
             <Modal.Footer>
-            <Button onClick={() => setOpenModal(false)}>I accept</Button>
-            <Button color="gray" onClick={() => setOpenModal(false)}>
-                Decline
-            </Button>
+                <Button color="success" onClick={() => setOpenModal(false)}>Submit as New</Button>
             </Modal.Footer>
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
             <table className="w-full text-sm text-gray-500 ">
-
                 <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
                 List Anomali
-                <div className="flex items-center justify-between">
-                    <div className="inline-flex row-span-3">
-                        <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
+                    <div className="flex items-center justify-between">
+                        <div className="inline-flex row-span-3">
+                            <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
+                        </div>
+                        <Button color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
+                            +
+                        </Button>
                     </div>
-                    <Button color="info" onClick={setOpenModal}>
-                        +
-                    </Button>
-                </div>
                 </caption>
-                    <thead>
-                        <th>No</th>
-                        <th>Nama</th>
-                    </thead>
-                    <tbody>
-                        <tr>
+                <thead>
+                    <th>No</th>
+                    <th>Nama</th>
+                </thead>
+                <tbody>
+                    <tr>
                         <td>1</td>
                         <td>Kosambi</td>
-                        </tr>
-                    </tbody>
+                    </tr>
+                </tbody>
             </table>
         </div>
 

@@ -65,9 +65,6 @@ export default function Gardu() {
                         </Dropdown.Content>
                     </Dropdown>
                 </div>
-                <div className="flex items-center justify-between">
-
-                </div>
                 </caption>
                 <thead className="text-xs text-gray-700 uppercase bg-slate-50">
                     <tr className="text-left">

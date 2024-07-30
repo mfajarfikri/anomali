@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\anomali;
+use App\Models\Type;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,7 +15,8 @@ class AnomaliController extends Controller
     public function index()
     {
         return Inertia::render('Anomali/anomali', [
-            'anomali' => anomali::latest()->paginate(100)
+            'anomali' => anomali::latest()->paginate(10),
+            'types' => Type::all(),
         ]);
     }
 
