@@ -17,7 +17,7 @@ class GarduController extends Controller
     {
 
         return Inertia::render('Gardu/Gardu', [
-            'gardus' => Gardu::latest()->Paginate($request->perPage ?? 10),
+            'gardus' => Gardu::latest()->Paginate($request->perpage ?? 10),
         ]);
     }
 

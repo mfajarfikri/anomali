@@ -9,17 +9,17 @@ import { Badge, Button } from "flowbite-react";
 
 export default function User({auth, users}) {
 
-    const perPage = useRef(10);
+    const perpage = useRef(10);
     const [isLoading, setisLoading] = useState(false);
     const handleChangePerPage = (e) => {
-        perPage.current = e.target.value;
+        perpage.current = e.target.value;
         getData();
     }
 
     const getData = () => {
         setisLoading(true)
         router.get(route().current(), {
-            perPage: perPage.current
+            perpage: perpage.current
         },{
             preserveScroll : true,
             preserveState : true,
@@ -138,12 +138,12 @@ export default function User({auth, users}) {
             </table>
             <div className="flex items-center justify-between mx-2">
                 <p className="text-sm font-medium text-gray-700">
-                    Showing {users.from} to {users.to} total {" "}{users.total}
+                    Showing {users.from} to {users.to} total {users.total}
                 </p>
                 <div className="inline-flex items-center justify-center my-2">
                     <InputLabel value='Filter'/>
                     <select name="perpage" id="perpage" className="p-2 mx-2 text-sm border-none rounded-lg"
-                            value={perPage.current} onChange={handleChangePerPage}>
+                            value={perpage.current} onChange={handleChangePerPage}>
                         <option>10</option>
                         <option>20</option>
                         <option>50</option>

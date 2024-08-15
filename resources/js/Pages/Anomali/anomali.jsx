@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link } from "@inertiajs/react";
-import { Button, Datepicker, Label, Modal, Radio, Textarea, TextInput } from "flowbite-react";
+import { Button, Datepicker, Label, Modal, Radio, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
 import { createContext, useContext, useState } from "react";
 import { HiUser, HiHome, HiOutlineTicket } from "react-icons/hi";
 import { Select, Transition } from "@headlessui/react";
@@ -127,8 +127,8 @@ export default function anomali({auth, types, gardus}){
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
-            <table className="w-full text-sm text-gray-500 ">
-                <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
+            <Table hoverable>
+            <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
                 List Anomali
                     <div className="flex items-center justify-between">
                         <div className="inline-flex row-span-3">
@@ -139,19 +139,26 @@ export default function anomali({auth, types, gardus}){
                         </Button>
                     </div>
                 </caption>
-                <thead>
-                    <th>No</th>
-                    <th>Nama</th>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Kosambi</td>
-                    </tr>
-                </tbody>
-            </table>
+                <TableHead>
+                    <TableHeadCell>No Ticket</TableHeadCell>
+                    <TableHeadCell>Name Ticket</TableHeadCell>
+                    <TableHeadCell>Priority</TableHeadCell>
+                    <TableHeadCell>Requester</TableHeadCell>
+                    <TableHeadCell>Gardu</TableHeadCell>
+                    <TableHeadCell>Voltage</TableHeadCell>
+                </TableHead>
+                <TableBody>
+                        <TableRow className="hover:cursor-pointer">
+                            <TableCell className="font-semibold">#INC198242S</TableCell>
+                            <TableCell>Anomali Kosambi Baru Pentanahan</TableCell>
+                            <TableCell>Low</TableCell>
+                            <TableCell>Admin</TableCell>
+                            <TableCell>Kosambi Baru</TableCell>
+                            <TableCell>150 Kv</TableCell>
+                        </TableRow>
+                </TableBody>
+            </Table>
         </div>
-
 
         </DashboardLayout>
         </>

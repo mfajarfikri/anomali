@@ -8,6 +8,7 @@ import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { Button, Drawer } from "flowbite-react";
+import { HiDocumentAdd } from "react-icons/hi";
 
 
 export default function Gardu() {
@@ -21,17 +22,17 @@ export default function Gardu() {
         router.post('/gardu', data);
     };
 
-    const perPage = useRef(10);
+    const perpage = useRef(10);
     const [isLoading, setisLoading] = useState(false);
     const handleChangePerPage = (e) => {
-        perPage.current = e.target.value;
+        perpage.current = e.target.value;
         getData();
     }
 
     const getData = () => {
         setisLoading(true)
         router.get(route().current(), {
-            perPage: perPage.current
+            perpage: perpage.current
         },{
             preserveScroll : true,
             preserveState : true,
@@ -88,7 +89,9 @@ export default function Gardu() {
                         <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
                     </div>
                     <div className="inline-flex items-center">
-                        <span className='text-sm' onClick={() => setIsOpen(true)}>Add Gardu</span>
+                        <Button className="bg-teal-500" onClick={() => setIsOpen(true)}>
+                            <HiDocumentAdd className="w-5 h-5"/>
+                        </Button>
                     </div>
                 </div>
                 </caption>
@@ -123,12 +126,12 @@ export default function Gardu() {
             </table>
             <div className="flex items-center justify-between mx-2">
                 <p className="text-sm font-medium text-gray-700">
-                    Showing {gardus.from} to {gardus.to} total {" "}{gardus.total}
+                    Showing {gardus.from} to {gardus.to} total {gardus.total}
                 </p>
                 <div className="inline-flex items-center justify-center my-2">
                     <InputLabel value='Filter'/>
                     <select name="perpage" id="perpage" className="p-2 mx-2 text-sm border-none rounded-lg"
-                            value={perPage.current} onChange={handleChangePerPage}>
+                            value={perpage.current} onChange={handleChangePerPage}>
                         <option>10</option>
                         <option>20</option>
                         <option>30</option>
