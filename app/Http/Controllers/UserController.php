@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Gardu;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Gardu;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {
@@ -16,19 +19,42 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('User/User', [
-            'users' => User::with(['Role', 'Gardu'])->latest()->paginate($request->perpage ?? 10)
+            'users' => User::with(['Role', 'Gardu'])->latest()->paginate($request->perpage ?? 10),
+            'gardu' => Gardu::all(),
+            'role' => Role::all(),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render('User/CreateUser', [
-            'gardu' => Gardu::all(),
-            'role' => Role::all(),
+
+        // dd($request);
+        $request->validate([
+            'name' => 'required|string|max:255|unique:' . User::class,
+            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'gardu_id' => 'required',
+            'role_id' => 'required',
         ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'gardu_id' => $request->gardu_id,
+            'role_id' => $request->role_id,
+            'password' => Hash::make($request->password),
+        ]);
+
+        // dd($user);
+        if ($user) {
+            event(new Registered($user));
+            return redirect()->route('user')->with('success', 'User created successfully');
+        }
+
+        return redirect()->back()->with('error', 'Failed to create user');
     }
 
     /**
@@ -66,7 +92,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
 
-        dd($request);
+        // dd($request);
 
         $request->validate([
             'name' => 'required',

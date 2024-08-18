@@ -1,13 +1,20 @@
 import Pagination from "@/Components/Pagination";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, Link, router } from "@inertiajs/react";
-import Dropdown from "@/Components/Dropdown";
 import TextInput from "@/Components/TextInput";
 import { useRef, useState } from "react";
 import InputLabel from "@/Components/InputLabel";
-import { Badge, Button } from "flowbite-react";
+import { Badge, Button, Modal,  } from "flowbite-react";
+import { HiDocumentAdd } from "react-icons/hi";
+import { HiOutlineUserAdd } from "react-icons/hi";
+import { useForm } from "@inertiajs/react";
+import InputError from "@/Components/InputError";
+import { Select } from "@headlessui/react";
+import PrimaryButton from "@/Components/PrimaryButton";
 
-export default function User({auth, users}) {
+export default function User({auth, users, gardu, role}) {
+
+    const [openModal, setOpenModal] = useState(false);
 
     const perpage = useRef(10);
     const [isLoading, setisLoading] = useState(false);
@@ -26,6 +33,36 @@ export default function User({auth, users}) {
             onFinish : () => setisLoading(false)
         });
     }
+    const { data, setData, processing, post, errors, reset } = useForm({
+        name: '',
+        email: '',
+        gardu_id: '',
+        role_id: '',
+        password: '',
+        password_confirmation: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('user.create'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset();
+                setOpenModal(false);
+                getData();
+                Swal.fire({
+                    title: 'Success',
+                    text: 'A User has been created.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#d33'
+                });
+            },
+            onError: (errors) => {
+                console.error('Error creating user:', errors);
+            },
+        });
+    };
 
     console.log(users);
 
@@ -33,6 +70,126 @@ export default function User({auth, users}) {
         <>
         <Head title="User"/>
         <DashboardLayout user={auth.user}>
+
+        <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="center">
+            <Modal.Header>
+                <div className="rounded-lg">
+                    <div className="inline-flex">
+                        <div className="p-2 rounded-lg">
+                            <HiOutlineUserAdd className="w-5 h-5"/>
+                        </div>
+                        <div className="flex items-center justify-center mx-2">
+                            <p className="font-bold">New User</p>
+                        </div>
+                    </div>
+
+                </div>
+            </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={submit}>
+                        <div>
+                            <InputLabel htmlFor="name" value="Name" />
+                            <TextInput
+                                id="name"
+                                name="name"
+                                value={data.name}
+                                className="block w-full mt-1"
+                                autoComplete="name"
+                                isFocused={true}
+                                onChange={(e) => setData('name', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.name} className="mt-2" />
+                        </div>
+
+                        <div className="mt-4">
+                            <InputLabel htmlFor="email" value="Email" />
+                            <TextInput
+                                id="email"
+                                type="email"
+                                name="email"
+                                value={data.email}
+                                className="block w-full mt-1"
+                                autoComplete="username"
+                                onChange={(e) => setData('email', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.email} className="mt-2" />
+                        </div>
+
+                        <div className="mt-4">
+                            <InputLabel htmlFor="gardu" value="Gardu Induk"/>
+                            <Select
+                                id="gardu"
+                                name="gardu_id"
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                value={data.gardu_id}
+                                onChange={(e) => setData('gardu_id', e.target.value)}
+                                required
+                            >
+                                <option value="">Select a Gardu Induk</option>
+                                {gardu.map((g) => (
+                                    <option key={g.id} value={g.id}>{g.name}</option>
+                                ))}
+                            </Select>
+                            <InputError className='mt-2' message={errors.gardu_id}/>
+                        </div>
+
+                        <div className="mt-4">
+                            <InputLabel htmlFor="role" value="Role"/>
+                            <Select
+                                id="role"
+                                name="role_id"
+                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                value={data.role_id}
+                                onChange={(e) => setData('role_id', e.target.value)}
+                                required
+                            >
+                                <option value="">Select a role</option>
+                                {role.map((r) => (
+                                    <option key={r.id} value={r.id}>{r.name}</option>
+                                ))}
+                            </Select>
+                            <InputError className='mt-2' message={errors.role_id}/>
+                        </div>
+
+                        <div className="mt-4">
+                            <InputLabel htmlFor="password" value="Password" />
+                            <TextInput
+                                id="password"
+                                type="password"
+                                name="password"
+                                value={data.password}
+                                className="block w-full mt-1"
+                                onChange={(e) => setData('password', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.password} className="mt-2" />
+                        </div>
+
+                        <div className="mt-4">
+                            <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
+                            <TextInput
+                                id="password_confirmation"
+                                type="password"
+                                name="password_confirmation"
+                                value={data.password_confirmation}
+                                className="mt-1 block w-full"
+                                onChange={(e) => setData('password_confirmation', e.target.value)}
+                                required
+                            />
+                            <InputError message={errors.password_confirmation} className="mt-2" />
+                        </div>
+
+                        <div className="flex items-center justify-end mt-6">
+                            <PrimaryButton className="ms-4" disabled={processing}>
+                                Add User
+                            </PrimaryButton>
+                        </div>
+                    </form>
+                </Modal.Body>
+        </Modal>
+
         <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
             <table className="w-full text-sm text-gray-500 ">
                 <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
@@ -41,27 +198,9 @@ export default function User({auth, users}) {
                     <div className="inline-flex row-span-3">
                         <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
                     </div>
-                    <Dropdown>
-                            <Dropdown.Trigger>
-                                <span className="inline-flex rounded-md">
-                                    <button type="button" data-tooltip-target="data-tooltip" data-tooltip-placement="bottom" className="items-center justify-center w-8 h-8 text-sm text-gray-500 rounded-lg sm:inline-flex hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 ">
-                                        <svg width="20px" height="20px" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M603 192q0-43-30-73t-73-30-73 30.5-30 73 30 72.5 72.5 30 73-30.5T603 192zm0 616q0-43-30-73t-73-30-73 30-30 73 30 73 72.5 30 73-30.5T603 808zm0-308q0-43-30-73t-73-30-73 30-30 73 30 73 72.5 30 73-30.5T603 500z"/>
-                                        </svg>
-                                        <span className="sr-only">Download data</span>
-                                    </button>
-                                </span>
-                            </Dropdown.Trigger>
-                            <Dropdown.Content>
-                                <div className="flex">
-                                    <Dropdown.Link href={route('user.create')}>
-                                        <div className="inline-flex items-center">
-                                            <span className='text-sm'>Add User</span>
-                                        </div>
-                                    </Dropdown.Link>
-                                </div>
-                            </Dropdown.Content>
-                        </Dropdown>
+                    <Button className="bg-teal-500" onClick={() => setOpenModal(true)}>
+                        <HiDocumentAdd className="w-5 h-5 mr-2"/>Add User
+                    </Button>
                 </div>
                 </caption>
 

@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             TypeSeeder::class,
         ]);
-        User::factory(40)->create();
+        // User::factory(40)->create();
         anomali::factory(100)->create();
     }
 }

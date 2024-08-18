@@ -19,7 +19,39 @@ export default function Gardu() {
 
     const submit = (e) => {
         e.preventDefault();
-        router.post('/gardu', data);
+        router.post('/gardu', data, {
+            onSuccess: () => {
+                // Reset form data
+                setData({
+                    name: '',
+                });
+                // Show success SweetAlert
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Gardu has been added successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3085d6' // This sets the confirm button color to blue
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Refresh the page
+                        window.location.reload();
+                    }
+                });
+            },
+            onError: (errors) => {
+                if (errors.name) {
+                    // Show error SweetAlert for duplicate name
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'A Gardu with this name already exists.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#d33'
+                    });
+                }
+            }
+        });
     };
 
     const perpage = useRef(10);
