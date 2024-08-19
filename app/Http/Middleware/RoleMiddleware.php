@@ -14,16 +14,18 @@ class RoleMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next): Response
     {
-        // $get = Auth::user()->Role->name;
-        // dd($get);
-        if (Auth::check()) {
-            if (Auth::user()->Role->name == $role) {
-                return $next($request);
-            }
-            abort(401);
+        if (!Auth::check()) {
+            abort(401, 'Unauthorized');
         }
-        abort(401);
+
+        $user = Auth::user();
+        // dd($user->role->name);
+        if (!$user->role || $user->role->name != 'Admin') {
+            abort(403, 'Access denied');
+        }
+
+        return $next($request);
     }
 }

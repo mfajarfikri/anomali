@@ -11,6 +11,50 @@ import { HiArrowSmRight, HiChartPie, HiInbox, HiDatabase, HiTable, HiUser, HiChe
 export default function DashboardLayout({children, user}) {
     console.log(user);
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
+
+    const menu = () => {
+        console.log(user.role_id);
+        if (user.role_id == "1") {
+            return [
+                {
+                    name: "Dashboard",
+                    href: route("dashboard"),
+                    current: route().current("dashboard"), 
+                    icon: HiChartPie
+                },
+                {
+                    name: "Anomali",
+                    href: route("anomali"),
+                    current: route().current("anomali"),  
+                    icon: HiInbox 
+                },
+                {
+                    name: "User",
+                    href: route("user"),
+                    current: route().current("user"),  
+                    icon: HiUser     
+                }
+            ];
+        } else {
+            return [
+                {
+                    name: "Dashboard",
+                    href: route("dashboard"),
+                    current: route().current("dashboard"),  
+                    icon: HiChartPie
+                },
+                {
+                    name: "Anomali",
+                    href: route("anomali"),
+                    current: route().current("anomali"),  
+                    icon: HiInbox 
+                },
+
+            ];
+        }
+    };
+
     return (
         <>
 
@@ -138,35 +182,41 @@ export default function DashboardLayout({children, user}) {
             <Sidebar>
                 <Sidebar.Items>
                     <Sidebar.ItemGroup >
-                        <Sidebar.Item href={route('dashboard')} active={route().current('dashboard')} icon={HiChartPie} className='text-lg font-bold'>
-                            Dashboard
-                        </Sidebar.Item>
-                        <Sidebar.Item href={route('anomali')} active={route().current('anomali')} icon={HiInbox}>
-                            Anomali
-                        </Sidebar.Item>
-                        <HR/>
-                        <Sidebar.Item href={route('user')} active={route().current('user')} icon={HiUser}>
-                            Users
-                        </Sidebar.Item>
-                        <Sidebar.Collapse
-                            icon={HiDatabase}
-                            label="Data"
-                            renderChevronIcon={(theme, open) => {
-                            const IconComponent = open ? HiChevronUp : HiChevronRight;
 
-                            return <IconComponent aria-hidden className={twMerge(theme.label.icon.open[open ? 'on' : 'off'])} />;
-                            }}
-                        >
-                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
-                                <span className='ml-4'>Gardu</span>
-                            </Sidebar.Item>
-                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
-                                <span className='ml-4'>Peralatan</span>
-                            </Sidebar.Item>
-                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
-                                <span className='ml-4'>Tegangan</span>
-                            </Sidebar.Item>
-                        </Sidebar.Collapse>
+                        {menu(user.role).map((item,index) => {
+                            return (
+                                <Sidebar.Item                                        
+                                    key={index}
+                                    href={item.href}
+                                    active={item.current}
+                                    icon={item.icon}
+                                    className='text-lg font-bold'
+                                >
+                                    {item.name}
+                                </Sidebar.Item>
+                            );
+                        })}
+                        {user.role_id == "1" && (
+                            <Sidebar.Collapse
+                                icon={HiDatabase}
+                                label="Data"
+                                renderChevronIcon={(theme, open) => {
+                                const IconComponent = open ? HiChevronUp : HiChevronRight;
+
+                                return <IconComponent aria-hidden className={twMerge(theme.label.icon.open[open ? 'on' : 'off'])} />;
+                                }}
+                            >
+                                <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                    <span className='ml-4'>Gardu</span>
+                                </Sidebar.Item>
+                                <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                    <span className='ml-4'>Peralatan</span>
+                                </Sidebar.Item>
+                                <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                    <span className='ml-4'>Tegangan</span>
+                                </Sidebar.Item>
+                            </Sidebar.Collapse>
+                        )}
                     </Sidebar.ItemGroup>
                 </Sidebar.Items>
             </Sidebar>
