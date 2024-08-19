@@ -9,6 +9,7 @@ import { twMerge } from "tailwind-merge";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiDatabase, HiTable, HiUser, HiChevronRight, HiChevronUp, HiGlobe } from "react-icons/hi";
 
 export default function DashboardLayout({children, user}) {
+    console.log(user);
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     return (
         <>
@@ -108,6 +109,9 @@ export default function DashboardLayout({children, user}) {
                         <ResponsiveNavLink href={route('user')} active={route().current('user')}>
                             User
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('user')} active={route().current('user')}>
+                            peralatan
+                        </ResponsiveNavLink>
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">
@@ -153,7 +157,15 @@ export default function DashboardLayout({children, user}) {
                             return <IconComponent aria-hidden className={twMerge(theme.label.icon.open[open ? 'on' : 'off'])} />;
                             }}
                         >
-                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>Gardu</Sidebar.Item>
+                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                <span className='ml-4'>Gardu</span>
+                            </Sidebar.Item>
+                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                <span className='ml-4'>Peralatan</span>
+                            </Sidebar.Item>
+                            <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                <span className='ml-4'>Tegangan</span>
+                            </Sidebar.Item>
                         </Sidebar.Collapse>
                     </Sidebar.ItemGroup>
                 </Sidebar.Items>

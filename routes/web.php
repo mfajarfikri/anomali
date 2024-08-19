@@ -11,22 +11,24 @@ use Inertia\Inertia;
 
 
 
+
 Route::get('/', function () {
     return Inertia::render('Home');
 });
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth',])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'is_role:Admin'])->group(function () {
     Route::get('/gardu',  [GarduController::class, 'index'])->name('gardu');
     Route::get('/gardu/create',  [GarduController::class, 'create'])->name('gardu.create');
     Route::post('/gardu', [GarduController::class, 'store'])->name('gardu.store');
+    Route::delete('/gardu/{id}/delete',[GarduController::class, 'destroy'])->name('gardu.delete');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'is_role:Admin'])->group(function () {
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/user/edit/{user}', [UserController::class, 'edit'])->name('user.edit');
     Route::post('/user/create', [UserController::class, 'create'])->name('user.create');

@@ -9,7 +9,7 @@ export default function anomali({auth, types, gardus}){
 
     console.log(auth);
 
-    const [openModal, setOpenModal] = useState(false);
+    const [openModal, setOpenModal] = useState(true);
 
     return(
         <>
@@ -44,7 +44,7 @@ export default function anomali({auth, types, gardus}){
                                 <div className="border rounded-lg">
                                 <label className="rounded-lg cursor-pointer">
                                     <input type="radio" className="sr-only peer" name="priority" />
-                                    <div className="p-3 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-sky-600 peer-checked:ring-cyan-500 peer-checked:ring-offset-2">
+                                    <div className="p-2 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-emerald-600 peer-checked:ring-emerald-500 peer-checked:ring-offset-2">
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between">
                                                 <p className="text-sm font-semibold text-gray-500">Low</p>
@@ -59,7 +59,7 @@ export default function anomali({auth, types, gardus}){
                                 <div className="border rounded-lg">
                                 <label className="rounded-lg cursor-pointer">
                                     <input type="radio" className="sr-only peer" name="priority" />
-                                    <div className="p-3 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-amber-600 peer-checked:ring-amber-500 peer-checked:ring-offset-2">
+                                    <div className="p-2 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-amber-600 peer-checked:ring-amber-500 peer-checked:ring-offset-2">
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between">
                                                 <p className="text-sm font-semibold text-gray-500">Medium</p>
@@ -74,7 +74,7 @@ export default function anomali({auth, types, gardus}){
                                 <div className="border rounded-lg">
                                 <label className="rounded-lg cursor-pointer">
                                     <input type="radio" className="sr-only peer" name="priority" />
-                                    <div className="p-3 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-red-600 peer-checked:ring-red-500 peer-checked:ring-offset-2">
+                                    <div className="p-2 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-red-600 peer-checked:ring-red-500 peer-checked:ring-offset-2">
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center justify-between">
                                                 <p className="text-sm font-semibold text-gray-500">High</p>
@@ -134,8 +134,11 @@ export default function anomali({auth, types, gardus}){
                         <div className="inline-flex row-span-3">
                             <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
                         </div>
-                        <Button color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
-                            +
+                        <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
+                            <div className="inline-flex items-center justify-center">
+                                <HiOutlineTicket className="w-4 h-4 mr-2"/>
+                                <span>Add Ticket</span>
+                            </div>
                         </Button>
                     </div>
                 </caption>

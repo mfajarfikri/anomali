@@ -1,16 +1,15 @@
-import Pagination from "@/Components/Pagination";
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import Pagination from "@/Components/Pagination";
+import InputError from "@/Components/InputError";
+import PrimaryButton from "@/Components/PrimaryButton";
+import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import { useRef, useState } from "react";
-import InputLabel from "@/Components/InputLabel";
-import { Badge, Button, Modal,  } from "flowbite-react";
-import { HiDocumentAdd } from "react-icons/hi";
-import { HiOutlineUserAdd } from "react-icons/hi";
+import { Head, Link, router } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
-import InputError from "@/Components/InputError";
 import { Select } from "@headlessui/react";
-import PrimaryButton from "@/Components/PrimaryButton";
+import { Badge, Button, Modal,  } from "flowbite-react";
+import { HiOutlineUserAdd } from "react-icons/hi";
 
 export default function User({auth, users, gardu, role}) {
 
@@ -55,7 +54,7 @@ export default function User({auth, users, gardu, role}) {
                     text: 'A User has been created.',
                     icon: 'success',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#d33'
+                    confirmButtonColor: '#1C64F2'
                 });
             },
             onError: (errors) => {
@@ -174,7 +173,7 @@ export default function User({auth, users, gardu, role}) {
                                 type="password"
                                 name="password_confirmation"
                                 value={data.password_confirmation}
-                                className="mt-1 block w-full"
+                                className="block w-full mt-1"
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 required
                             />
@@ -196,10 +195,13 @@ export default function User({auth, users, gardu, role}) {
                 Our User
                 <div className="flex items-center justify-between">
                     <div className="inline-flex row-span-3">
-                        <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
+                        <p className="mt-1 text-sm font-normal text-gray-500 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat, veniam!</p>
                     </div>
-                    <Button className="bg-teal-500" onClick={() => setOpenModal(true)}>
-                        <HiDocumentAdd className="w-5 h-5 mr-2"/>Add User
+                    <Button size="xs" color="info" onClick={() => setOpenModal(true)}>
+                        <div className="inline-flex items-center justify-center">
+                            <HiOutlineUserAdd className="mr-2"/>
+                            <span>Add User</span>
+                        </div>
                     </Button>
                 </div>
                 </caption>
@@ -241,7 +243,13 @@ export default function User({auth, users, gardu, role}) {
                                 {user.email}
                             </td>
                             <td className="px-4 py-2">
-                                {user.gardu.name}
+                            {user.gardu.name === null ?
+                                (<span>
+                                    kosong
+                                </span>):(<span>
+                                    {user.gardu.name}
+                                </span>
+                                )}
                             </td>
                             <td className="px-4 py-2">
                                 {user.role.name === 'Admin' ?
@@ -255,21 +263,21 @@ export default function User({auth, users, gardu, role}) {
                         </td>
                         <td className="px-4 py-2">
                         <div className="flex">
-                                <Link href={route("user.edit",user.id)} className="mx-1">
-                                    <Button color="warning" className="rounded-xl">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                        </svg>
-                                    </Button>
-                                </Link>
-                                <Link href='' className="mx-1">
-                                    <Button color="failure" className="rounded-xl">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                            <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                    </Button>
-                                </Link>
-                            </div>
+                            <Link href={route("user.edit",user.id)} className="mx-1">
+                                <Button size="xs" color="warning" className="rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </Button>
+                            </Link>
+                            <Link href='' className="mx-1">
+                                <Button size="xs" color="failure" className="rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </Button>
+                            </Link>
+                        </div>
                         </td>
                     </tr>
                     ))}

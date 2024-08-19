@@ -29,6 +29,15 @@ class UserSeeder extends Seeder
                 'gardu_id' => 1,
                 'role_id' => 1,
             ),
+            1 =>
+            array(
+                'id' => 2,
+                'name' => 'User',
+                'email' => 'user@gmail.com',
+                'password' => bcrypt('123123123'),
+                'gardu_id' => 1,
+                'role_id' => 2,
+            ),
         ));
     }
 }

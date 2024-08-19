@@ -1,19 +1,28 @@
 import {React, useRef, useState} from "react";
-import { Head, router, usePage, useForm } from "@inertiajs/react";
+import { Head, router, usePage, useForm, Link } from "@inertiajs/react";
 import Pagination from "@/Components/Pagination";
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import Dropdown from "@/Components/Dropdown";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { Button, Drawer } from "flowbite-react";
-import { HiDocumentAdd } from "react-icons/hi";
+import { HiDocumentAdd, HiHome, HiTrash } from "react-icons/hi";
 
 
 export default function Gardu() {
+    const {gardus, auth} = usePage().props
+    const perpage = useRef(10);
+    const handleChangePerPage = (e) => {
+        perpage.current = e.target.value;
+        getData();
+    }
+    const [isLoading, setisLoading] = useState(false);
 
-    const { data, setData, errors } = useForm({
+    const [isOpen, setIsOpen] = useState(false)
+    const handleClose = () => setIsOpen(false);
+
+    const { data, setData, errors, reset, processing } = useForm({
         name: '',
     });
 
@@ -21,22 +30,14 @@ export default function Gardu() {
         e.preventDefault();
         router.post('/gardu', data, {
             onSuccess: () => {
-                // Reset form data
-                setData({
-                    name: '',
-                });
-                // Show success SweetAlert
+                reset();
+                getData();
                 Swal.fire({
-                    title: 'Success!',
-                    text: 'Gardu has been added successfully.',
+                    title: 'Success',
+                    text: 'Gardu has been created.',
                     icon: 'success',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#3085d6' // This sets the confirm button color to blue
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Refresh the page
-                        window.location.reload();
-                    }
+                    confirmButtonColor: '#1C64F2'
                 });
             },
             onError: (errors) => {
@@ -54,13 +55,6 @@ export default function Gardu() {
         });
     };
 
-    const perpage = useRef(10);
-    const [isLoading, setisLoading] = useState(false);
-    const handleChangePerPage = (e) => {
-        perpage.current = e.target.value;
-        getData();
-    }
-
     const getData = () => {
         setisLoading(true)
         router.get(route().current(), {
@@ -72,10 +66,35 @@ export default function Gardu() {
         });
     }
 
-    const {gardus, auth} = usePage().props
+    const [gardusProps, setGardusProps] = useState({
+        id : "",
+        name : ""
+    })
 
-    const [isOpen, setIsOpen] = useState(false)
-    const handleClose = () => setIsOpen(false);
+    const handleDelete = (id, name) =>{
+        console.log(id);
+        Swal.fire({
+            title: "Do you want to delete " + name + " ?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+          }).then((result) => {
+            if (result.isConfirmed) {
+                router.post(`/gardu/${id}/delete`, {
+                    _method: "delete"
+                })
+              Swal.fire({
+                title: "Deleted!",
+                text: "Your file has been deleted.",
+                icon: "success"
+              });
+            }
+          });
+
+    }
 
     return (
         <>
@@ -104,7 +123,7 @@ export default function Gardu() {
 
                         <div className="flex items-center justify-end mt-4">
 
-                            <PrimaryButton className="ms-4">
+                            <PrimaryButton className="ms-4" disabled={processing}>
                                 Add Gardu
                             </PrimaryButton>
                         </div>
@@ -121,8 +140,11 @@ export default function Gardu() {
                         <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
                     </div>
                     <div className="inline-flex items-center">
-                        <Button className="bg-teal-500" onClick={() => setIsOpen(true)}>
-                            <HiDocumentAdd className="w-5 h-5"/>
+                        <Button size="xs" color="info" onClick={() => setIsOpen(true)}>
+                            <div className="inline-flex items-center justify-center">
+                                <HiHome className="w-4 h-4 mr-2"/>
+                                <span>Add Gardu</span>
+                            </div>
                         </Button>
                     </div>
                 </div>
@@ -135,6 +157,7 @@ export default function Gardu() {
                         <th scope="col" className="p-3">
                             Nama
                         </th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -149,6 +172,22 @@ export default function Gardu() {
                                 </td>
                                 <td className="px-4 py-3">
                                     {gardu.name}
+                                </td>
+                                <td className="flex items-center justify-end mx-4 mt-2">
+                                <div className="flex">
+                                    <Link href="" className="mx-1">
+                                        <Button size="xs" color="warning" className="rounded-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </Button>
+                                    </Link>
+                                    <Button size="xs" color="failure" className="rounded-lg" onClick={()=> handleDelete(gardu.id, gardu.name)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                            <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
+                                    </Button>
+                                </div>
                                 </td>
                             </tr>
                             ))
