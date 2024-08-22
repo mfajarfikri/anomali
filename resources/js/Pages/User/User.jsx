@@ -63,8 +63,6 @@ export default function User({auth, users, gardu, role}) {
         });
     };
 
-    console.log(users);
-
     return (
         <>
         <Head title="User"/>
@@ -73,9 +71,9 @@ export default function User({auth, users, gardu, role}) {
         <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="center">
             <Modal.Header>
                 <div className="rounded-lg">
-                    <div className="inline-flex">
-                        <div className="p-2 rounded-lg">
-                            <HiOutlineUserAdd className="w-5 h-5"/>
+                    <div className="inline-flex items-center justify-center">
+                        <div className="p-2 border rounded-lg">
+                            <HiOutlineUserAdd className="w-5 h-5" style={{ color: "gray", fontSize: "1.5em" }}/>
                         </div>
                         <div className="flex items-center justify-center mx-2">
                             <p className="font-bold">New User</p>
@@ -92,8 +90,9 @@ export default function User({auth, users, gardu, role}) {
                                 id="name"
                                 name="name"
                                 value={data.name}
-                                className="block w-full mt-1"
+                                className="block w-full mt-1 text-sm"
                                 autoComplete="name"
+                                placeholder="asdasda"
                                 isFocused={true}
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
@@ -108,7 +107,7 @@ export default function User({auth, users, gardu, role}) {
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="block w-full mt-1"
+                                className="block w-full mt-1 text-sm"
                                 autoComplete="username"
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
@@ -121,7 +120,7 @@ export default function User({auth, users, gardu, role}) {
                             <Select
                                 id="gardu"
                                 name="gardu_id"
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 value={data.gardu_id}
                                 onChange={(e) => setData('gardu_id', e.target.value)}
                                 required
@@ -139,14 +138,14 @@ export default function User({auth, users, gardu, role}) {
                             <Select
                                 id="role"
                                 name="role_id"
-                                className="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 value={data.role_id}
                                 onChange={(e) => setData('role_id', e.target.value)}
                                 required
                             >
                                 <option value="">Select a role</option>
                                 {role.map((r) => (
-                                    <option key={r.id} value={r.id}>{r.name}</option>
+                                    <option className="text-sm" key={r.id} value={r.id}>{r.name}</option>
                                 ))}
                             </Select>
                             <InputError className='mt-2' message={errors.role_id}/>
@@ -159,7 +158,7 @@ export default function User({auth, users, gardu, role}) {
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="block w-full mt-1"
+                                className="block w-full mt-1 text-sm"
                                 onChange={(e) => setData('password', e.target.value)}
                                 required
                             />
@@ -173,7 +172,7 @@ export default function User({auth, users, gardu, role}) {
                                 type="password"
                                 name="password_confirmation"
                                 value={data.password_confirmation}
-                                className="block w-full mt-1"
+                                className="block w-full mt-1 text-sm"
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 required
                             />
@@ -243,13 +242,7 @@ export default function User({auth, users, gardu, role}) {
                                 {user.email}
                             </td>
                             <td className="px-4 py-2">
-                            {user.gardu.name === null ?
-                                (<span>
-                                    kosong
-                                </span>):(<span>
-                                    {user.gardu.name}
-                                </span>
-                                )}
+                                {user.gardu.name}
                             </td>
                             <td className="px-4 py-2">
                                 {user.role.name === 'Admin' ?

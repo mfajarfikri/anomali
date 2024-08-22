@@ -17,8 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        $middleware->alias([ 'Admin' => \App\Http\Middleware\RoleMiddleware::class ]);
-    
+        $middleware->alias([
+            'is_role' => RoleMiddleware::class
+        ]);
+
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

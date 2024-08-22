@@ -20,9 +20,13 @@ class DatabaseSeeder extends Seeder
             // AnomaliSeeder::class,
             GarduSeeder::class,
             UserSeeder::class,
-            TypeSeeder::class,
+            PeralatanSeeder::class,
+            BaySeeder::class,
+            VoltageSeeder::class,
+            BidangSeeder::class,
+            StatusSeeder::class,
+            JenisSeeder::class,
         ]);
         // User::factory(40)->create();
-        anomali::factory(100)->create();
     }
 }

@@ -9,31 +9,29 @@ import { twMerge } from "tailwind-merge";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiDatabase, HiTable, HiUser, HiChevronRight, HiChevronUp, HiGlobe } from "react-icons/hi";
 
 export default function DashboardLayout({children, user}) {
-    console.log(user);
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
 
     const menu = () => {
-        console.log(user.role_id);
         if (user.role_id == "1") {
             return [
                 {
                     name: "Dashboard",
                     href: route("dashboard"),
-                    current: route().current("dashboard"), 
+                    current: route().current("dashboard"),
                     icon: HiChartPie
                 },
                 {
                     name: "Anomali",
                     href: route("anomali"),
-                    current: route().current("anomali"),  
-                    icon: HiInbox 
+                    current: route().current("anomali"),
+                    icon: HiInbox
                 },
                 {
                     name: "User",
                     href: route("user"),
-                    current: route().current("user"),  
-                    icon: HiUser     
+                    current: route().current("user"),
+                    icon: HiUser
                 }
             ];
         } else {
@@ -41,14 +39,14 @@ export default function DashboardLayout({children, user}) {
                 {
                     name: "Dashboard",
                     href: route("dashboard"),
-                    current: route().current("dashboard"),  
+                    current: route().current("dashboard"),
                     icon: HiChartPie
                 },
                 {
                     name: "Anomali",
                     href: route("anomali"),
-                    current: route().current("anomali"),  
-                    icon: HiInbox 
+                    current: route().current("anomali"),
+                    icon: HiInbox
                 },
 
             ];
@@ -185,12 +183,12 @@ export default function DashboardLayout({children, user}) {
 
                         {menu(user.role).map((item,index) => {
                             return (
-                                <Sidebar.Item                                        
+                                <Sidebar.Item
                                     key={index}
                                     href={item.href}
                                     active={item.current}
                                     icon={item.icon}
-                                    className='text-lg font-bold'
+                                    className='text-lg'
                                 >
                                     {item.name}
                                 </Sidebar.Item>
@@ -209,10 +207,10 @@ export default function DashboardLayout({children, user}) {
                                 <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
                                     <span className='ml-4'>Gardu</span>
                                 </Sidebar.Item>
-                                <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                <Sidebar.Item href={route('gardu')}>
                                     <span className='ml-4'>Peralatan</span>
                                 </Sidebar.Item>
-                                <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
+                                <Sidebar.Item href={route('gardu')}>
                                     <span className='ml-4'>Tegangan</span>
                                 </Sidebar.Item>
                             </Sidebar.Collapse>

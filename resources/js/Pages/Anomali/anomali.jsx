@@ -1,21 +1,75 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, Link } from "@inertiajs/react";
-import { Button, Datepicker, Label, Modal, Radio, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
-import { createContext, useContext, useState } from "react";
-import { HiUser, HiHome, HiOutlineTicket } from "react-icons/hi";
-import { Select, Transition } from "@headlessui/react";
+import { Head, useForm, router } from "@inertiajs/react";
+import { Button, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
+import { useState, useRef } from "react";
+import { HiUser, HiOutlineTicket } from "react-icons/hi";
+import { Select } from "@headlessui/react";
+import InputError from "@/Components/InputError";
+import PrimaryButton from "@/Components/PrimaryButton";
 
-export default function anomali({auth, types, gardus}){
+export default function Anomali({auth, peralatans, bays, voltages, bidangs, jenis, gardus}){
 
-    console.log(auth);
 
+    const perpage = useRef(10);
     const [openModal, setOpenModal] = useState(true);
+
+    const [selectedDate, setSelectedDate] = useState(null);
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+    }
+
+    const [isLoading, setisLoading] = useState(false);
+
+    const getData = () => {
+        setisLoading(true)
+        router.get(route().current(), {
+            perpage: perpage.current
+        },{
+            preserveScroll : true,
+            preserveState : true,
+            onFinish : () => setisLoading(false)
+        });
+    }
+
+    const { data, setData, processing, post, errors, reset} = useForm({
+        ticketname: '',
+        gardu: '',
+        bidang:'',
+        jenis:'',
+        user: auth.user.id,
+        peralatan: '',
+        voltage: '',
+        bay: '',
+        date_temuan: '',
+        additional_information: ''
+    })
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('anomali.create'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset();
+                setOpenModal(false);
+                getData();
+                Swal.fire({
+                    title: 'Success',
+                    text: 'A anomali has been created.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1C64F2'
+                });
+            },
+            onError: (errors) => {
+                console.error('Error creating user:', errors);
+            },
+        });
+    }
 
     return(
         <>
         <Head title="Anomali"/>
         <DashboardLayout user={auth.user}>
-
 
         <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="center">
             <Modal.Header>
@@ -32,107 +86,172 @@ export default function anomali({auth, types, gardus}){
                 </div>
             </Modal.Header>
                 <Modal.Body>
-                    <form action="">
+                    <form onSubmit={submit}>
                         <div className="">
-                            <Label htmlFor="ticketName" value="Ticket Name" className="font-semibold text-md"/>
-                            <TextInput type="text" icon={HiOutlineTicket} className="w-full mt-1 text-sm font-semibold text-gray-500 border-gray-300 rounded-md shadow-sm" placeholder="My Suggestion for this ticket"/>
+                            <Label htmlFor="ticketName" value="Ticket Name" className="text-sm font-thin"/>
+                            <TextInput
+                            type="text"
+                            id="ticketname"
+                            name="ticketname"
+                            value={data.ticketname}
+                            onChange={(e) => setData('ticketname', e.target.value)}
+                            icon={HiOutlineTicket}
+                            placeholder="My Suggestion for this ticket"
+                            className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm"
+                            required/>
                         </div>
-                        <div className="mt-4">
-                            <Label htmlFor="priority" value="Priority" className="font-semibold text-md"/>
-                            <div className="mt-1">
+                        <div className="mt-2">
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="border rounded-lg">
-                                <label className="rounded-lg cursor-pointer">
-                                    <input type="radio" className="sr-only peer" name="priority" />
-                                    <div className="p-2 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-emerald-600 peer-checked:ring-emerald-500 peer-checked:ring-offset-2">
-                                        <div className="flex flex-col gap-1">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-sm font-semibold text-gray-500">Low</p>
-                                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                                    <path fill="currentColor" d="m10.6 13.8l-2.175-2.175q-.275-.275-.675-.275t-.7.3q-.275.275-.275.7q0 .425.275.7L9.9 15.9q.275.275.7.275q.425 0 .7-.275l5.675-5.675q.275-.275.275-.675t-.3-.7q-.275-.275-.7-.275q-.425 0-.7.275ZM12 22q-2.075 0-3.9-.788q-1.825-.787-3.175-2.137q-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175q1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138q1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175q-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </label>
+                                <div className="col-span-1">
+                                    <Label htmlFor="gardu" value="Gardu Induk" className="text-sm font-thin"/>
+                                    <Select required
+                                        name="gardu"
+                                        onChange={(e) => setData('gardu', e.target.value)}
+                                        value={data.gardu}
+                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                            <option value="" className="text-sm font-thin text-gray-500">Select gardu</option>
+                                            {gardus.map((gardu, index) => (
+                                                <option id='gardu'
+                                                key={index}
+                                                value={gardu.id}
+                                                className="text-sm font-thin text-gray-500">{gardu.name}</option>
+                                            ))}
+                                    </Select>
+                                    <InputError className='mt-2' message={errors.bidangs}/>
                                 </div>
-                                <div className="border rounded-lg">
-                                <label className="rounded-lg cursor-pointer">
-                                    <input type="radio" className="sr-only peer" name="priority" />
-                                    <div className="p-2 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-amber-600 peer-checked:ring-amber-500 peer-checked:ring-offset-2">
-                                        <div className="flex flex-col gap-1">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-sm font-semibold text-gray-500">Medium</p>
-                                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                                    <path fill="currentColor" d="m10.6 13.8l-2.175-2.175q-.275-.275-.675-.275t-.7.3q-.275.275-.275.7q0 .425.275.7L9.9 15.9q.275.275.7.275q.425 0 .7-.275l5.675-5.675q.275-.275.275-.675t-.3-.7q-.275-.275-.7-.275q-.425 0-.7.275ZM12 22q-2.075 0-3.9-.788q-1.825-.787-3.175-2.137q-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175q1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138q1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175q-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </label>
+                                <div className="col-span-1">
+                                    <Label htmlFor="bidang" value="Bidang" className="text-sm font-thin"/>
+                                    <Select required
+                                        name="bidang"
+                                        onChange={(e) => setData('bidang', e.target.value)}
+                                        value={data.bidang}
+                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                            <option value="" className="text-sm font-thin text-gray-500">Select bidang</option>
+                                            {bidangs.map((bidang, index) => (
+                                                <option id='bidang' key={index} value={bidang.id} className="text-sm font-thin text-gray-500">{bidang.name}</option>
+                                            ))}
+                                    </Select>
+                                    <InputError className='mt-2' message={errors.bidangs}/>
                                 </div>
-                                <div className="border rounded-lg">
-                                <label className="rounded-lg cursor-pointer">
-                                    <input type="radio" className="sr-only peer" name="priority" />
-                                    <div className="p-2 text-gray-600 transition-all rounded-md bg-slate-50 ring-2 ring-transparent hover:shadow peer-checked:text-red-600 peer-checked:ring-red-500 peer-checked:ring-offset-2">
-                                        <div className="flex flex-col gap-1">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-sm font-semibold text-gray-500">High</p>
-                                                <svg width="24" height="24" viewBox="0 0 24 24">
-                                                    <path fill="currentColor" d="m10.6 13.8l-2.175-2.175q-.275-.275-.675-.275t-.7.3q-.275.275-.275.7q0 .425.275.7L9.9 15.9q.275.275.7.275q.425 0 .7-.275l5.675-5.675q.275-.275.275-.675t-.3-.7q-.275-.275-.7-.275q-.425 0-.7.275ZM12 22q-2.075 0-3.9-.788q-1.825-.787-3.175-2.137q-1.35-1.35-2.137-3.175Q2 14.075 2 12t.788-3.9q.787-1.825 2.137-3.175q1.35-1.35 3.175-2.138Q9.925 2 12 2t3.9.787q1.825.788 3.175 2.138q1.35 1.35 2.137 3.175Q22 9.925 22 12t-.788 3.9q-.787 1.825-2.137 3.175q-1.35 1.35-3.175 2.137Q14.075 22 12 22Z" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </label>
+                                <div className="col-span-1">
+                                    <Label htmlFor="bidang" value="Jenis Anomali" className="text-sm font-thin"/>
+                                    <Select required
+                                        name="jenis"
+                                        onChange={(e) => setData('jenis', e.target.value)}
+                                        value={data.jenis}
+                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                            <option value="" className="text-sm font-thin text-gray-500">Select jenis</option>
+                                            {jenis.map((jenis, index) => (
+                                                <option id='jenis' key={index} value={jenis.id} className="text-sm font-thin text-gray-500">{jenis.name}</option>
+                                            ))}
+                                    </Select>
+                                    <InputError className='mt-2' message={errors.jenis}/>
                                 </div>
-                            </div>
                             </div>
                         </div>
-                        <div className="mt-4">
+                        <div className="mt-2">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="">
-                                <Label htmlFor="ticketName" value="Requester" className="font-semibold text-md"/>
-                                    <TextInput type="text" className="w-full mt-1 text-sm font-semibold text-gray-500 border-gray-300 rounded-md shadow-sm" value={auth.user.name} icon={HiUser} disabled/>
+                                <div className="col-span-1">
+                                <Label htmlFor="user" value="User" className="text-sm font-thin"/>
+                                    <TextInput
+                                    type="text"
+                                    id="user"
+                                    name="user"
+                                    onChange={(e) => setData('user', e.target.value)}
+                                    className="w-full font-thin text-gray-500 border-gray-300 rounded-md shadow-sm"
+                                    placeholder={auth.user.name}
+                                    icon={HiUser} readOnly/>
                                 </div>
-                                <div className="">
-                                <Label htmlFor="ticketName" value="Type" className="font-semibold text-md"/>
-                                    <Select size="lg" name="type" className="w-full mt-1 text-sm font-semibold text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                        {types.map((type, index) => (
-                                            <option id='type' key={index} value={type.name} className="text-sm font-semibold text-gray-500"
-                                            onChange={(e) => setData('type', e.target.value)}>{type.name}</option>
+                                <div className="col-span-1">
+                                <Label htmlFor="peralatan" value="Peralatan" className="text-sm font-thin"/>
+                                    <Select required
+                                    name="peralatan"
+                                    onChange={(e) => setData('peralatan', e.target.value)}
+                                    value={data.peralatan}
+                                    className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                        <option value="" className="text-sm font-thin text-gray-500">Select peralatan</option>
+                                        {peralatans.map((peralatan, index) => (
+                                            <option id='peralatan' key={index} value={peralatan.id} className="text-sm font-thin text-gray-500">{peralatan.name}</option>
                                         ))}
                                     </Select>
-                                    {/* <InputError className='mt-2' message={errors.gardu}/> */}
+                                    <InputError className='mt-2' message={errors.peralatans}/>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4">
-                            <div className="inline-flex">
-                                <div className="">
-                                    <Label htmlFor="date" value="Date" className="font-semibold text-md"/>
-                                    <Datepicker className="cursor-pointer"/>
+                        <div className="mt-2">
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="inline-flex col-span-1">
+                                    <div className="w-full">
+                                        <Label htmlFor="voltage" value="Voltage" className="text-sm font-thin"/>
+                                        <Select required
+                                        name="voltage"
+                                        onChange={(e) => setData('voltage', e.target.value)}
+                                        value={data.voltage}
+                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                        <option value="" className="text-sm font-thin text-gray-500">Select Voltage</option>
+                                        {voltages.map((voltage, index) => (
+                                            <option id='voltage' key={index} value={voltage.id} className="text-sm font-thin text-gray-500">{voltage.name}</option>
+                                        ))}
+                                        </Select>
+                                        <InputError className='mt-2' message={errors.voltages}/>
+                                    </div>
+                                </div>
+                                <div className="inline-flex col-span-2">
+                                    <div className="w-full">
+                                        <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
+                                        <Select required
+                                        name="bay"
+                                        value={data.bay}
+                                        onChange={(e) => setData('bay', e.target.value)}
+                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                        <option value="" className="text-sm font-thin text-gray-500">Select Bay</option>
+                                        {bays.map((bay, index) => (
+                                            <option id='bay' key={index} value={bay.id} className="text-sm font-thin text-gray-500"
+                                            >{bay.name}</option>
+                                        ))}
+                                        </Select>
+                                        <InputError className='mt-2' message={errors.bays}/>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-4">
+                        <div className="mt-2">
+                            <div className="w-full">
+                                <Label htmlFor="date" value="Date" className="text-sm font-thin"/>
+                                <Datepicker
+                                name="date_input"
+                                onSelectedDateChanged={handleDateChange}
+                                className="text-sm cursor-pointer"/>
+                            </div>
+                        </div>
+                        <div className="mt-2">
+                            <Label htmlFor="additional_information" value="Additional Information" className="text-sm font-thin"/>
+                            <Textarea id="additional_information"
+                            name="additional_information"
+                            value={data.additional_information}
+                            onChange={(e) => setData('additional_information', e.target.value)}
+                            placeholder="Leave a comment..." required rows={4}/>
+                        </div>
 
+                        <HR/>
+
+                        <div className="flex items-center justify-end">
+                            <PrimaryButton className="ms-4">
+                                Add ticket
+                            </PrimaryButton>
                         </div>
 
                     </form>
                 </Modal.Body>
-            <Modal.Footer>
-                <Button color="success" onClick={() => setOpenModal(false)}>Submit as New</Button>
-            </Modal.Footer>
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
             <Table hoverable>
-            <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
+            <caption className="p-5 text-lg font-thin text-left text-gray-900 bg-slate-300 rtl:text-right">
                 List Anomali
                     <div className="flex items-center justify-between">
                         <div className="inline-flex row-span-3">
-                            <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
+                            <p className="text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
                         </div>
                         <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
                             <div className="inline-flex items-center justify-center">
@@ -146,13 +265,13 @@ export default function anomali({auth, types, gardus}){
                     <TableHeadCell>No Ticket</TableHeadCell>
                     <TableHeadCell>Name Ticket</TableHeadCell>
                     <TableHeadCell>Priority</TableHeadCell>
-                    <TableHeadCell>Requester</TableHeadCell>
+                    <TableHeadCell>user</TableHeadCell>
                     <TableHeadCell>Gardu</TableHeadCell>
                     <TableHeadCell>Voltage</TableHeadCell>
                 </TableHead>
                 <TableBody>
                         <TableRow className="hover:cursor-pointer">
-                            <TableCell className="font-semibold">#INC198242S</TableCell>
+                            <TableCell className="font-thin">#INC198242S</TableCell>
                             <TableCell>Anomali Kosambi Baru Pentanahan</TableCell>
                             <TableCell>Low</TableCell>
                             <TableCell>Admin</TableCell>

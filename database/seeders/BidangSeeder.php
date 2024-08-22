@@ -2,44 +2,44 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class TypeSeeder extends Seeder
+class BidangSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('types')->delete();
+        DB::table('bidangs')->delete();
 
-        DB::table('types')->insert(array(
+        DB::table('bidangs')->insert(array(
             0 =>
             array(
                 'id' => 1,
-                'name' => 'Trafo',
+                'name' => 'Hargi',
             ),
             1 =>
             array(
                 'id' => 2,
-                'name' => 'PMT',
+                'name' => 'Harjar',
             ),
             2 =>
             array(
                 'id' => 3,
-                'name' => 'CVT',
+                'name' => 'Harpro',
             ),
             3 =>
             array(
                 'id' => 4,
-                'name' => 'Pentanahan',
+                'name' => 'K3L',
             ),
             4 =>
             array(
                 'id' => 5,
-                'name' => 'Dll',
+                'name' => 'Banghal',
             ),
         ));
     }

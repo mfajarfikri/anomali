@@ -15,13 +15,14 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/anomali', [AnomaliController::class, 'index'])->name('anomali');
-    
+    Route::post('/anomali/create', [AnomaliController::class, 'create'])->name('anomali.create');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'Admin'])->group(function () {
+Route::middleware(['auth', 'is_role:Admin'])->group(function () {
     Route::get('/gardu', [GarduController::class, 'index'])->name('gardu');
     Route::get('/gardu/create', [GarduController::class, 'create'])->name('gardu.create');
     Route::post('/gardu', [GarduController::class, 'store'])->name('gardu.store');
