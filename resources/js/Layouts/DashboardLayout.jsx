@@ -145,8 +145,8 @@ export default function DashboardLayout({children, user}) {
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('gardu')} active={route().current('gardu')}>
-                            Gardu Induk
+                        <ResponsiveNavLink href={route('substation')} active={route().current('substation')}>
+                            Substation
                         </ResponsiveNavLink>
                         <ResponsiveNavLink href={route('user')} active={route().current('user')}>
                             User
@@ -204,13 +204,13 @@ export default function DashboardLayout({children, user}) {
                                 return <IconComponent aria-hidden className={twMerge(theme.label.icon.open[open ? 'on' : 'off'])} />;
                                 }}
                             >
-                                <Sidebar.Item href={route('gardu')} active={route().current('gardu')}>
-                                    <span className='ml-4'>Gardu</span>
+                                <Sidebar.Item href={route('substation')} active={route().current('substation')}>
+                                    <span className='ml-4'>Substation</span>
                                 </Sidebar.Item>
-                                <Sidebar.Item href={route('gardu')}>
+                                <Sidebar.Item href={route('substation')}>
                                     <span className='ml-4'>Peralatan</span>
                                 </Sidebar.Item>
-                                <Sidebar.Item href={route('gardu')}>
+                                <Sidebar.Item href={route('substation')}>
                                     <span className='ml-4'>Tegangan</span>
                                 </Sidebar.Item>
                             </Sidebar.Collapse>

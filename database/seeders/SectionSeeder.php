@@ -6,16 +6,16 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class BidangSeeder extends Seeder
+class SectionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('bidangs')->delete();
+        DB::table('sections')->delete();
 
-        DB::table('bidangs')->insert(array(
+        DB::table('sections')->insert(array(
             0 =>
             array(
                 'id' => 1,

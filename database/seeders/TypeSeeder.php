@@ -6,20 +6,20 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class JenisSeeder extends Seeder
+class TypeSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('jenis')->delete();
+        DB::table('types')->delete();
 
-        DB::table('jenis')->insert(array(
+        DB::table('types')->insert(array(
             0 =>
             array(
                 'id' => 1,
-                'name' => 'Mayor',
+                'name' => 'Major',
             ),
             1 =>
             array(

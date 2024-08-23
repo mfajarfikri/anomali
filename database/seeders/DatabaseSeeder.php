@@ -18,14 +18,14 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             // AnomaliSeeder::class,
-            GarduSeeder::class,
+            SubstationSeeder::class,
             UserSeeder::class,
             PeralatanSeeder::class,
             BaySeeder::class,
             VoltageSeeder::class,
-            BidangSeeder::class,
+            SectionSeeder::class,
             StatusSeeder::class,
-            JenisSeeder::class,
+            TypeSeeder::class,
         ]);
         // User::factory(40)->create();
     }

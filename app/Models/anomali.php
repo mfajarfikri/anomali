@@ -11,7 +11,7 @@ class Anomali extends Model
     protected $fillable = [
         'name',
         'slug',
-        'gardu_id',
+        'substation_id',
         'bidang_id',
         'jenis_id',
         'user_id',

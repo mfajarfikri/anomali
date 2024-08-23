@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\AnomaliController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\GarduController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SubstationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,10 +23,10 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'is_role:Admin'])->group(function () {
-    Route::get('/gardu', [GarduController::class, 'index'])->name('gardu');
-    Route::get('/gardu/create', [GarduController::class, 'create'])->name('gardu.create');
-    Route::post('/gardu', [GarduController::class, 'store'])->name('gardu.store');
-    Route::delete('/gardu/{id}/delete', [GarduController::class, 'destroy'])->name('gardu.delete');
+    Route::get('/substation', [SubstationController::class, 'index'])->name('substation');
+    Route::get('/substation/create', [SubstationController::class, 'create'])->name('substation.create');
+    Route::post('/substation', [SubstationController::class, 'store'])->name('substation.store');
+    Route::delete('/substation/{id}/delete', [SubstationController::class, 'destroy'])->name('substation.delete');
 
     Route::get('/user', [UserController::class, 'index'])->name('user');
     Route::get('/user/edit/{user}', [UserController::class, 'edit'])->name('user.edit');

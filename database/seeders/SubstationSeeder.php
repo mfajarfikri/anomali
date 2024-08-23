@@ -6,16 +6,16 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class GarduSeeder extends Seeder
+class SubstationSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('gardus')->delete();
+        DB::table('substations')->delete();
 
-        DB::table('gardus')->insert(array(
+        DB::table('substations')->insert(array(
             0 =>
             array(
                 'id' => 1,

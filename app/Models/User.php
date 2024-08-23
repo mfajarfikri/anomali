@@ -20,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'gardu_id',
+        'substation_id',
         'role_id',
         'password',
     ];
@@ -53,8 +53,8 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function Gardu() : BelongsTo
+    public function Substation() : BelongsTo
     {
-        return $this->belongsTo(Gardu::class);
+        return $this->belongsTo(Substation::class);
     }
 }

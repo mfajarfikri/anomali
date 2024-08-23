@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Anomali;
 use App\Models\Bay;
 use App\Models\Bidang;
-use App\Models\Gardu;
+use App\Models\Substation;
 use App\Models\Jenis;
 use App\Models\Peralatan;
+use App\Models\Section;
+use App\Models\Type;
 use App\Models\Voltage;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,13 +19,13 @@ class AnomaliController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('Anomali/Anomali')->with([
-            'anomali' => Anomali::latest(),
-            'gardus' => Gardu::all(),
-            'bidangs' => Bidang::all(),
-            'jenis' => Jenis::all(),
+            'anomalis' => Anomali::with([])->latest()->paginate($request->perpage ?? 10),
+            'substations' => Substation::all(),
+            'sections' => Section::all(),
+            'types' => Type::all(),
             'peralatans' => Peralatan::all(),
             'voltages' => Voltage::all(),
             'bays' => Bay::all(),
@@ -36,19 +38,19 @@ class AnomaliController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:' . User::class,
-            'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'gardu_id' => 'required',
-            'role_id' => 'required',
+            'ticketname' => 'required',
+            'substation' => 'required',
+            'bidang' => 'required',
+            'jenis' => 'required',
+            'user' => 'required',
+            'peralatan' => 'required',
+            'voltage' => 'required',
+            'bay' => 'required',
+            'date_temuan' => 'date'
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'gardu_id' => $request->gardu_id,
-            'role_id' => $request->role_id,
-            'password' => Hash::make($request->password),
+        $user = Anomali::create([
+            'ticketname' => $request->ticketname
         ]);
 
         // dd($user);

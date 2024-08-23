@@ -11,7 +11,9 @@ import { Select } from "@headlessui/react";
 import { Badge, Button, Modal,  } from "flowbite-react";
 import { HiOutlineUserAdd } from "react-icons/hi";
 
-export default function User({auth, users, gardu, role}) {
+export default function User({auth, users, substations, roles}) {
+
+    console.log(roles);
 
     const [openModal, setOpenModal] = useState(false);
 
@@ -35,7 +37,7 @@ export default function User({auth, users, gardu, role}) {
     const { data, setData, processing, post, errors, reset } = useForm({
         name: '',
         email: '',
-        gardu_id: '',
+        substation_id: '',
         role_id: '',
         password: '',
         password_confirmation: '',
@@ -92,7 +94,6 @@ export default function User({auth, users, gardu, role}) {
                                 value={data.name}
                                 className="block w-full mt-1 text-sm"
                                 autoComplete="name"
-                                placeholder="asdasda"
                                 isFocused={true}
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
@@ -116,21 +117,21 @@ export default function User({auth, users, gardu, role}) {
                         </div>
 
                         <div className="mt-4">
-                            <InputLabel htmlFor="gardu" value="Gardu Induk"/>
+                            <InputLabel htmlFor="substation" value="Substation"/>
                             <Select
-                                id="gardu"
-                                name="gardu_id"
+                                id="substation"
+                                name="substation_id"
                                 className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                value={data.gardu_id}
-                                onChange={(e) => setData('gardu_id', e.target.value)}
+                                value={data.substation_id}
+                                onChange={(e) => setData('substation_id', e.target.value)}
                                 required
                             >
-                                <option value="">Select a Gardu Induk</option>
-                                {gardu.map((g) => (
+                                <option value="">Select a Substation</option>
+                                {substations.map((g) => (
                                     <option key={g.id} value={g.id}>{g.name}</option>
                                 ))}
                             </Select>
-                            <InputError className='mt-2' message={errors.gardu_id}/>
+                            <InputError className='mt-2' message={errors.substation_id}/>
                         </div>
 
                         <div className="mt-4">
@@ -139,12 +140,12 @@ export default function User({auth, users, gardu, role}) {
                                 id="role"
                                 name="role_id"
                                 className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                value={data.role_id}
+                                value={data.roles_id}
                                 onChange={(e) => setData('role_id', e.target.value)}
                                 required
                             >
                                 <option value="">Select a role</option>
-                                {role.map((r) => (
+                                {roles.map((r) => (
                                     <option className="text-sm" key={r.id} value={r.id}>{r.name}</option>
                                 ))}
                             </Select>
@@ -242,7 +243,7 @@ export default function User({auth, users, gardu, role}) {
                                 {user.email}
                             </td>
                             <td className="px-4 py-2">
-                                {user.gardu.name}
+                                {user.substation.name}
                             </td>
                             <td className="px-4 py-2">
                                 {user.role.name === 'Admin' ?

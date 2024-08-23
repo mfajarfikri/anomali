@@ -1,13 +1,14 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
+import Pagination from "@/Components/Pagination";
 import { Head, useForm, router } from "@inertiajs/react";
 import { Button, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef } from "react";
 import { HiUser, HiOutlineTicket } from "react-icons/hi";
-import { Select } from "@headlessui/react";
+import { Input, Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 
-export default function Anomali({auth, peralatans, bays, voltages, bidangs, jenis, gardus}){
+export default function Anomali({auth,anomalis, peralatans, bays, voltages, sections, types, substations}){
 
 
     const perpage = useRef(10);
@@ -16,6 +17,11 @@ export default function Anomali({auth, peralatans, bays, voltages, bidangs, jeni
     const [selectedDate, setSelectedDate] = useState(null);
     const handleDateChange = (date) => {
         setSelectedDate(date);
+    }
+
+    const handleChangePerPage = (e) => {
+        perpage.current = e.target.value;
+        getData();
     }
 
     const [isLoading, setisLoading] = useState(false);
@@ -33,9 +39,9 @@ export default function Anomali({auth, peralatans, bays, voltages, bidangs, jeni
 
     const { data, setData, processing, post, errors, reset} = useForm({
         ticketname: '',
-        gardu: '',
-        bidang:'',
-        jenis:'',
+        substation: '',
+        section:'',
+        type:'',
         user: auth.user.id,
         peralatan: '',
         voltage: '',
@@ -96,6 +102,7 @@ export default function Anomali({auth, peralatans, bays, voltages, bidangs, jeni
                             value={data.ticketname}
                             onChange={(e) => setData('ticketname', e.target.value)}
                             icon={HiOutlineTicket}
+                            autoComplete="off"
                             placeholder="My Suggestion for this ticket"
                             className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm"
                             required/>
@@ -103,49 +110,49 @@ export default function Anomali({auth, peralatans, bays, voltages, bidangs, jeni
                         <div className="mt-2">
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="col-span-1">
-                                    <Label htmlFor="gardu" value="Gardu Induk" className="text-sm font-thin"/>
+                                    <Label htmlFor="substation" value="Substation" className="text-sm font-thin"/>
                                     <Select required
-                                        name="gardu"
-                                        onChange={(e) => setData('gardu', e.target.value)}
-                                        value={data.gardu}
+                                        name="substation"
+                                        onChange={(e) => setData('substation', e.target.value)}
+                                        value={data.substation}
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                            <option value="" className="text-sm font-thin text-gray-500">Select gardu</option>
-                                            {gardus.map((gardu, index) => (
-                                                <option id='gardu'
+                                            <option value="" className="text-sm font-thin text-gray-500">Select substation</option>
+                                            {substations.map((substation, index) => (
+                                                <option id='substation'
                                                 key={index}
-                                                value={gardu.id}
-                                                className="text-sm font-thin text-gray-500">{gardu.name}</option>
+                                                value={substation.id}
+                                                className="text-sm font-thin text-gray-500">{substation.name}</option>
                                             ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.bidangs}/>
+                                    <InputError className='mt-2' message={errors.sections}/>
                                 </div>
                                 <div className="col-span-1">
-                                    <Label htmlFor="bidang" value="Bidang" className="text-sm font-thin"/>
+                                    <Label htmlFor="section" value="Section" className="text-sm font-thin"/>
                                     <Select required
-                                        name="bidang"
-                                        onChange={(e) => setData('bidang', e.target.value)}
-                                        value={data.bidang}
+                                        name="section"
+                                        onChange={(e) => setData('section', e.target.value)}
+                                        value={data.section}
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                            <option value="" className="text-sm font-thin text-gray-500">Select bidang</option>
-                                            {bidangs.map((bidang, index) => (
-                                                <option id='bidang' key={index} value={bidang.id} className="text-sm font-thin text-gray-500">{bidang.name}</option>
+                                            <option value="" className="text-sm font-thin text-gray-500">Select section</option>
+                                            {sections.map((section, index) => (
+                                                <option id='section' key={index} value={section.id} className="text-sm font-thin text-gray-500">{section.name}</option>
                                             ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.bidangs}/>
+                                    <InputError className='mt-2' message={errors.sections}/>
                                 </div>
                                 <div className="col-span-1">
-                                    <Label htmlFor="bidang" value="Jenis Anomali" className="text-sm font-thin"/>
+                                    <Label htmlFor="section" value="Types Anomalies" className="text-sm font-thin"/>
                                     <Select required
-                                        name="jenis"
-                                        onChange={(e) => setData('jenis', e.target.value)}
-                                        value={data.jenis}
+                                        name="types"
+                                        onChange={(e) => setData('types', e.target.value)}
+                                        value={data.types}
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                            <option value="" className="text-sm font-thin text-gray-500">Select jenis</option>
-                                            {jenis.map((jenis, index) => (
-                                                <option id='jenis' key={index} value={jenis.id} className="text-sm font-thin text-gray-500">{jenis.name}</option>
+                                            <option value="" className="text-sm font-thin text-gray-500">Select types</option>
+                                            {types.map((types, index) => (
+                                                <option id='types' key={index} value={types.id} className="text-sm font-thin text-gray-500">{types.name}</option>
                                             ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.jenis}/>
+                                    <InputError className='mt-2' message={errors.types}/>
                                 </div>
                             </div>
                         </div>
@@ -177,6 +184,10 @@ export default function Anomali({auth, peralatans, bays, voltages, bidangs, jeni
                                     <InputError className='mt-2' message={errors.peralatans}/>
                                 </div>
                             </div>
+                        </div>
+                        <div className="mt-2">
+                            <Label htmlFor="peralatan" value="Other" className="text-sm font-thin"/>
+                            <Input type="text" className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
                         <div className="mt-2">
                             <div className="grid grid-cols-3 gap-4">
@@ -246,40 +257,108 @@ export default function Anomali({auth, peralatans, bays, voltages, bidangs, jeni
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
-            <Table hoverable>
-            <caption className="p-5 text-lg font-thin text-left text-gray-900 bg-slate-300 rtl:text-right">
-                List Anomali
-                    <div className="flex items-center justify-between">
-                        <div className="inline-flex row-span-3">
-                            <p className="text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
-                        </div>
-                        <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
-                            <div className="inline-flex items-center justify-center">
-                                <HiOutlineTicket className="w-4 h-4 mr-2"/>
-                                <span>Add Ticket</span>
-                            </div>
-                        </Button>
+        <table className="w-full text-sm text-gray-500 ">
+                <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
+                Our User
+                <div className="flex items-center justify-between">
+                    <div className="inline-flex row-span-3">
+                        <p className="mt-1 text-sm font-normal text-gray-500 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat, veniam!</p>
                     </div>
+                    <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
+                        <div className="inline-flex items-center justify-center">
+                            <HiOutlineTicket className="w-4 h-4 mr-2"/>
+                            <span>Add Ticket</span>
+                        </div>
+                    </Button>
+                </div>
                 </caption>
-                <TableHead>
-                    <TableHeadCell>No Ticket</TableHeadCell>
-                    <TableHeadCell>Name Ticket</TableHeadCell>
-                    <TableHeadCell>Priority</TableHeadCell>
-                    <TableHeadCell>user</TableHeadCell>
-                    <TableHeadCell>Gardu</TableHeadCell>
-                    <TableHeadCell>Voltage</TableHeadCell>
-                </TableHead>
-                <TableBody>
-                        <TableRow className="hover:cursor-pointer">
-                            <TableCell className="font-thin">#INC198242S</TableCell>
-                            <TableCell>Anomali Kosambi Baru Pentanahan</TableCell>
-                            <TableCell>Low</TableCell>
-                            <TableCell>Admin</TableCell>
-                            <TableCell>Kosambi Baru</TableCell>
-                            <TableCell>150 Kv</TableCell>
-                        </TableRow>
-                </TableBody>
-            </Table>
+
+                <thead className="text-xs text-gray-700 uppercase bg-slate-50">
+                    <tr className="text-left">
+                        <th scope="col" className="p-3">
+                            No
+                        </th>
+                        <th scope="col" className="p-3">
+                            Nama
+                        </th>
+                        <th scope="col" className="p-3">
+                            Email
+                        </th>
+                        <th scope="col" className="p-3">
+                            Penempatan
+                        </th>
+                        <th scope="col" className="p-3 text-center">
+                            Role
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {isLoading ? (
+                        <tr>
+                            <td>Loading....</td>
+                        </tr>
+                    ) : anomalis.data.map((anomali, index) => (
+                        <tr className="bg-white border-b hover:bg-gray-50" key={index}>
+                            <td className="px-4 py-2 font-medium text-gray-900">
+                               {anomalis.from + index}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.email}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.substation.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.role.name === 'Admin' ?
+                                (<Badge color="success" className="justify-center">
+                                    {anomali.role.name}
+                                </Badge>):(<Badge color="gray" className="justify-center">
+                                    {anomali.role.name}
+                                </Badge>
+                                )}
+
+                        </td>
+                        <td className="px-4 py-2">
+                        <div className="flex">
+                            <Link href={route("anomali.edit",anomali.id)} className="mx-1">
+                                <Button size="xs" color="warning" className="rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </Button>
+                            </Link>
+                            <Link href='' className="mx-1">
+                                <Button size="xs" color="failure" className="rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                        <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                </Button>
+                            </Link>
+                        </div>
+                        </td>
+                    </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="flex items-center justify-between mx-2">
+                <p className="text-sm font-medium text-gray-700">
+                    Showing {anomalis.from} to {anomalis.to} total {anomalis.total}
+                </p>
+                <div className="inline-flex items-center justify-center my-2">
+                    <Label value='Filter'/>
+                    <select name="perpage" id="perpage" className="p-2 mx-2 text-sm border-none rounded-lg"
+                            value={perpage.current} onChange={handleChangePerPage}>
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                    </select>
+                </div>
+            <Pagination links={anomalis.links}/>
+            </div>
         </div>
 
         </DashboardLayout>

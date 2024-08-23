@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Role;
 use App\Models\User;
 use Inertia\Inertia;
-use App\Models\Gardu;
+use App\Models\Substation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -19,9 +19,9 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('User/User', [
-            'users' => User::with(['Role', 'Gardu'])->latest()->paginate($request->perpage ?? 10),
-            'gardu' => Gardu::all(),
-            'role' => Role::all(),
+            'users' => User::with(['Role', 'Substation'])->latest()->paginate($request->perpage ?? 10),
+            'substations' => Substation::all(),
+            'roles' => Role::all(),
         ]);
     }
 
@@ -36,14 +36,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255|unique:' . User::class,
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'gardu_id' => 'required',
+            'substation_id' => 'required',
             'role_id' => 'required',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'gardu_id' => $request->gardu_id,
+            'substation_id' => $request->substation_id,
             'role_id' => $request->role_id,
             'password' => Hash::make($request->password),
         ]);
@@ -80,7 +80,7 @@ class UserController extends Controller
     {
 
         return Inertia::render('User/Edit', [
-            'gardus' => Gardu::all(),
+            'substations' => Substation::all(),
             'roles' => Role::all(),
             'users' => $user
         ]);

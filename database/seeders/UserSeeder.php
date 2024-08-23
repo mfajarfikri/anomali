@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
                 'name' => 'Muhammad Fajar Fikri Fadilah',
                 'email' => 'fajarfikri31@gmail.com',
                 'password' => bcrypt('Tjbt4pp04@'),
-                'gardu_id' => 1,
+                'substation_id' => 1,
                 'role_id' => 1,
             ),
             1 =>
@@ -35,7 +35,7 @@ class UserSeeder extends Seeder
                 'name' => 'User',
                 'email' => 'user@gmail.com',
                 'password' => bcrypt('123123123'),
-                'gardu_id' => 1,
+                'substation_id' => 1,
                 'role_id' => 2,
             ),
         ));

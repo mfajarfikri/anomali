@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Gardu;
+use App\Models\Substation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 
-class GarduController extends Controller
+class SubstationController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +16,8 @@ class GarduController extends Controller
     public function index(Request $request)
     {
 
-        return Inertia::render('Gardu/Gardu', [
-            'gardus' => Gardu::latest()->Paginate($request->perpage ?? 10),
+        return Inertia::render('Substation/Substation', [
+            'substations' => Substation::latest()->Paginate($request->perpage ?? 10),
         ]);
     }
 
@@ -26,7 +26,7 @@ class GarduController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Gardu/CreateGardu');
+        return Inertia::render('Substation/CreateSubstation');
     }
 
     /**
@@ -38,8 +38,8 @@ class GarduController extends Controller
             'name' => 'required'
         ]);
 
-        Gardu::create($data);
-        return Redirect::route('gardu');
+        Substation::create($data);
+        return Redirect::route('substation');
     }
 
     /**
@@ -71,8 +71,8 @@ class GarduController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-        $gardu = Gardu::find($id);
-        $gardu->delete();
+        $Substation = Substation::find($id);
+        $Substation->delete();
         return back();
     }
 }
