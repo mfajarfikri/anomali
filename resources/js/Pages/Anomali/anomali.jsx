@@ -3,7 +3,7 @@ import Pagination from "@/Components/Pagination";
 import { Head, useForm, router } from "@inertiajs/react";
 import { Button, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef } from "react";
-import { HiUser, HiOutlineTicket } from "react-icons/hi";
+import { HiUser, HiOutlineTicket, HiOutlineSearch } from "react-icons/hi";
 import { Input, Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -260,16 +260,31 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
         <table className="w-full text-sm text-gray-500 ">
                 <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
                 Our User
-                <div className="flex items-center justify-between">
-                    <div className="inline-flex row-span-3">
-                        <p className="mt-1 text-sm font-normal text-gray-500 ">Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat, veniam!</p>
+                <div className="items-center grid grid-cols-2 gap-4">
+                    <div className="inline-flex justify-start items-center col-span-1">
+                        <form onSubmit="" className="flex w-full mt-1">
+                            <div className="w-full">
+                                <TextInput
+                                type="text"
+                                id="ticketname"
+                                name="ticketname"
+                                value={data.ticketname}
+                                onChange={(e) => setData('ticketname', e.target.value)}
+                                icon={HiOutlineSearch}
+                                autoComplete="off"
+                                placeholder="My Suggestion for this ticket"
+                                className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm"/>
+                                </div>
+                        </form>
                     </div>
-                    <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
-                        <div className="inline-flex items-center justify-center">
-                            <HiOutlineTicket className="w-4 h-4 mr-2"/>
-                            <span>Add Ticket</span>
-                        </div>
-                    </Button>
+                    <div className="col-span-1 justify-end flex">
+                        <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
+                            <div className="inline-flex items-center justify-center">
+                                <HiOutlineTicket className="w-4 h-4 mr-2"/>
+                                <span>Add Ticket</span>
+                            </div>
+                        </Button>
+                    </div>
                 </div>
                 </caption>
 
