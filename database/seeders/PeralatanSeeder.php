@@ -69,7 +69,7 @@ class PeralatanSeeder extends Seeder
             10 =>
             array(
                 'id' => 11,
-                'name' => 'LAIN-LAIN',
+                'name' => 'OTHER',
             ),
         ));
     }

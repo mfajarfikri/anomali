@@ -1,7 +1,7 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Pagination";
 import { Head, useForm, router } from "@inertiajs/react";
-import { Button, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
+import { Button,Badge, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef } from "react";
 import { HiUser, HiOutlineTicket, HiOutlineSearch } from "react-icons/hi";
 import { Input, Select } from "@headlessui/react";
@@ -12,12 +12,7 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
 
 
     const perpage = useRef(10);
-    const [openModal, setOpenModal] = useState(true);
-
-    const [selectedDate, setSelectedDate] = useState(null);
-    const handleDateChange = (date) => {
-        setSelectedDate(date);
-    }
+    const [openModal, setOpenModal] = useState(false);
 
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
@@ -44,11 +39,13 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
         type:'',
         user: auth.user.id,
         peralatan: '',
+        other: '',
         voltage: '',
         bay: '',
-        date_temuan: '',
+        date_find: '',
         additional_information: ''
     })
+    console.log(data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -71,6 +68,16 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
             },
         });
     }
+
+    const [selectedItem, setSelectedItem] = useState(null)
+    const [openModalDetail, setOpenModalDetail] = useState(false)
+
+    const detailItem = (data) => {
+        selectedItem(data)
+        setOpenModalDetail(true)
+        console.log(selectedItem);
+    }
+
 
     return(
         <>
@@ -104,7 +111,6 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                             icon={HiOutlineTicket}
                             autoComplete="off"
                             placeholder="My Suggestion for this ticket"
-                            className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm"
                             required/>
                         </div>
                         <div className="mt-2">
@@ -143,9 +149,9 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                                 <div className="col-span-1">
                                     <Label htmlFor="section" value="Types Anomalies" className="text-sm font-thin"/>
                                     <Select required
-                                        name="types"
-                                        onChange={(e) => setData('types', e.target.value)}
-                                        value={data.types}
+                                        name="type"
+                                        onChange={(e) => setData('type', e.target.value)}
+                                        value={data.type}
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
                                             <option value="" className="text-sm font-thin text-gray-500">Select types</option>
                                             {types.map((types, index) => (
@@ -186,8 +192,13 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                             </div>
                         </div>
                         <div className="mt-2">
-                            <Label htmlFor="peralatan" value="Other" className="text-sm font-thin"/>
-                            <Input type="text" className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
+                            <Label htmlFor="other" value="Other" className="text-sm font-thin"/>
+                            <TextInput
+                            type="text"
+                            helperText={<>
+                            Please fill it in when choosing other
+                            </>}
+                            className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
                         <div className="mt-2">
                             <div className="grid grid-cols-3 gap-4">
@@ -229,10 +240,12 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                         <div className="mt-2">
                             <div className="w-full">
                                 <Label htmlFor="date" value="Date" className="text-sm font-thin"/>
-                                <Datepicker
-                                name="date_input"
-                                onSelectedDateChanged={handleDateChange}
-                                className="text-sm cursor-pointer"/>
+                                <TextInput
+                                type="date"
+                                name="date_find"
+                                value={data.date_find}
+                                onChange={(e) => setData('date_find', e.target.value)}
+                                />
                             </div>
                         </div>
                         <div className="mt-2">
@@ -256,28 +269,38 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                 </Modal.Body>
         </Modal>
 
+        <Modal size="2xl" show={openModalDetail} onClose={() => setOpenModalDetail(false)} position="top-right">
+            <Modal.Header>
+                {/* {sele.name} */}
+            </Modal.Header>
+            <Modal.Footer>
+
+            </Modal.Footer>
+        </Modal>
+
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
         <table className="w-full text-sm text-gray-500 ">
                 <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
                 Our User
-                <div className="items-center grid grid-cols-2 gap-4">
-                    <div className="inline-flex justify-start items-center col-span-1">
-                        <form onSubmit="" className="flex w-full mt-1">
+                <div className="grid items-center grid-cols-2 gap-4">
+                    <div className="inline-flex items-center justify-start col-span-1">
+                        <form onSubmit="" className="flex w-1/2 mt-1">
                             <div className="w-full">
                                 <TextInput
+                                sizing="sm"
                                 type="text"
-                                id="ticketname"
-                                name="ticketname"
-                                value={data.ticketname}
-                                onChange={(e) => setData('ticketname', e.target.value)}
-                                icon={HiOutlineSearch}
+                                id="search"
+                                name="search"
+                                value={data.search}
+                                onChange={(e) => setData('search', e.target.value)}
+                                rightIcon={HiOutlineSearch}
                                 autoComplete="off"
-                                placeholder="My Suggestion for this ticket"
-                                className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm"/>
+                                placeholder="Search for this ticket"
+                                className="w-full text-sm font-thin text-gray-500 border-gray-300 shadow-sm"/>
                                 </div>
                         </form>
                     </div>
-                    <div className="col-span-1 justify-end flex">
+                    <div className="flex justify-end col-span-1">
                         <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
                             <div className="inline-flex items-center justify-center">
                                 <HiOutlineTicket className="w-4 h-4 mr-2"/>
@@ -287,81 +310,112 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                     </div>
                 </div>
                 </caption>
-
                 <thead className="text-xs text-gray-700 uppercase bg-slate-50">
                     <tr className="text-left">
                         <th scope="col" className="p-3">
                             No
                         </th>
                         <th scope="col" className="p-3">
-                            Nama
+                            Ticketname
                         </th>
                         <th scope="col" className="p-3">
-                            Email
+                            Substation
                         </th>
                         <th scope="col" className="p-3">
-                            Penempatan
+                            section
                         </th>
-                        <th scope="col" className="p-3 text-center">
-                            Role
+                        <th scope="col" className="p-3">
+                            Type
                         </th>
-                        <th></th>
+                        <th scope="col" className="p-3">
+                            User
+                        </th>
+                        <th scope="col" className="p-3">
+                            Peralatan
+                        </th>
+                        <th scope="col" className="p-3">
+                            Other
+                        </th>
+                        <th scope="col" className="p-3">
+                            Voltage
+                        </th>
+                        <th scope="col" className="p-3">
+                            Bay
+                        </th>
+                        <th scope="col" className="p-3">
+                            Date Temuan
+                        </th>
+                        <th scope="col" className="p-3">
+                            Date Plan
+                        </th>
+                        <th scope="col" className="p-3">
+                            Date Execution
+                        </th>
+                        <th scope="col" className="p-3">
+                            Status
+                        </th>
+
                     </tr>
                 </thead>
                 <tbody>
-                    {isLoading ? (
-                        <tr>
-                            <td>Loading....</td>
-                        </tr>
-                    ) : anomalis.data.map((anomali, index) => (
-                        <tr className="bg-white border-b hover:bg-gray-50" key={index}>
+                    {anomalis.data.map((anomali, index) => (
+                        <tr id="body" key={anomali.id} onClick={() => detailItem(anomali)} className="bg-white border-b cursor-pointer hover:bg-gray-100">
                             <td className="px-4 py-2 font-medium text-gray-900">
-                               {anomalis.from + index}
+                                {anomalis.from + index}
                             </td>
                             <td className="px-4 py-2">
-                                {anomali.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.email}
+                                {anomali.ticketname}
                             </td>
                             <td className="px-4 py-2">
                                 {anomali.substation.name}
                             </td>
                             <td className="px-4 py-2">
-                                {anomali.role.name === 'Admin' ?
-                                (<Badge color="success" className="justify-center">
-                                    {anomali.role.name}
-                                </Badge>):(<Badge color="gray" className="justify-center">
-                                    {anomali.role.name}
-                                </Badge>
-                                )}
-
-                        </td>
-                        <td className="px-4 py-2">
-                        <div className="flex">
-                            <Link href={route("anomali.edit",anomali.id)} className="mx-1">
-                                <Button size="xs" color="warning" className="rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </Button>
-                            </Link>
-                            <Link href='' className="mx-1">
-                                <Button size="xs" color="failure" className="rounded-lg">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                        <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </Button>
-                            </Link>
-                        </div>
-                        </td>
-                    </tr>
+                                {anomali.section.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.section.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.user.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.peralatan.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.other}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.voltage.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.bay.name}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.date_find}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.date_plan}
+                            </td>
+                            <td className="px-4 py-2">
+                                {anomali.date_execution}
+                            </td>
+                            <td className="px-4 pt-2">
+                            {anomali.status.name === "Open" ? (
+                                <Badge className="justify-start" color="success">{anomali.status.name}</Badge>
+                            ) : anomali.status.name === "Pending" ? (
+                                <Badge className="justify-start" color="warning">{anomali.status.name}</Badge>
+                            ) : (
+                                <Badge className="justify-start" color="failure">{anomali.status.name}</Badge>
+                            )
+                            }
+                            </td>
+                        </tr>
                     ))}
                 </tbody>
             </table>
             <div className="flex items-center justify-between mx-2">
                 <p className="text-sm font-medium text-gray-700">
-                    Showing {anomalis.from} to {anomalis.to} total {anomalis.total}
+                    Showing  to  total
                 </p>
                 <div className="inline-flex items-center justify-center my-2">
                     <Label value='Filter'/>
@@ -372,7 +426,7 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                         <option>50</option>
                     </select>
                 </div>
-            <Pagination links={anomalis.links}/>
+            <Pagination links=""/>
             </div>
         </div>
 
