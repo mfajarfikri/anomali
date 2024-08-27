@@ -73,9 +73,9 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
     const [openModalDetail, setOpenModalDetail] = useState(false)
 
     const detailItem = (data) => {
-        selectedItem(data)
-        setOpenModalDetail(true)
-        console.log(selectedItem);
+        setSelectedItem(data);
+        setOpenModalDetail(true, data);
+        console.log(data); // Log the data parameter instead of selectedItem
     }
 
 
@@ -269,12 +269,57 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                 </Modal.Body>
         </Modal>
 
-        <Modal size="2xl" show={openModalDetail} onClose={() => setOpenModalDetail(false)} position="top-right">
+        <Modal size="2xl" show={openModalDetail} onClose={() => setOpenModalDetail(false)} position="center">
             <Modal.Header>
-                {/* {sele.name} */}
+                {selectedItem && selectedItem.ticketname}
             </Modal.Header>
+            <Modal.Body>
+                {selectedItem && (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="bg-gray-100 p-3 rounded-lg">
+                                <h3 className="text-lg font-semibold mb-2">Location</h3>
+                                <p><span className="font-medium">Substation:</span> {selectedItem.substation.name}</p>
+                                <p><span className="font-medium">Section:</span> {selectedItem.section.name}</p>
+                                <p><span className="font-medium">Bay:</span> {selectedItem.bay.name}</p>
+                            </div>
+                            <div className="bg-gray-100 p-3 rounded-lg">
+                                <h3 className="text-lg font-semibold mb-2">Equipment</h3>
+                            
+                                <p><span className="font-medium">Peralatan:</span> {selectedItem.peralatan.name}</p>
+                                <p><span className="font-medium">Voltage:</span> {selectedItem.voltage.name}</p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                            <h3 className="text-lg font-semibold mb-2">Dates</h3>
+                            <div className="grid grid-cols-3 gap-4">
+                                <p><span className="font-medium">Found:</span> {selectedItem.date_find}</p>
+                                <p><span className="font-medium">Planned:</span> {selectedItem.date_plan}</p>
+                                <p><span className="font-medium">Executed:</span> {selectedItem.date_execution}</p>
+                            </div>
+                        </div>
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                            <h3 className="text-lg font-semibold mb-2">Details</h3>
+                            <p><span className="font-medium">User:</span> {selectedItem.user.name}</p>
+                            <p><span className="font-medium">Other:</span> {selectedItem.other}</p>
+                            <p><span className="font-medium">Status:</span> 
+                                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold
+                                    ${selectedItem.status.name === 'Open' ? 'bg-green-200 text-green-800' :
+                                    selectedItem.status.name === 'Pending' ? 'bg-yellow-200 text-yellow-800' :
+                                    'bg-red-200 text-red-800'}`}>
+                                    {selectedItem.status.name}
+                                </span>
+                            </p>
+                        </div>
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                            <h3 className="text-lg font-semibold mb-2">Additional Information</h3>
+                            <p className="text-gray-700">{selectedItem.additional_information}</p>
+                        </div>
+                    </div>
+                )}
+            </Modal.Body>
             <Modal.Footer>
-
+                <Button onClick={() => setOpenModalDetail(false)}>Close</Button>
             </Modal.Footer>
         </Modal>
 
