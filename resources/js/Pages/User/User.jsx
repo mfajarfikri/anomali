@@ -239,7 +239,7 @@ export default function User({auth, users, substations, roles}) {
                             <td className="px-4 py-2">
                                 {user.name}
                             </td>
-                            <td className="px-4 py-2">
+                            <td className="px-4 py-2 text-blue-700">
                                 {user.email}
                             </td>
                             <td className="px-4 py-2">

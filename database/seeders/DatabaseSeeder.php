@@ -27,6 +27,6 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             TypeSeeder::class,
         ]);
-        // User::factory(40)->create();
+        User::factory(40)->create();
     }
 }
