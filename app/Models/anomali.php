@@ -23,7 +23,8 @@ class Anomali extends Model
         'date_find',
         'date_plan',
         'date_execution',
-        'status_id'
+        'status_id',
+        'is_approve'
     ];
 
     public function Substation() : BelongsTo {

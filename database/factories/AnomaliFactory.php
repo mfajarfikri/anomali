@@ -17,7 +17,21 @@ class AnomaliFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'ticketname' => fake()->words(3, true),
+            'substation_id' => fake()->randomDigitNotNull(),
+            'section_id' => fake()->numberBetween(1,3),
+            'type_id' => fake()->numberBetween(1,2),
+            'user_id' => fake()->numberBetween(1,42),
+            'peralatan_id' => fake()->numberBetween(1,5),
+            'other' => fake()->words(5, true),
+            'voltage_id' => fake()->numberBetween(1,3),
+            'bay_id' => fake()->numberBetween(1,10),
+            'additional_information' => fake()->words(6, true),
+            'date_find' => fake()->date('d-M-Y'),
+            'date_plan' => fake()->date('d-M-Y'),
+            'date_execution' => fake()->date('d-M-Y'),
+            'status_id' => fake()->numberBetween(1,4),
+            'is_approve' => fake()->numberBetween(1,3)
         ];
     }
 }

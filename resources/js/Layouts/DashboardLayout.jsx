@@ -183,7 +183,7 @@ export default function DashboardLayout({children, user}) {
 
                         {menu(user.role).map((item,index) => {
                             return (
-                                <Sidebar.Item
+                            <Sidebar.Item
                                     key={index}
                                     href={item.href}
                                     active={item.current}

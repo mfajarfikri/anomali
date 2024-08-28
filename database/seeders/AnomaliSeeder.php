@@ -34,6 +34,7 @@ class AnomaliSeeder extends Seeder
                 'date_plan' => null,
                 'date_execution' => null,
                 'status_id' => 1,
+                'is_approve' => false,
             ),
             1 =>
             array(
@@ -52,6 +53,7 @@ class AnomaliSeeder extends Seeder
                 'date_plan' => null,
                 'date_execution' => null,
                 'status_id' => 3,
+                'is_approve' => false,
             )
         ));
     }

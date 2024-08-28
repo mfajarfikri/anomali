@@ -27,6 +27,7 @@ return new class extends Migration
             $table->date('date_plan')->nullable();
             $table->date('date_execution')->nullable();
             $table->string('status_id')->nullable();
+            $table->boolean('is_approve');
             $table->timestamps();
         });
     }

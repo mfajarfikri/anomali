@@ -1,8 +1,8 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, useForm, router } from "@inertiajs/react";
-import { Button,Badge, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
+import { Button,Badge, HR, Label, Modal, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef } from "react";
-import { HiUser, HiOutlineTicket, HiOutlineSearch } from "react-icons/hi";
+import { HiUser, HiOutlineTicket, HiOutlineSearch, HiOutlineCheck, HiDocumentReport } from "react-icons/hi";
 import { Input, Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -197,7 +197,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                             <TextInput
                             type="text"
                             helperText={<>
-                            Please fill it in when choosing other
+                            <cite>Please fill it in when choosing other</cite>
                             </>}
                             className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
@@ -246,6 +246,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                 name="date_find"
                                 value={data.date_find}
                                 onChange={(e) => setData('date_find', e.target.value)}
+                                className="text-gray-500"
                                 />
                             </div>
                         </div>
@@ -255,7 +256,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                             name="additional_information"
                             value={data.additional_information}
                             onChange={(e) => setData('additional_information', e.target.value)}
-                            placeholder="Leave a comment..." required rows={4}/>
+                            placeholder="Leave a comment..." required rows={2}/>
                         </div>
 
                         <HR/>
@@ -301,7 +302,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Substation</span>
-                                    <span className="">{selectedItem.substation.name}</span>
+                                    {selectedItem.substation.name}
                                 </div>
                                 <hr />
                                 <div className="flex justify-between my-2">
@@ -311,7 +312,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Status</span>
-                                    <span className="">
+
                                         {selectedItem.status.name == "Open" ? (
                                         <Badge color="success">{selectedItem.status.name}</Badge>
                                     ) : selectedItem.status.name === "Pending" ? (
@@ -321,34 +322,38 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                     ) : (
                                         <Badge color="info">{selectedItem.status.name}</Badge>
                                     )}
-                                    </span>
                                 </div>
                             </div>
                             <div class="col-span-1 mt-4 px-4">
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Type</span>
-                                    <span className="">{selectedItem.type.name}</span>
+                                    {selectedItem.type.name === "Major" ? (
+                                        <Badge color="failure">{selectedItem.type.name}</Badge>
+                                    ): (
+                                        <Badge color="indigo">{selectedItem.type.name}</Badge>
+                                    )
+                                    }
                                 </div>
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Equipment</span>
-                                    <span className="">{selectedItem.peralatan.name}</span>
+                                    {selectedItem.peralatan.name}
                                 </div>
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Voltage</span>
-                                    <span className="">{selectedItem.voltage.name}</span>
+                                    {selectedItem.voltage.name}
                                 </div>
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Bay</span>
-                                    <span className="">{selectedItem.bay.name}</span>
+                                    {selectedItem.bay.name}
                                 </div>
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Created At</span>
-                                    <span className="">{selectedItem.created_at}</span>
+                                    {selectedItem.created_at}
                                 </div>
                             </div>
                         </div>
@@ -407,72 +412,63 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
         <table className="w-full text-sm text-gray-500 ">
-            <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
-            Our User
-            <div className="grid items-center grid-cols-2 gap-4">
-                <div className="inline-flex items-center justify-start col-span-1">
-                    <form onSubmit="" className="flex w-1/2 mt-1">
-                        <div className="w-full">
-                            <TextInput
-                            sizing="sm"
-                            type="text"
-                            id="search"
-                            name="search"
-                            value={data.search}
-                            onChange={(e) => setData('search', e.target.value)}
-                            rightIcon={HiOutlineSearch}
-                            autoComplete="off"
-                            placeholder="Search for this ticket"
-                            className="w-full text-sm font-thin text-gray-500 border-gray-300 shadow-sm"/>
+            <caption className="p-5 text-lg font-semibold text-left bg-gray-100 rtl:text-right">
+                <div className="inline-flex items-center gap-3">
+                    <button outline onClick={() => setOpenModal(true)} className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="transition ease-in-out stroke-1 stroke-emerald-700 size-5 hover:rotate-45 ">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </button>
+                    <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className="stroke-gray-700 size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                        </svg>
+                    </button>
+                    <form className="">
+                        <div className="relative bg-transparent">
+                            <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                                <svg className="text-gray-700 size-5 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                </svg>
                             </div>
+                            <input type="search" className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100" placeholder="Search Ticket"/>
+                        </div>
                     </form>
                 </div>
-                <div className="flex justify-end col-span-1">
-                    <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
-                        <div className="inline-flex items-center justify-center">
-                            <HiOutlineTicket className="w-4 h-4 mr-2"/>
-                            <span>Add Ticket</span>
-                        </div>
-                    </Button>
-                </div>
-            </div>
             </caption>
             <thead className="text-xs text-gray-700 uppercase bg-slate-50">
                 <tr className="text-left">
                     <th scope="col" className="p-3">
                         No
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3">
+                        Ticket Name
+                    </th>
+                    <th scope="col" className="py-3">
                         Substation
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3">
                         section
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3 text-center">
                         Type
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3">
                         User
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3">
                         Peralatan
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3">
                         Voltage
                     </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3">
                         Bay
                     </th>
-                    <th scope="col" className="p-3">
-                        Date Temuan
+                    <th scope="col" className="py-3">
+                        Date Found
                     </th>
-                    <th scope="col" className="p-3">
-                        Date Plan
-                    </th>
-                    <th scope="col" className="p-3">
-                        Date Execution
-                    </th>
-                    <th scope="col" className="p-3">
+                    <th scope="col" className="py-3 text-center">
                         Status
                     </th>
 
@@ -480,49 +476,51 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
             </thead>
             <tbody>
                 {anomalis.data.map((anomali, index) => (
-                    <tr id="body" key={anomali.id} onClick={() => detailItem(anomali)} className="bg-white border-b cursor-pointer hover:bg-zinc-100">
+                    <tr key={anomali.id} onClick={() => detailItem(anomali)} className="bg-white border-b cursor-pointer hover:bg-zinc-100">
                         <td className="px-4 py-2 font-medium text-gray-900">
                             {anomalis.from + index}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2 ">
+                            {anomali.ticketname}
+                        </td>
+                        <td className="py-2">
                             {anomali.substation.name}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2">
                             {anomali.section.name}
                         </td>
                         <td className="px-4 py-2">
-                            {anomali.type.name}
+                            {anomali.type.name === "Major" ? (
+                                <Badge color="failure" className="justify-center">{anomali.type.name}</Badge>
+                            ): (
+                                <Badge color="indigo" className="justify-center">{anomali.type.name}</Badge>
+                            )
+                            }
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2">
                             {anomali.user.name}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2">
                             {anomali.peralatan.name}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2">
                             {anomali.voltage.name}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2">
                             {anomali.bay.name}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className="py-2">
                             {anomali.date_find}
                         </td>
                         <td className="px-4 py-2">
-                            {anomali.date_plan}
-                        </td>
-                        <td className="px-4 py-2">
-                            {anomali.date_execution}
-                        </td>
-                        <td className="px-4 pt-2">
                         {anomali.status.name === "Open" ? (
-                            <Badge color="success">{anomali.status.name}</Badge>
+                            <Badge color="success" className="justify-center">{anomali.status.name}</Badge>
                         ) : anomali.status.name === "Pending" ? (
-                            <Badge color="warning">{anomali.status.name}</Badge>
+                            <Badge color="warning" className="justify-center">{anomali.status.name}</Badge>
                         ) : anomali.status.name === "Close" ? (
-                            <Badge color="failure">{anomali.status.name}</Badge>
+                            <Badge color="failure" className="justify-center">{anomali.status.name}</Badge>
                         ) : (
-                            <Badge color="info">{anomali.status.name}</Badge>
+                            <Badge color="info" className="justify-center">{anomali.status.name}</Badge>
                         )
                         }
                         </td>
@@ -532,7 +530,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
         </table>
         <div className="flex items-center justify-between mx-2">
             <p className="text-sm font-medium text-gray-700">
-                Showing  to  total
+            Showing {anomalis.from} to {anomalis.to} total {anomalis.total}
             </p>
             <div className="inline-flex items-center justify-center my-2">
                 <Label value='Filter'/>
@@ -543,7 +541,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                     <option>50</option>
                 </select>
             </div>
-        <Pagination links=""/>
+        <Pagination links={anomalis.links}/>
         </div>
     </div>
 

@@ -122,20 +122,28 @@ export default function Substation() {
 
         <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
             <table className="w-full text-sm text-gray-500 ">
-                <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
-                Substation
-                <div className="flex items-center justify-between">
-                    <div className="inline-flex row-span-3">
-                        <p className="mt-1 text-sm font-normal text-gray-500 ">Browse a list of Flowbite products designed to help you work and play, stay organized, get answers, keep in touch, grow your business, and more.</p>
-                    </div>
-                    <div className="inline-flex items-center">
-                        <Button size="xs" color="info" onClick={() => setIsOpen(true)}>
-                            <div className="inline-flex items-center justify-center">
-                                <HiHome className="w-4 h-4 mr-2"/>
-                                <span>Add substation</span>
+                <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-gray-100 rtl:text-right">
+                <div className="inline-flex items-center gap-3">
+                    <button outline onClick={() => setIsOpen(true)} className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="transition ease-in-out stroke-1 stroke-emerald-700 size-5 hover:rotate-45 ">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </button>
+                    <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className="stroke-gray-700 size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                        </svg>
+                    </button>
+                    <form className="">
+                        <div className="relative bg-transparent">
+                            <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                                <svg className="text-gray-700 size-5 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                </svg>
                             </div>
-                        </Button>
-                    </div>
+                            <input type="search" className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100" placeholder="Search Substation"/>
+                        </div>
+                    </form>
                 </div>
                 </caption>
                 <thead className="text-xs text-gray-700 uppercase bg-slate-50">

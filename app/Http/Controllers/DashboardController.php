@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\anomali;
+use App\Models\Anomali;
 use App\Models\Gardu;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +16,11 @@ class DashboardController extends Controller
     {
 
         return Inertia::render('Dashboard', [
-            'anomali' => anomali::latest()->paginate(5)
+            'anomalis' => Anomali::latest()->paginate(),
+            'anomalis_new' => Anomali::where('status_id', 1)->count(),
+            'anomalis_open' => Anomali::where('status_id', 2)->count(),
+            'anomalis_pending' => Anomali::where('status_id', 3)->count(),
+            'anomalis_close' => Anomali::where('status_id', 4)->count()
         ]);
     }
 
