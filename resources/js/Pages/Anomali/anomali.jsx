@@ -324,7 +324,7 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
-        <table className="w-full text-sm text-gray-500 ">
+            <table className="w-full text-sm text-gray-500 ">
                 <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
                 Our User
                 <div className="grid items-center grid-cols-2 gap-4">

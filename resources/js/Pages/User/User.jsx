@@ -9,7 +9,7 @@ import { Head, Link, router } from "@inertiajs/react";
 import { useForm } from "@inertiajs/react";
 import { Select } from "@headlessui/react";
 import { Badge, Button, Modal,  } from "flowbite-react";
-import { HiOutlineUserAdd } from "react-icons/hi";
+import { HiOutlineUserAdd,HiUser ,HiOutlineMail ,HiOfficeBuilding ,HiUserCircle ,HiLockClosed ,HiX ,HiUserAdd } from "react-icons/hi";
 
 export default function User({auth, users, substations, roles}) {
 
@@ -72,59 +72,60 @@ export default function User({auth, users, substations, roles}) {
 
         <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="center">
             <Modal.Header>
-                <div className="rounded-lg">
-                    <div className="inline-flex items-center justify-center">
-                        <div className="p-2 border rounded-lg">
-                            <HiOutlineUserAdd className="w-5 h-5" style={{ color: "gray", fontSize: "1.5em" }}/>
-                        </div>
-                        <div className="flex items-center justify-center mx-2">
-                            <p className="font-bold">New User</p>
-                        </div>
+                <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                        <HiOutlineUserAdd className="w-6 h-6 text-blue-600" />
                     </div>
-
+                    <h3 className="text-xl font-semibold text-gray-900">Add New User</h3>
                 </div>
             </Modal.Header>
-                <Modal.Body>
-                    <form onSubmit={submit}>
+            <Modal.Body>
+                <form onSubmit={submit} className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
                         <div>
-                            <InputLabel htmlFor="name" value="Name" />
+                            <InputLabel htmlFor="name" value="Full Name" />
                             <TextInput
                                 id="name"
                                 name="name"
                                 value={data.name}
-                                className="block w-full mt-1 text-sm"
+                                className="block w-full mt-1"
                                 autoComplete="name"
                                 isFocused={true}
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
+                                icon={HiUser}
                             />
                             <InputError message={errors.name} className="mt-2" />
                         </div>
 
-                        <div className="mt-4">
-                            <InputLabel htmlFor="email" value="Email" />
+                        <div>
+                            <InputLabel htmlFor="email" value="Email Address" />
                             <TextInput
                                 id="email"
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="block w-full mt-1 text-sm"
+                                className="block w-full mt-1"
                                 autoComplete="username"
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
+                                icon={HiOutlineMail}
                             />
                             <InputError message={errors.email} className="mt-2" />
                         </div>
+                    </div>
 
-                        <div className="mt-4">
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
                             <InputLabel htmlFor="substation" value="Substation"/>
                             <Select
                                 id="substation"
                                 name="substation_id"
-                                className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 value={data.substation_id}
                                 onChange={(e) => setData('substation_id', e.target.value)}
                                 required
+                                icon={HiOfficeBuilding}
                             >
                                 <option value="">Select a Substation</option>
                                 {substations.map((g) => (
@@ -134,59 +135,70 @@ export default function User({auth, users, substations, roles}) {
                             <InputError className='mt-2' message={errors.substation_id}/>
                         </div>
 
-                        <div className="mt-4">
+                        <div>
                             <InputLabel htmlFor="role" value="Role"/>
                             <Select
                                 id="role"
                                 name="role_id"
-                                className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                className="w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 value={data.roles_id}
                                 onChange={(e) => setData('role_id', e.target.value)}
                                 required
+                                icon={HiUserCircle}
                             >
                                 <option value="">Select a role</option>
                                 {roles.map((r) => (
-                                    <option className="text-sm" key={r.id} value={r.id}>{r.name}</option>
+                                    <option key={r.id} value={r.id}>{r.name}</option>
                                 ))}
                             </Select>
                             <InputError className='mt-2' message={errors.role_id}/>
                         </div>
+                    </div>
 
-                        <div className="mt-4">
+                    <div className="grid grid-cols-2 gap-6">
+                        <div>
                             <InputLabel htmlFor="password" value="Password" />
                             <TextInput
                                 id="password"
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="block w-full mt-1 text-sm"
+                                className="block w-full mt-1"
                                 onChange={(e) => setData('password', e.target.value)}
                                 required
+                                icon={HiLockClosed}
                             />
                             <InputError message={errors.password} className="mt-2" />
                         </div>
 
-                        <div className="mt-4">
+                        <div>
                             <InputLabel htmlFor="password_confirmation" value="Confirm Password" />
                             <TextInput
                                 id="password_confirmation"
                                 type="password"
                                 name="password_confirmation"
                                 value={data.password_confirmation}
-                                className="block w-full mt-1 text-sm"
+                                className="block w-full mt-1"
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 required
+                                icon={HiLockClosed}
                             />
                             <InputError message={errors.password_confirmation} className="mt-2" />
                         </div>
+                    </div>
 
-                        <div className="flex items-center justify-end mt-6">
-                            <PrimaryButton className="ms-4" disabled={processing}>
-                                Add User
-                            </PrimaryButton>
-                        </div>
-                    </form>
-                </Modal.Body>
+                    <div className="flex items-center justify-end pt-4 border-t border-gray-200">
+                        <Button color="gray" onClick={() => setOpenModal(false)} className="mr-3">
+                            <HiX className="w-4 h-4 mr-2" />
+                            Cancel
+                        </Button>
+                        <PrimaryButton type="submit" disabled={processing}>
+                            <HiUserAdd className="w-4 h-4 mr-2" />
+                            Add User
+                        </PrimaryButton>
+                    </div>
+                </form>
+            </Modal.Body>
         </Modal>
 
         <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
