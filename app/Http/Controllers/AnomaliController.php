@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Bay;
 use App\Models\Type;
 use Inertia\Inertia;
-use App\Models\Jenis;
-use App\Models\Bidang;
 use App\Models\Anomali;
 use App\Models\Section;
 use App\Models\Voltage;

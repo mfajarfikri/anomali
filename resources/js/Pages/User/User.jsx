@@ -3,11 +3,10 @@ import Pagination from "@/Components/Pagination";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { useRef, useState } from "react";
-import { Head, Link, router } from "@inertiajs/react";
-import { useForm } from "@inertiajs/react";
+import { Head, Link, router, useForm } from "@inertiajs/react";
 import { Select } from "@headlessui/react";
 import { Badge, Button, Label, Modal, TextInput  } from "flowbite-react";
-import { HiOutlineUserAdd } from "react-icons/hi";
+import { HiUser, HiOutlineMail, HiOfficeBuilding, HiUserCircle, HiLockClosed, HiX, HiUserAdd } from "react-icons/hi";
 
 export default function User({auth, users, substations, roles}) {
 
@@ -88,7 +87,7 @@ export default function User({auth, users, substations, roles}) {
             <Modal.Body>
                 <form onSubmit={submit} className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
-                        <div>
+                        <div className="mt-4">
                             <Label htmlFor="name" value="Name User"/>
                             <TextInput
                                 id="name"
@@ -118,7 +117,6 @@ export default function User({auth, users, substations, roles}) {
                             />
                             <InputError message={errors.email} className="mt-2" />
                         </div>
-                    </div>
 
                         <div className="mt-4">
                             <Label htmlFor="substation" value="Substation"/>
@@ -157,7 +155,6 @@ export default function User({auth, users, substations, roles}) {
                             </Select>
                             <InputError className='mt-2' message={errors.role_id}/>
                         </div>
-                    </div>
 
                         <div className="mt-4">
                             <Label htmlFor="password" value="Password" />
