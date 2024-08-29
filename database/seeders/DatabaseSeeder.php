@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\anomali;
 use App\Models\User;
+use Database\Factories\AnomaliFactory;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,7 +18,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             RoleSeeder::class,
-            AnomaliSeeder::class,
+            // AnomaliSeeder::class,
             SubstationSeeder::class,
             UserSeeder::class,
             PeralatanSeeder::class,
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             TypeSeeder::class,
         ]);
-        // User::factory(40)->create();
+        User::factory(40)->create();
+        Anomali::factory(30)->create();
     }
 }

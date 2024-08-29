@@ -1,14 +1,14 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import Pagination from "@/Components/Pagination";
 import { Head, useForm, router } from "@inertiajs/react";
-import { Button,Badge, Datepicker, HR, Label, Modal, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Textarea, TextInput } from "flowbite-react";
+import { Button,Badge, HR, Label, Modal, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef } from "react";
-import { HiUser, HiOutlineTicket, HiOutlineSearch } from "react-icons/hi";
+import { HiUser, HiOutlineTicket, HiOutlineSearch, HiOutlineCheck, HiDocumentReport } from "react-icons/hi";
 import { Input, Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
+import Pagination from "@/Components/Pagination";
 
-export default function Anomali({auth,anomalis, peralatans, bays, voltages, sections, types, substations}){
+export default function Anomali({auth, anomalis, peralatans, bays, voltages, sections, types, substations}){
 
 
     const perpage = useRef(10);
@@ -45,7 +45,6 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
         date_find: '',
         additional_information: ''
     })
-    console.log(data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -77,6 +76,8 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
         setOpenModalDetail(true, data);
         console.log(data); // Log the data parameter instead of selectedItem
     }
+
+    console.log(anomalis);
 
 
     return(
@@ -196,7 +197,7 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                             <TextInput
                             type="text"
                             helperText={<>
-                            Please fill it in when choosing other
+                            <cite>Please fill it in when choosing other</cite>
                             </>}
                             className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
@@ -245,6 +246,7 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                                 name="date_find"
                                 value={data.date_find}
                                 onChange={(e) => setData('date_find', e.target.value)}
+                                className="text-gray-500"
                                 />
                             </div>
                         </div>
@@ -254,13 +256,13 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                             name="additional_information"
                             value={data.additional_information}
                             onChange={(e) => setData('additional_information', e.target.value)}
-                            placeholder="Leave a comment..." required rows={4}/>
+                            placeholder="Leave a comment..." required rows={2}/>
                         </div>
 
                         <HR/>
 
                         <div className="flex items-center justify-end">
-                            <PrimaryButton className="ms-4">
+                            <PrimaryButton className="ms-4" disabled={processing}>
                                 Add ticket
                             </PrimaryButton>
                         </div>
@@ -269,211 +271,279 @@ export default function Anomali({auth,anomalis, peralatans, bays, voltages, sect
                 </Modal.Body>
         </Modal>
 
-        <Modal size="2xl" show={openModalDetail} onClose={() => setOpenModalDetail(false)} position="center">
+        <Modal size="3xl" show={openModalDetail} onClose={() => setOpenModalDetail(false)} position="top-right">
             <Modal.Header>
-                {selectedItem && selectedItem.ticketname}
+                <div className="inline-flex items-center">
+                    <div className="p-2 border rounded-lg">
+                        <HiOutlineTicket style={{ color: "green", fontSize: "1.5em" }}/>
+                    </div>
+                    <span className="mx-2">
+                        {selectedItem && selectedItem.ticketname}
+                    </span>
+                </div>
+
             </Modal.Header>
             <Modal.Body>
                 {selectedItem && (
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-gray-100 p-3 rounded-lg">
-                                <h3 className="text-lg font-semibold mb-2">Location</h3>
-                                <p><span className="font-medium">Substation:</span> {selectedItem.substation.name}</p>
-                                <p><span className="font-medium">Section:</span> {selectedItem.section.name}</p>
-                                <p><span className="font-medium">Bay:</span> {selectedItem.bay.name}</p>
+                    <>
+                    <span>Detail Ticket</span>
+                        <div class="grid grid-cols-2 grid-flow-col gap-4 text-xs divide-x">
+                            <div class="col-span-1 mt-4">
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Request By</span>
+                                    <span>{selectedItem.user.name}</span>
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Email</span>
+                                    <span>{selectedItem.user.email}</span>
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Substation</span>
+                                    {selectedItem.substation.name}
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Section</span>
+                                    {selectedItem.section.name}
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Status</span>
+
+                                        {selectedItem.status.name == "Open" ? (
+                                        <Badge color="success">{selectedItem.status.name}</Badge>
+                                    ) : selectedItem.status.name === "Pending" ? (
+                                        <Badge color="warning">{selectedItem.status.name}</Badge>
+                                    ) : selectedItem.status.name === "Close" ? (
+                                        <Badge color="failure">{selectedItem.status.name}</Badge>
+                                    ) : (
+                                        <Badge color="info">{selectedItem.status.name}</Badge>
+                                    )}
+                                </div>
                             </div>
-                            <div className="bg-gray-100 p-3 rounded-lg">
-                                <h3 className="text-lg font-semibold mb-2">Equipment</h3>
-                            
-                                <p><span className="font-medium">Peralatan:</span> {selectedItem.peralatan.name}</p>
-                                <p><span className="font-medium">Voltage:</span> {selectedItem.voltage.name}</p>
+                            <div class="col-span-1 mt-4 px-4">
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Type</span>
+                                    {selectedItem.type.name === "Major" ? (
+                                        <Badge color="failure">{selectedItem.type.name}</Badge>
+                                    ): (
+                                        <Badge color="indigo">{selectedItem.type.name}</Badge>
+                                    )
+                                    }
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Equipment</span>
+                                    {selectedItem.peralatan.name}
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Voltage</span>
+                                    {selectedItem.voltage.name}
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Bay</span>
+                                    {selectedItem.bay.name}
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Created At</span>
+                                    {selectedItem.created_at}
+                                </div>
                             </div>
                         </div>
-                        <div className="bg-gray-100 p-3 rounded-lg">
-                            <h3 className="text-lg font-semibold mb-2">Dates</h3>
-                            <div className="grid grid-cols-3 gap-4">
-                                <p><span className="font-medium">Found:</span> {selectedItem.date_find}</p>
-                                <p><span className="font-medium">Planned:</span> {selectedItem.date_plan}</p>
-                                <p><span className="font-medium">Executed:</span> {selectedItem.date_execution}</p>
+                        <hr className="mt-4" />
+
+                        <div className="mt-4">
+                        {selectedItem.other === null ? (
+                            <span>-</span>
+                        ) : (
+                            <span className="text-xs">{selectedItem.other}</span>
+                        )}
+
+                            <p className="text-xs">{selectedItem.additional_information}</p>
+                        </div>
+
+                        <div className="mt-2 font-thin">
+                            <span>Dates</span>
+                            <div className="p-2 mt-2 text-xs border rounded-lg">
+                                <div className="grid justify-center grid-cols-3 gap-4 divide-x">
+                                    <div className="flex justify-center col-span-1">
+                                        <div className="inline-block">
+                                            <span className="text-sm">Date Found</span>
+                                            <p className="flex justify-center">{selectedItem.date_find}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-center col-span-1">
+                                        <div className="inline-block">
+                                            <span>Date Plan</span>
+                                            {selectedItem.date_plan === null ? (
+                                            <p className="flex justify-center">-</p>
+                                        ):(
+                                            <p>{selectedItem.date_plan}</p>
+                                        )}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-center col-span-1">
+                                        <div className="inline-block">
+                                            <span>Date Execution</span>
+                                            {selectedItem.date_execution === null ? (
+                                            <p className="flex justify-center">-</p>
+                                        ):(
+                                            <p>{selectedItem.date_execution}</p>
+                                        )}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="bg-gray-100 p-3 rounded-lg">
-                            <h3 className="text-lg font-semibold mb-2">Details</h3>
-                            <p><span className="font-medium">User:</span> {selectedItem.user.name}</p>
-                            <p><span className="font-medium">Other:</span> {selectedItem.other}</p>
-                            <p><span className="font-medium">Status:</span> 
-                                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-semibold
-                                    ${selectedItem.status.name === 'Open' ? 'bg-green-200 text-green-800' :
-                                    selectedItem.status.name === 'Pending' ? 'bg-yellow-200 text-yellow-800' :
-                                    'bg-red-200 text-red-800'}`}>
-                                    {selectedItem.status.name}
-                                </span>
-                            </p>
-                        </div>
-                        <div className="bg-gray-100 p-3 rounded-lg">
-                            <h3 className="text-lg font-semibold mb-2">Additional Information</h3>
-                            <p className="text-gray-700">{selectedItem.additional_information}</p>
-                        </div>
-                    </div>
+                    </>
                 )}
             </Modal.Body>
             <Modal.Footer>
-                <Button onClick={() => setOpenModalDetail(false)}>Close</Button>
+                <Button size="sm" onClick={() => setOpenModalDetail(false)}>Close</Button>
             </Modal.Footer>
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">
-            <table className="w-full text-sm text-gray-500 ">
-                <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-slate-300 rtl:text-right">
-                Our User
-                <div className="grid items-center grid-cols-2 gap-4">
-                    <div className="inline-flex items-center justify-start col-span-1">
-                        <form onSubmit="" className="flex w-1/2 mt-1">
-                            <div className="w-full">
-                                <TextInput
-                                sizing="sm"
-                                type="text"
-                                id="search"
-                                name="search"
-                                value={data.search}
-                                onChange={(e) => setData('search', e.target.value)}
-                                rightIcon={HiOutlineSearch}
-                                autoComplete="off"
-                                placeholder="Search for this ticket"
-                                className="w-full text-sm font-thin text-gray-500 border-gray-300 shadow-sm"/>
-                                </div>
-                        </form>
-                    </div>
-                    <div className="flex justify-end col-span-1">
-                        <Button size="xs" color="info" onClick={() => setOpenModal((openModal) => !openModal)}>
-                            <div className="inline-flex items-center justify-center">
-                                <HiOutlineTicket className="w-4 h-4 mr-2"/>
-                                <span>Add Ticket</span>
+        <table className="w-full text-sm text-gray-500 ">
+            <caption className="p-5 text-lg font-semibold text-left bg-gray-100 rtl:text-right">
+                <div className="inline-flex items-center gap-3">
+                    <button outline onClick={() => setOpenModal(true)} className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="transition ease-in-out stroke-1 stroke-emerald-700 size-5 hover:rotate-45 ">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </button>
+                    <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} className="stroke-gray-700 size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                        </svg>
+                    </button>
+                    <form className="">
+                        <div className="relative bg-transparent">
+                            <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                                <svg className="text-gray-700 size-5 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                </svg>
                             </div>
-                        </Button>
-                    </div>
+                            <input type="search" className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100" placeholder="Search Ticket"/>
+                        </div>
+                    </form>
                 </div>
-                </caption>
-                <thead className="text-xs text-gray-700 uppercase bg-slate-50">
-                    <tr className="text-left">
-                        <th scope="col" className="p-3">
-                            No
-                        </th>
-                        <th scope="col" className="p-3">
-                            Ticketname
-                        </th>
-                        <th scope="col" className="p-3">
-                            Substation
-                        </th>
-                        <th scope="col" className="p-3">
-                            section
-                        </th>
-                        <th scope="col" className="p-3">
-                            Type
-                        </th>
-                        <th scope="col" className="p-3">
-                            User
-                        </th>
-                        <th scope="col" className="p-3">
-                            Peralatan
-                        </th>
-                        <th scope="col" className="p-3">
-                            Other
-                        </th>
-                        <th scope="col" className="p-3">
-                            Voltage
-                        </th>
-                        <th scope="col" className="p-3">
-                            Bay
-                        </th>
-                        <th scope="col" className="p-3">
-                            Date Temuan
-                        </th>
-                        <th scope="col" className="p-3">
-                            Date Plan
-                        </th>
-                        <th scope="col" className="p-3">
-                            Date Execution
-                        </th>
-                        <th scope="col" className="p-3">
-                            Status
-                        </th>
+            </caption>
+            <thead className="text-xs text-gray-700 uppercase bg-slate-50">
+                <tr className="text-left">
+                    <th scope="col" className="p-3">
+                        No
+                    </th>
+                    <th scope="col" className="py-3">
+                        Ticket Name
+                    </th>
+                    <th scope="col" className="py-3">
+                        Substation
+                    </th>
+                    <th scope="col" className="py-3">
+                        section
+                    </th>
+                    <th scope="col" className="py-3 text-center">
+                        Type
+                    </th>
+                    <th scope="col" className="py-3">
+                        User
+                    </th>
+                    <th scope="col" className="py-3">
+                        Peralatan
+                    </th>
+                    <th scope="col" className="py-3">
+                        Voltage
+                    </th>
+                    <th scope="col" className="py-3">
+                        Bay
+                    </th>
+                    <th scope="col" className="py-3">
+                        Date Found
+                    </th>
+                    <th scope="col" className="py-3 text-center">
+                        Status
+                    </th>
 
-                    </tr>
-                </thead>
-                <tbody>
-                    {anomalis.data.map((anomali, index) => (
-                        <tr id="body" key={anomali.id} onClick={() => detailItem(anomali)} className="bg-white border-b cursor-pointer hover:bg-gray-100">
-                            <td className="px-4 py-2 font-medium text-gray-900">
-                                {anomalis.from + index}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.ticketname}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.substation.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.section.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.section.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.user.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.peralatan.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.other}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.voltage.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.bay.name}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.date_find}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.date_plan}
-                            </td>
-                            <td className="px-4 py-2">
-                                {anomali.date_execution}
-                            </td>
-                            <td className="px-4 pt-2">
-                            {anomali.status.name === "Open" ? (
-                                <Badge className="justify-start" color="success">{anomali.status.name}</Badge>
-                            ) : anomali.status.name === "Pending" ? (
-                                <Badge className="justify-start" color="warning">{anomali.status.name}</Badge>
-                            ) : (
-                                <Badge className="justify-start" color="failure">{anomali.status.name}</Badge>
+                </tr>
+            </thead>
+            <tbody>
+                {anomalis.data.map((anomali, index) => (
+                    <tr key={anomali.id} onClick={() => detailItem(anomali)} className="bg-white border-b cursor-pointer hover:bg-zinc-100">
+                        <td className="px-4 py-2 font-medium text-gray-900">
+                            {anomalis.from + index}
+                        </td>
+                        <td className="py-2 ">
+                            {anomali.ticketname}
+                        </td>
+                        <td className="py-2">
+                            {anomali.substation.name}
+                        </td>
+                        <td className="py-2">
+                            {anomali.section.name}
+                        </td>
+                        <td className="px-4 py-2">
+                            {anomali.type.name === "Major" ? (
+                                <Badge color="failure" className="justify-center">{anomali.type.name}</Badge>
+                            ): (
+                                <Badge color="indigo" className="justify-center">{anomali.type.name}</Badge>
                             )
                             }
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="flex items-center justify-between mx-2">
-                <p className="text-sm font-medium text-gray-700">
-                    Showing  to  total
-                </p>
-                <div className="inline-flex items-center justify-center my-2">
-                    <Label value='Filter'/>
-                    <select name="perpage" id="perpage" className="p-2 mx-2 text-sm border-none rounded-lg"
-                            value={perpage.current} onChange={handleChangePerPage}>
-                        <option>10</option>
-                        <option>20</option>
-                        <option>50</option>
-                    </select>
-                </div>
-            <Pagination links=""/>
+                        </td>
+                        <td className="py-2">
+                            {anomali.user.name}
+                        </td>
+                        <td className="py-2">
+                            {anomali.peralatan.name}
+                        </td>
+                        <td className="py-2">
+                            {anomali.voltage.name}
+                        </td>
+                        <td className="py-2">
+                            {anomali.bay.name}
+                        </td>
+                        <td className="py-2">
+                            {anomali.date_find}
+                        </td>
+                        <td className="px-4 py-2">
+                        {anomali.status.name === "Open" ? (
+                            <Badge color="success" className="justify-center">{anomali.status.name}</Badge>
+                        ) : anomali.status.name === "Pending" ? (
+                            <Badge color="warning" className="justify-center">{anomali.status.name}</Badge>
+                        ) : anomali.status.name === "Close" ? (
+                            <Badge color="failure" className="justify-center">{anomali.status.name}</Badge>
+                        ) : (
+                            <Badge color="info" className="justify-center">{anomali.status.name}</Badge>
+                        )
+                        }
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+        <div className="flex items-center justify-between mx-2">
+            <p className="text-sm font-medium text-gray-700">
+            Showing {anomalis.from} to {anomalis.to} total {anomalis.total}
+            </p>
+            <div className="inline-flex items-center justify-center my-2">
+                <Label value='Filter'/>
+                <select name="perpage" id="perpage" className="p-2 mx-2 text-sm border-none rounded-lg"
+                        value={perpage.current} onChange={handleChangePerPage}>
+                    <option>10</option>
+                    <option>20</option>
+                    <option>50</option>
+                </select>
             </div>
+        <Pagination links={anomalis.links}/>
         </div>
+    </div>
 
         </DashboardLayout>
         </>

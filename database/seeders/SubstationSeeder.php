@@ -19,67 +19,67 @@ class SubstationSeeder extends Seeder
             0 =>
             array(
                 'id' => 1,
-                'name' => 'Kosambi Baru',
+                'name' => 'GI Kosambi Baru',
             ),
             1 =>
             array(
                 'id' => 2,
-                'name' => 'Dawuan',
+                'name' => 'GI Dawuan',
             ),
             2 =>
             array(
                 'id' => 3,
-                'name' => 'Sukamandi',
+                'name' => 'GI Sukamandi',
             ),
             3 =>
             array(
                 'id' => 4,
-                'name' => 'Rengasdengklok',
+                'name' => 'GI Rengasdengklok',
             ),
             4 =>
             array(
                 'id' => 5,
-                'name' => 'Kiarapayung',
+                'name' => 'GI Kiarapayung',
             ),
             5 =>
             array(
                 'id' => 6,
-                'name' => 'Maligi',
+                'name' => 'GI Maligi',
             ),
             6 =>
             array(
                 'id' => 7,
-                'name' => 'Parungmulya',
+                'name' => 'GI Parungmulya',
             ),
             7 =>
             array(
                 'id' => 8,
-                'name' => 'Telukjambe',
+                'name' => 'GI Telukjambe',
             ),
             8 =>
             array(
                 'id' => 9,
-                'name' => 'Peruri',
+                'name' => 'GI Peruri',
             ),
             9 =>
             array(
                 'id' => 10,
-                'name' => 'Kutamekar',
+                'name' => 'GI Kutamekar',
             ),
             10 =>
             array(
                 'id' => 11,
-                'name' => 'Indoliberty',
+                'name' => 'GI Indoliberty',
             ),
             11 =>
             array(
                 'id' => 12,
-                'name' => 'Pindodeli',
+                'name' => 'GI Pindodeli',
             ),
             12 =>
             array(
                 'id' => 13,
-                'name' => 'Sukatani',
+                'name' => 'GI Sukatani',
             ),
             13 =>
             array(
