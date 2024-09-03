@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('bays', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('substation_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->string('condition_id');
             $table->timestamps();
         });
     }

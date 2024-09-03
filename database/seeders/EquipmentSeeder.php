@@ -2,20 +2,20 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class PeralatanSeeder extends Seeder
+class EquipmentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        DB::table('peralatans')->delete();
+        DB::table('equipment')->delete();
 
-        DB::table('peralatans')->insert(array(
+        DB::table('equipment')->insert(array(
             0 =>
             array(
                 'id' => 1,
@@ -69,6 +69,16 @@ class PeralatanSeeder extends Seeder
             10 =>
             array(
                 'id' => 11,
+                'name' => 'TOWER',
+            ),
+            11 =>
+            array(
+                'id' => 12,
+                'name' => 'ACCESSORIES TOWER',
+            ),
+            12 =>
+            array(
+                'id' => 13,
                 'name' => 'OTHER',
             ),
         ));

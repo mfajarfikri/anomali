@@ -13,15 +13,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
-
         return Inertia::render('Dashboard', [
             'anomalis' => Anomali::latest()->paginate(),
             'anomalis_new' => Anomali::where('status_id', 1)->count(),
             'anomalis_open' => Anomali::where('status_id', 2)->count(),
-            'anomalis_pending' => Anomali::where('status_id', 3)->count(),
-            'anomalis_close' => Anomali::where('status_id', 4)->count(),
+            'anomalis_close' => Anomali::where('status_id', 3)->count(),
             'anomalis_major' => Anomali::where('type_id', 1)->count(),
             'anomalis_minor' => Anomali::where('type_id', 2)->count(),
+            'date_plan' => Anomali::all(['ticketname', 'date_plan']),
         ]);
     }
 

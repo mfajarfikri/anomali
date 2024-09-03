@@ -3,16 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bay;
+use App\Models\Condition;
+use Inertia\Inertia;
+use App\Models\Substation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class BayController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        return Inertia::render('Bay/Bay', [
+            'bays' => Bay::with(['Substation', 'Condition'])->orderBy('substation_id', 'asc')->paginate($request->perpage ?? 10),
+            'substations' => Substation::all(),
+            'conditions' => Condition::all()
+        ]);
     }
 
     /**
@@ -28,7 +36,19 @@ class BayController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        // dd($request);
+
+        $request->validate([
+            'bay' => 'required'
+        ]);
+
+        Bay::create([
+            'name' => $request->bay,
+            'substation_id' => $request->substation,
+            'condition_id' => $request->condition
+        ]);
+        return Redirect::route('bay');
     }
 
     /**

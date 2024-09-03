@@ -10,12 +10,12 @@ class Anomali extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'ticketname',
+        'titlename',
         'substation_id',
         'section_id',
         'type_id',
         'user_id',
-        'peralatan_id',
+        'equipment_id',
         'other',
         'voltage_id',
         'bay_id',
@@ -24,7 +24,8 @@ class Anomali extends Model
         'date_plan',
         'date_execution',
         'status_id',
-        'is_approve'
+        'is_approve',
+        'approve_by'
     ];
 
     public function Substation() : BelongsTo {
@@ -43,8 +44,8 @@ class Anomali extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function Peralatan() : BelongsTo {
-        return $this->belongsTo(Peralatan::class);
+    public function Equipment() : BelongsTo {
+        return $this->belongsTo(Equipment::class);
     }
 
     public function Voltage() : BelongsTo {

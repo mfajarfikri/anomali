@@ -18,17 +18,18 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             RoleSeeder::class,
-            // AnomaliSeeder::class,
+            AnomaliSeeder::class,
             SubstationSeeder::class,
             UserSeeder::class,
-            PeralatanSeeder::class,
+            EquipmentSeeder::class,
             BaySeeder::class,
             VoltageSeeder::class,
             SectionSeeder::class,
             StatusSeeder::class,
             TypeSeeder::class,
+            ConditionSeeder::class
         ]);
-        User::factory(40)->create();
-        Anomali::factory(30)->create();
+        // User::factory(40)->create();
+        // Anomali::factory(30)->create();
     }
 }

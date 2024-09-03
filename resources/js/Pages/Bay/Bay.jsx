@@ -3,15 +3,15 @@ import { Head, router, usePage, useForm, Link } from "@inertiajs/react";
 import Pagination from "@/Components/Pagination";
 import DashboardLayout from '@/Layouts/DashboardLayout';
 import InputLabel from "@/Components/InputLabel";
+import { TextInput } from "flowbite-react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { Button, Drawer, Badge, TextInput } from "flowbite-react";
-import { HiOutlinePlus } from "react-icons/hi";
+import { Button, Drawer, Badge } from "flowbite-react";
 import { Select } from "@headlessui/react";
 
 
-export default function Substation() {
-    const {substations, conditions, auth} = usePage().props
+export default function Bay() {
+    const {bays,auth, conditions, substations} = usePage().props
     const perpage = useRef(10);
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
@@ -19,35 +19,6 @@ export default function Substation() {
     }
     const [isLoading, setisLoading] = useState(false);
 
-    const [isOpen, setIsOpen] = useState(false)
-    const handleClose = () => setIsOpen(false)
-
-    const {  data, setData, processing, post, errors, reset } = useForm({
-        name: '',
-        condition: ''
-    });
-
-    const submit = (e) => {
-        e.preventDefault();
-        post(route('substation.create'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setIsOpen(false);
-                getData();
-                Swal.fire({
-                    title: 'Success',
-                    text: data.name +' has been created.',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#1C64F2'
-                });
-            },
-            onError: (errors) => {
-                console.error('Error creating user:', errors);
-            }
-        });
-    };
 
     const getData = () => {
         setisLoading(true)
@@ -60,38 +31,74 @@ export default function Substation() {
         });
     }
 
-    const [substationsProps, setSubstationsProps] = useState({
-        id : "",
-        name : ""
+    const { data, setData, processing, post, errors, reset} = useForm({
+        bay: '',
+        substation : '',
+        condition : ''
     })
 
-    // console.log(substations);
+    const [isOpen, setIsOpen] = useState(false);
+    const handleClose = () => setIsOpen(false);
+
+    const submit = (e) => {
+        e.preventDefault();
+        router.post('/bay', data, {
+            onSuccess: () => {
+                reset();
+                getData();
+                Swal.fire({
+                    title: 'Success',
+                    text: data.bay +' has been created.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1C64F2'
+                });
+            },
+        });
+        setIsOpen(false)
+    };
+
+    console.log(bays);
 
     return (
         <>
-        <Head title="Substation"/>
+        <Head title="Bay"/>
         <DashboardLayout user={auth.user}>
-            <Drawer open={isOpen} onClose={handleClose} position="top">
-                <Drawer.Header title="Substation" />
-                <Drawer.Items>
-                <form onSubmit={submit}>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="col-span-1">
-                                <InputLabel htmlFor="name" value="Name" />
-                                <TextInput
-                                    id="name"
-                                    name="name"
-                                    value={data.name}
-                                    className="block w-full mt-1"
-                                    autoComplete="name"
-                                    isFocused={true}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    required
-                                />
 
-                                <InputError message={errors.name} className="mt-2" />
-                            </div>
-                            <div className="col-span-1">
+        <Drawer open={isOpen} onClose={handleClose} position="top">
+            <Drawer.Header title="Bay" />
+            <Drawer.Items>
+                <form onSubmit={submit} className="w-full">
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="col-span-1">
+                        <InputLabel htmlFor="Bay" value="Bay Name" className="text-sm font-thin"/>
+                            <TextInput
+                            type="text"
+                            sizing="md"
+                            name="bay"
+                            value={data.bay}
+                            onChange={(e) => setData('bay', e.target.value)}
+                            className="mt-1 text-gray-500"
+                            />
+                        </div>
+                        <div className="col-span-1">
+                        <InputLabel htmlFor="substation" value="Substation" className="text-sm font-thin"/>
+                            <Select required
+                                name="substation"
+                                onChange={(e) => setData('substation', e.target.value)}
+                                value={data.substation}
+                                className="w-full mt-2 text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                    <option value="" className="text-sm font-thin text-gray-500">Select substation</option>
+                                    {substations.map((substation, index) => (
+                                        <option id='substation'
+                                        key={index}
+                                        value={substation.id}
+                                        className="text-sm font-thin text-gray-500">{substation.name}</option>
+                                    ))}
+                            </Select>
+                            <InputError className='mt-2' message={errors.substations}/>
+                        </div>
+                        <div className="col-span-1">
                             <InputLabel htmlFor="condition" value="Condition" className="text-sm font-thin"/>
                             <Select required
                                 name="condition"
@@ -104,18 +111,17 @@ export default function Substation() {
                                     ))}
                             </Select>
                             <InputError className='mt-2' message={errors.conditions}/>
-                            </div>
-                            <div className="col-span-1">
-
-                            <PrimaryButton className="ms-4 mt-[26px]" disabled={processing}>
+                        </div>
+                        <div className="flex items-center justify-start col-span-1 mx-4">
+                            <PrimaryButton className="h-10 mt-[26px]" disabled={processing}>
                                 <HiOutlinePlus className="w-4 h-4 mr-2"/>
                                 Add substation
                             </PrimaryButton>
                         </div>
-                        </div>
-                    </form>
-                </Drawer.Items>
-            </Drawer>
+                    </div>
+                </form>
+            </Drawer.Items>
+        </Drawer>
 
         <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
             <table className="w-full text-sm text-gray-500 ">
@@ -138,7 +144,7 @@ export default function Substation() {
                                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                                 </svg>
                             </div>
-                            <input type="search" className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100" placeholder="Search Substation"/>
+                            <input type="search" className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100" placeholder="Search bay"/>
                         </div>
                     </form>
                 </div>
@@ -149,10 +155,10 @@ export default function Substation() {
                             No
                         </th>
                         <th scope="col" className="p-3">
-                            Name
+                            Substation
                         </th>
                         <th scope="col" className="p-3">
-                            Bay Total
+                            Bay
                         </th>
                         <th scope="col" className="p-3">
                             Condition
@@ -163,38 +169,35 @@ export default function Substation() {
                     </tr>
                 </thead>
                 <tbody>
-                    {isLoading ? (
-                            <tr>
-                                <td>Loading...</td>
-                            </tr>
-                        ) : substations.data.map((substation, index) => (
+                    { isLoading ? (
+                        <tr>
+                            <td>Loading....</td>
+                        </tr>
+                    ) : bays.data.map((bay, index) => (
                             <tr className="bg-white border-b hover:bg-gray-50" key={index}>
                                 <td className="px-4 py-3 font-medium text-gray-900">
-                                    {substations.from + index}
+                                    {bays.from + index}
                                 </td>
-                                <td>
-                                    {substation.name}
+                                <td className="px-4 py-3">
+                                    {bay.substation.name}
                                 </td>
-                                <td className="px-10 py-3 font-bold">
-                                    {substation.bay.length}
+                                <td className="px-4 py-3">
+                                    {bay.name}
                                 </td>
-                                <td>
-                                    {substation.condition.name === 'Operasi' ? (
-                                        <Badge color="success" className="justify-center w-24">{substation.condition.name}</Badge>
+                                <td className="px-4 py-3">
+                                    {bay.condition.name === 'Operasi' ? (
+                                        <Badge color="success" className="justify-center w-24">{bay.condition.name}</Badge>
                                     ): (
-                                        <Badge color="failure" className="justify-center">{substation.condition.name}</Badge>
+                                        <Badge color="failure" className="justify-center">{bay.condition.name}</Badge>
                                     )}
                                 </td>
                                 <td className="flex items-center justify-end mx-4 mt-2">
-                                <div className="flex">
-                                    <Link href="" className="mx-1">
-                                        <Button size="xs" color="warning" className="rounded-lg">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </Button>
-                                    </Link>
-                                </div>
+                                    <Button size="xs" color="warning" className="rounded-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                        Edit
+                                    </Button>
                                 </td>
                             </tr>
                             ))
@@ -204,7 +207,7 @@ export default function Substation() {
             </table>
             <div className="flex items-center justify-between mx-2">
                 <p className="text-sm font-medium text-gray-700">
-                    Showing {substations.from} to {substations.to} total {substations.total}
+                    Showing {bays.from} to {bays.to} total {bays.total}
                 </p>
                 <div className="inline-flex items-center justify-center my-2">
                     <InputLabel value='Filter'/>
@@ -215,16 +218,10 @@ export default function Substation() {
                         <option>30</option>
                     </select>
                 </div>
-            <Pagination className="rounded-sm" links={substations.links}/>
+            <Pagination className="rounded-sm" links={bays.links}/>
             </div>
         </div>
         </DashboardLayout>
         </>
     );
 }
-
-{/* <Button size="xs" color="failure" className="rounded-lg" onClick={()=> handleDelete(substation.id, substation.name)}>
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path d="M18 6L17.1991 18.0129C17.129 19.065 17.0939 19.5911 16.8667 19.99C16.6666 20.3412 16.3648 20.6235 16.0011 20.7998C15.588 21 15.0607 21 14.0062 21H9.99377C8.93927 21 8.41202 21 7.99889 20.7998C7.63517 20.6235 7.33339 20.3412 7.13332 19.99C6.90607 19.5911 6.871 19.065 6.80086 18.0129L6 6M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-</Button> */}

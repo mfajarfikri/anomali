@@ -81,13 +81,12 @@ export default function User({auth, users, substations, roles}) {
                             <p className="font-bold">New User</p>
                         </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900">Add New User</h3>
                 </div>
             </Modal.Header>
             <Modal.Body>
                 <form onSubmit={submit} className="space-y-6">
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="mt-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="">
                             <Label htmlFor="name" value="Name User"/>
                             <TextInput
                                 id="name"
@@ -101,8 +100,7 @@ export default function User({auth, users, substations, roles}) {
                             />
                             <InputError message={errors.name} className="mt-2" />
                         </div>
-
-                        <div className="mt-4">
+                        <div className="">
                             <Label htmlFor="email" value="Email" />
                             <TextInput
                                 id="email"
@@ -118,7 +116,7 @@ export default function User({auth, users, substations, roles}) {
                             <InputError message={errors.email} className="mt-2" />
                         </div>
 
-                        <div className="mt-4">
+                        <div className="">
                             <Label htmlFor="substation" value="Substation"/>
                             <Select
                                 id="substation"
@@ -137,7 +135,7 @@ export default function User({auth, users, substations, roles}) {
                             <InputError className='mt-2' message={errors.substation_id}/>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="">
                             <Label htmlFor="role" value="Role"/>
                             <Select
                                 id="role"
@@ -156,7 +154,7 @@ export default function User({auth, users, substations, roles}) {
                             <InputError className='mt-2' message={errors.role_id}/>
                         </div>
 
-                        <div className="mt-4">
+                        <div className="">
                             <Label htmlFor="password" value="Password" />
                             <TextInput
                                 id="password"
@@ -171,7 +169,7 @@ export default function User({auth, users, substations, roles}) {
                             <InputError message={errors.password} className="mt-2" />
                         </div>
 
-                        <div className="mt-4">
+                        <div className="">
                             <Label htmlFor="password_confirmation" value="Confirm Password" />
                             <TextInput
                                 id="password_confirmation"
@@ -205,7 +203,7 @@ export default function User({auth, users, substations, roles}) {
             <table className="w-full text-sm text-gray-500 ">
                 <caption className="p-4 text-lg font-semibold text-left bg-gray-100 rtl:text-right">
                     <div className="inline-flex gap-3">
-                        <button outline onClick={() => setOpenModal(true)} className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl">
+                        <button onClick={() => setOpenModal(true)} className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="transition ease-in-out stroke-1 stroke-emerald-700 size-5 hover:rotate-45 ">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                             </svg>
@@ -264,18 +262,19 @@ export default function User({auth, users, substations, roles}) {
                             <td className="py-2 ">
                                 {user.substation.name}
                             </td>
-                            <td className="py-2 ">
-                                {user.role.name === 'Admin' ?
-                                (<Badge color="success" className="justify-center">
+                            <td className="flex items-center justify-center py-2">
+                                {user.role.name === 'Admin' ? (
+                                <Badge color="success" className="justify-center w-24">
                                     {user.role.name}
-                                </Badge>):(<Badge color="gray" className="justify-center">
+                                </Badge>
+                            ):( <Badge color="gray" className="justify-center w-24">
                                     {user.role.name}
                                 </Badge>
                                 )}
 
                         </td>
                         <td className="py-2 ">
-                        <div className="flex">
+                        <div className="flex items-center justify-center">
                             <Link href={route("user.edit",user.id)} className="mx-1">
                                 <Button size="xs" color="warning" className="rounded-lg">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

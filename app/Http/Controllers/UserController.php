@@ -20,7 +20,7 @@ class UserController extends Controller
     {
         return Inertia::render('User/User', [
             'users' => User::with(['Role', 'Substation'])->latest()->paginate($request->perpage ?? 10),
-            'substations' => Substation::all(),
+            'substations' => Substation::orderBy('name', 'asc')->get(),
             'roles' => Role::all(),
         ]);
     }
@@ -48,7 +48,6 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // dd($user);
         if ($user) {
             event(new Registered($user));
             return redirect()->route('user')->with('success', 'User created successfully');

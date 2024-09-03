@@ -29,11 +29,6 @@ class StatusSeeder extends Seeder
             2 =>
             array(
                 'id' => 3,
-                'name' => 'Pending',
-            ),
-            3 =>
-            array(
-                'id' => 4,
                 'name' => 'Close',
             ),
         ));

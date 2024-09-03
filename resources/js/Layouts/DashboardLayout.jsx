@@ -6,7 +6,7 @@ import { Sidebar, Badge, HR } from 'flowbite-react';
 
 import { twMerge } from "tailwind-merge";
 
-import { HiArrowSmRight, HiChartPie, HiInbox, HiDatabase, HiTable, HiUser, HiChevronRight, HiChevronUp, HiGlobe } from "react-icons/hi";
+import { HiSwitchHorizontal, HiChartPie, HiInbox, HiHome, HiTable, HiUser, HiDocumentReport } from "react-icons/hi";
 
 export default function DashboardLayout({children, user}) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
@@ -32,6 +32,24 @@ export default function DashboardLayout({children, user}) {
                     href: route("user"),
                     current: route().current("user"),
                     icon: HiUser
+                },
+                {
+                    name: "Approval",
+                    href: route("approval"),
+                    current: route().current("approval"),
+                    icon: HiDocumentReport
+                },
+                {
+                    name: "Substation",
+                    href: route("substation"),
+                    current: route().current("subtation"),
+                    icon: HiHome
+                },
+                {
+                    name: "Bay",
+                    href: route("bay"),
+                    current: route().current("bay"),
+                    icon: HiSwitchHorizontal
                 }
             ];
         } else {
@@ -70,24 +88,37 @@ export default function DashboardLayout({children, user}) {
                             <div className='flex items-center'>
                                 <div className="mx-4">
                                     <div className="hidden sm:flex sm:items-center sm:ms-6">
-                                        <div className="relative ms-3">
+                                        <div className="inline-flex items-center ms-3">
                                             <Dropdown>
                                                 <Dropdown.Trigger>
-                                                    <span className="inline-flex rounded-md">
-                                                        <button
-                                                            type="button"
-                                                            className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none">
-                                                            {user.name}
-                                                            <svg className="ms-2 -me-0.5 h-4 w-4"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                viewBox="0 0 20 20"
-                                                                fill="currentColor" >
-                                                                <path fillRule="evenodd"
-                                                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                    clipRule="evenodd"/>
-                                                            </svg>
-                                                        </button>
-                                                    </span>
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                                                    </svg>
+                                                </button>
+                                                </Dropdown.Trigger>
+                                                <Dropdown.Content>
+                                                    <span></span>
+                                                </Dropdown.Content>
+                                            </Dropdown>
+
+                                            <Dropdown>
+                                                <Dropdown.Trigger>
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none">
+                                                        {user.name}
+                                                        <svg className="ms-2 -me-0.5 h-4 w-4"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20"
+                                                            fill="currentColor" >
+                                                            <path fillRule="evenodd"
+                                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                                clipRule="evenodd"/>
+                                                        </svg>
+                                                    </button>
                                                 </Dropdown.Trigger>
 
                                                 <Dropdown.Content>
@@ -98,7 +129,7 @@ export default function DashboardLayout({children, user}) {
                                                             </div>
                                                         </Dropdown.Link>
                                                     </div>
-                                                    <div className="">
+                                                    <div className="flex">
                                                         <Dropdown.Link href={route('logout')} method="post" as="button">
                                                             <div className="inline-flex items-center">
                                                                 <span className=''>Logout</span>
@@ -176,7 +207,7 @@ export default function DashboardLayout({children, user}) {
 
 
 
-        <aside className="fixed top-0 left-0 z-30 w-64 h-screen pt-12 transition-transform -translate-x-full border-r border-gray-200 shadow-2xl sm:translate-x-0" aria-label="Sidebar">
+        <aside className="fixed top-0 left-0 z-30 w-64 h-screen pt-16 transition-transform -translate-x-full border-r border-gray-200 shadow-2xl sm:translate-x-0" aria-label="Sidebar">
             <Sidebar>
                 <Sidebar.Items>
                     <Sidebar.ItemGroup >
@@ -194,27 +225,6 @@ export default function DashboardLayout({children, user}) {
                                 </Sidebar.Item>
                             );
                         })}
-                        {user.role_id == "1" && (
-                            <Sidebar.Collapse
-                                icon={HiDatabase}
-                                label="Data"
-                                renderChevronIcon={(theme, open) => {
-                                const IconComponent = open ? HiChevronUp : HiChevronRight;
-
-                                return <IconComponent aria-hidden className={twMerge(theme.label.icon.open[open ? 'on' : 'off'])} />;
-                                }}
-                            >
-                                <Sidebar.Item href={route('substation')} active={route().current('substation')}>
-                                    <span className='ml-4'>Substation</span>
-                                </Sidebar.Item>
-                                <Sidebar.Item href={route('substation')}>
-                                    <span className='ml-4'>Peralatan</span>
-                                </Sidebar.Item>
-                                <Sidebar.Item href={route('substation')}>
-                                    <span className='ml-4'>Tegangan</span>
-                                </Sidebar.Item>
-                            </Sidebar.Collapse>
-                        )}
                     </Sidebar.ItemGroup>
                 </Sidebar.Items>
             </Sidebar>

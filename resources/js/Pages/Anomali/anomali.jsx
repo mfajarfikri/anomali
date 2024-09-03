@@ -3,12 +3,12 @@ import { Head, useForm, router } from "@inertiajs/react";
 import { Button,Badge, HR, Label, Modal, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef } from "react";
 import { HiUser, HiOutlineTicket, HiOutlineSearch, HiOutlineCheck, HiDocumentReport } from "react-icons/hi";
-import { Input, Select } from "@headlessui/react";
+import { Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 
-export default function Anomali({auth, anomalis, peralatans, bays, voltages, sections, types, substations}){
+export default function Anomali({auth, anomalis, equipments, bays, voltages, sections, types, substations}){
 
 
     const perpage = useRef(10);
@@ -33,14 +33,13 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
     }
 
     const { data, setData, processing, post, errors, reset} = useForm({
-        ticketname: '',
+        titlename: '',
         substation: '',
         section:'',
         type:'',
         user: auth.user.id,
-        peralatan: '',
+        equipment: '',
         other: '',
-        voltage: '',
         bay: '',
         date_find: '',
         additional_information: ''
@@ -77,7 +76,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
         console.log(data); // Log the data parameter instead of selectedItem
     }
 
-    console.log(anomalis);
+    // console.log(substations);
 
 
     return(
@@ -102,13 +101,13 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                 <Modal.Body>
                     <form onSubmit={submit}>
                         <div className="">
-                            <Label htmlFor="ticketName" value="Ticket Name" className="text-sm font-thin"/>
+                            <Label htmlFor="titlename" value="Title Name" className="text-sm font-thin"/>
                             <TextInput
                             type="text"
-                            id="ticketname"
-                            name="ticketname"
-                            value={data.ticketname}
-                            onChange={(e) => setData('ticketname', e.target.value)}
+                            id="titlename"
+                            name="titlename"
+                            value={data.titlename}
+                            onChange={(e) => setData('titlename', e.target.value)}
                             icon={HiOutlineTicket}
                             autoComplete="off"
                             placeholder="My Suggestion for this ticket"
@@ -164,6 +163,23 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                             </div>
                         </div>
                         <div className="mt-2">
+                            <div className="w-full">
+                                <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
+                                <Select required
+                                name="bay"
+                                value={data.bay}
+                                onChange={(e) => setData('bay', e.target.value)}
+                                className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                <option value="" className="text-sm font-thin text-gray-500">Select Bay</option>
+                                {bays.map((bay, index) => (
+                                    <option id='bay' key={index} value={bay.id} className="text-sm font-thin text-gray-500"
+                                    >{bay.name}</option>
+                                ))}
+                                </Select>
+                                <InputError className='mt-2' message={errors.bays}/>
+                            </div>
+                        </div>
+                        <div className="mt-2">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-1">
                                 <Label htmlFor="user" value="User" className="text-sm font-thin"/>
@@ -177,66 +193,26 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                     icon={HiUser} readOnly/>
                                 </div>
                                 <div className="col-span-1">
-                                <Label htmlFor="peralatan" value="Peralatan" className="text-sm font-thin"/>
+                                <Label htmlFor="equipment" value="Equipment" className="text-sm font-thin"/>
                                     <Select required
-                                    name="peralatan"
-                                    onChange={(e) => setData('peralatan', e.target.value)}
-                                    value={data.peralatan}
+                                    name="equipment"
+                                    onChange={(e) => setData('equipment', e.target.value)}
+                                    value={data.equipment}
                                     className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                        <option value="" className="text-sm font-thin text-gray-500">Select peralatan</option>
-                                        {peralatans.map((peralatan, index) => (
-                                            <option id='peralatan' key={index} value={peralatan.id} className="text-sm font-thin text-gray-500">{peralatan.name}</option>
+                                        <option value="" className="text-sm font-thin text-gray-500">Select equipment</option>
+                                        {equipments.map((equipment, index) => (
+                                            <option id='equipment' key={index} value={equipment.id} className="text-sm font-thin text-gray-500">{equipment.name}</option>
                                         ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.peralatans}/>
+                                    <InputError className='mt-2' message={errors.equipments}/>
                                 </div>
                             </div>
                         </div>
                         <div className="mt-2">
-                            <Label htmlFor="other" value="Other" className="text-sm font-thin"/>
+                            <Label htmlFor="other" value="Explanation" className="text-sm font-thin"/>
                             <TextInput
                             type="text"
-                            helperText={<>
-                            <cite>Please fill it in when choosing other</cite>
-                            </>}
                             className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
-                        </div>
-                        <div className="mt-2">
-                            <div className="grid grid-cols-3 gap-4">
-                                <div className="inline-flex col-span-1">
-                                    <div className="w-full">
-                                        <Label htmlFor="voltage" value="Voltage" className="text-sm font-thin"/>
-                                        <Select required
-                                        name="voltage"
-                                        onChange={(e) => setData('voltage', e.target.value)}
-                                        value={data.voltage}
-                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                        <option value="" className="text-sm font-thin text-gray-500">Select Voltage</option>
-                                        {voltages.map((voltage, index) => (
-                                            <option id='voltage' key={index} value={voltage.id} className="text-sm font-thin text-gray-500">{voltage.name}</option>
-                                        ))}
-                                        </Select>
-                                        <InputError className='mt-2' message={errors.voltages}/>
-                                    </div>
-                                </div>
-                                <div className="inline-flex col-span-2">
-                                    <div className="w-full">
-                                        <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
-                                        <Select required
-                                        name="bay"
-                                        value={data.bay}
-                                        onChange={(e) => setData('bay', e.target.value)}
-                                        className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                        <option value="" className="text-sm font-thin text-gray-500">Select Bay</option>
-                                        {bays.map((bay, index) => (
-                                            <option id='bay' key={index} value={bay.id} className="text-sm font-thin text-gray-500"
-                                            >{bay.name}</option>
-                                        ))}
-                                        </Select>
-                                        <InputError className='mt-2' message={errors.bays}/>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <div className="mt-2">
                             <div className="w-full">
@@ -251,7 +227,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                             </div>
                         </div>
                         <div className="mt-2">
-                            <Label htmlFor="additional_information" value="Additional Information" className="text-sm font-thin"/>
+                            <Label htmlFor="additional_information" value="Description" className="text-sm font-thin"/>
                             <Textarea id="additional_information"
                             name="additional_information"
                             value={data.additional_information}
@@ -278,7 +254,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                         <HiOutlineTicket style={{ color: "green", fontSize: "1.5em" }}/>
                     </div>
                     <span className="mx-2">
-                        {selectedItem && selectedItem.ticketname}
+                        {selectedItem && selectedItem.titlename}
                     </span>
                 </div>
 
@@ -287,8 +263,8 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                 {selectedItem && (
                     <>
                     <span>Detail Ticket</span>
-                        <div class="grid grid-cols-2 grid-flow-col gap-4 text-xs divide-x">
-                            <div class="col-span-1 mt-4">
+                        <div className="grid grid-flow-col grid-cols-2 gap-4 text-xs divide-x">
+                            <div className="col-span-1 mt-4">
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Request By</span>
@@ -313,10 +289,8 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Status</span>
 
-                                        {selectedItem.status.name == "Open" ? (
+                                        {selectedItem.status.name === "Open" ? (
                                         <Badge color="success">{selectedItem.status.name}</Badge>
-                                    ) : selectedItem.status.name === "Pending" ? (
-                                        <Badge color="warning">{selectedItem.status.name}</Badge>
                                     ) : selectedItem.status.name === "Close" ? (
                                         <Badge color="failure">{selectedItem.status.name}</Badge>
                                     ) : (
@@ -324,7 +298,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                     )}
                                 </div>
                             </div>
-                            <div class="col-span-1 mt-4 px-4">
+                            <div className="col-span-1 px-4 mt-4">
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Type</span>
@@ -338,12 +312,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                 <hr />
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Equipment</span>
-                                    {selectedItem.peralatan.name}
-                                </div>
-                                <hr />
-                                <div className="flex justify-between my-2">
-                                    <span className="italic">Voltage</span>
-                                    {selectedItem.voltage.name}
+                                    {selectedItem.equipment.name}
                                 </div>
                                 <hr />
                                 <div className="flex justify-between my-2">
@@ -354,6 +323,15 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                                 <div className="flex justify-between my-2">
                                     <span className="italic">Created At</span>
                                     {selectedItem.created_at}
+                                </div>
+                                <hr />
+                                <div className="flex justify-between my-2">
+                                    <span className="italic">Approve By</span>
+                                    {selectedItem.approve_by === null ? (
+                                        <span>-</span>
+                                    ): (
+                                        <span>{selectedItem.approve_by}</span>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -442,7 +420,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                         No
                     </th>
                     <th scope="col" className="py-3">
-                        Ticket Name
+                        Title Name
                     </th>
                     <th scope="col" className="py-3">
                         Substation
@@ -457,10 +435,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                         User
                     </th>
                     <th scope="col" className="py-3">
-                        Peralatan
-                    </th>
-                    <th scope="col" className="py-3">
-                        Voltage
+                        equipment
                     </th>
                     <th scope="col" className="py-3">
                         Bay
@@ -481,7 +456,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                             {anomalis.from + index}
                         </td>
                         <td className="py-2 ">
-                            {anomali.ticketname}
+                            {anomali.titlename}
                         </td>
                         <td className="py-2">
                             {anomali.substation.name}
@@ -501,10 +476,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                             {anomali.user.name}
                         </td>
                         <td className="py-2">
-                            {anomali.peralatan.name}
-                        </td>
-                        <td className="py-2">
-                            {anomali.voltage.name}
+                            {anomali.equipment.name}
                         </td>
                         <td className="py-2">
                             {anomali.bay.name}
@@ -538,7 +510,7 @@ export default function Anomali({auth, anomalis, peralatans, bays, voltages, sec
                         value={perpage.current} onChange={handleChangePerPage}>
                     <option>10</option>
                     <option>20</option>
-                    <option>50</option>
+                    <option value={anomalis.total}>All</option>
                 </select>
             </div>
         <Pagination links={anomalis.links}/>

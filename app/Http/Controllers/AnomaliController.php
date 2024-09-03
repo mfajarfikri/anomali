@@ -6,9 +6,9 @@ use App\Models\Bay;
 use App\Models\Type;
 use Inertia\Inertia;
 use App\Models\Anomali;
+use App\Models\Equipment;
 use App\Models\Section;
 use App\Models\Voltage;
-use App\Models\Peralatan;
 use App\Models\Substation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -20,13 +20,15 @@ class AnomaliController extends Controller
      */
     public function index(Request $request)
     {
+
+        // dd(Substation::orderBy('name', 'asc')->get());
+
         return Inertia::render('Anomali/Anomali')->with([
-            'anomalis' => Anomali::with(['Substation','Section','Type','User','Peralatan','Voltage','Bay','Status'])->latest()->paginate($request->perpage ?? 10),
-            'substations' => Substation::all(),
-            'sections' => Section::all(),
+            'anomalis' => Anomali::with(['Substation','Section','Type','User','Equipment','Bay','Status'])->latest()->paginate($request->perpage ?? 10),
+            'substations' => Substation::orderBy('name', 'asc')->get(),
+            'sections' => Section::orderBy('name', 'asc')->get(),
             'types' => Type::all(),
-            'peralatans' => Peralatan::all(),
-            'voltages' => Voltage::all(),
+            'equipments' => Equipment::orderBy('name', 'asc')->get(),
             'bays' => Bay::all(),
         ]);
 
@@ -39,30 +41,29 @@ class AnomaliController extends Controller
     public function create(Request $request)
     {
         $request->validate([
-            'ticketname' => 'required',
+            'titlename' => 'required',
             'substation' => 'required',
             'section' => 'required',
             'type' => 'required',
             'user' => 'required',
-            'peralatan' => 'required',
-            'voltage' => 'required',
+            'equipment' => 'required',
             'bay' => 'required',
             'date_find' => 'required',
             'additional_information' => 'required'
         ]);
 
         $ticket = Anomali::create([
-            'ticketname' => $request->ticketname,
+            'titlename' => $request->titlename,
             'substation_id' => $request->substation,
             'section_id' => $request->section,
             'type_id' => $request->type,
             'user_id' => $request->user,
-            'peralatan_id' => $request->peralatan,
-            'voltage_id' => $request->voltage,
+            'equipment_id' => $request->equipment,
             'bay_id' => $request->bay,
             'date_find' => $request->date_find,
             'additional_information' => $request->additional_information,
-            'status_id' => 1
+            'status_id' => 1,
+            'is_approve' => false
         ]);
         if ($ticket) {
             return redirect()->route('anomali')->with('success', 'Anomalies created successfully');
@@ -107,8 +108,11 @@ class AnomaliController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Anomali $anomali)
+    public function destroy(Request $request, string $id)
     {
-        //
+        dd($id);
+        $anomali = Anomali::find($id);
+        $anomali->delete();
+        return back();
     }
 }

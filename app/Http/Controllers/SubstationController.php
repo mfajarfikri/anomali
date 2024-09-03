@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Condition;
 use App\Models\Substation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -15,18 +16,32 @@ class SubstationController extends Controller
      */
     public function index(Request $request)
     {
-
         return Inertia::render('Substation/Substation', [
-            'substations' => Substation::latest()->Paginate($request->perpage ?? 10),
+            'substations' => Substation::with(['Condition','Bay'])->orderBy('name', 'asc')->Paginate($request->perpage ?? 10),
+            'conditions' => Condition::all()
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        return Inertia::render('Substation/CreateSubstation');
+        // dd($request);
+        $request->validate([
+            'name' => 'required|unique:'. Substation::class
+        ]);
+
+        $substation = Substation::create([
+            'name' => $request->name,
+            'condition_id' => $request->condition
+        ]);
+
+        if ($substation) {
+            return redirect()->route('substation')->with('success', 'Substation created successfully');
+        }
+
+        return redirect()->back()->with('error', 'Failed to create Substation');
     }
 
     /**
@@ -34,12 +49,7 @@ class SubstationController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required'
-        ]);
-
-        Substation::create($data);
-        return Redirect::route('substation');
+        //
     }
 
     /**
