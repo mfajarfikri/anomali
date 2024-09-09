@@ -16,6 +16,8 @@ class SubstationController extends Controller
      */
     public function index(Request $request)
     {
+        $substation = Substation::with(['Bay'])->orderBy('name', 'asc')->Paginate($request->perpage ?? 10);
+        dd($substation);
         return Inertia::render('Substation/Substation', [
             'substations' => Substation::with(['Condition','Bay'])->orderBy('name', 'asc')->Paginate($request->perpage ?? 10),
             'conditions' => Condition::all()

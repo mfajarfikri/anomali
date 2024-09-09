@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Anomali;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Status;
+use App\Models\Anomali;
+use App\Models\Equipment;
+use App\Models\Substation;
+use App\Models\Type;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -13,13 +17,15 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
+        // $data = Equipment::with('Anomali')->get();
+        // dd($data);
+
         return Inertia::render('Dashboard', [
-            'anomalis' => Anomali::latest()->paginate(),
-            'anomalis_new' => Anomali::where('status_id', 1)->count(),
-            'anomalis_open' => Anomali::where('status_id', 2)->count(),
-            'anomalis_close' => Anomali::where('status_id', 3)->count(),
-            'anomalis_major' => Anomali::where('type_id', 1)->count(),
-            'anomalis_minor' => Anomali::where('type_id', 2)->count(),
+            'equipments' => Equipment::with('Anomali')->get(),
+            'type' => Type::with('Anomali')->get(),
+            'status' => Status::with(['Anomali'])->get(),
+            'anomalis' => Anomali::with(['Status'])->get(),
             'date_plan' => Anomali::all(['ticketname', 'date_plan']),
         ]);
     }

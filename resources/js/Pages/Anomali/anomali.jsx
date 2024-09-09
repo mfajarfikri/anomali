@@ -8,7 +8,7 @@ import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 
-export default function Anomali({auth, anomalis, equipments, bays, voltages, sections, types, substations}){
+export default function Anomali({auth, anomalis, equipments, bays, sections, types, substations}){
 
 
     const perpage = useRef(10);
@@ -76,7 +76,7 @@ export default function Anomali({auth, anomalis, equipments, bays, voltages, sec
         console.log(data); // Log the data parameter instead of selectedItem
     }
 
-    // console.log(substations);
+    console.log(data);
 
 
     return(
@@ -212,6 +212,9 @@ export default function Anomali({auth, anomalis, equipments, bays, voltages, sec
                             <Label htmlFor="other" value="Explanation" className="text-sm font-thin"/>
                             <TextInput
                             type="text"
+                            name="other"
+                            value={data.other}
+                            onChange={(e) => setData('other', e.target.value)}
                             className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
                         <div className="mt-2">
@@ -337,19 +340,21 @@ export default function Anomali({auth, anomalis, equipments, bays, voltages, sec
                         </div>
                         <hr className="mt-4" />
 
-                        <div className="mt-4">
-                        {selectedItem.other === null ? (
-                            <span>-</span>
-                        ) : (
-                            <span className="text-xs">{selectedItem.other}</span>
-                        )}
-
-                            <p className="text-xs">{selectedItem.additional_information}</p>
+                        <div className="mt-2">
+                            <span>Note</span>
+                            <div className="p-4 border rounded-md">
+                                {selectedItem.other === null ? (
+                                    <span>-</span>
+                                ) : (
+                                <p className="text-xs">{selectedItem.other}</p>
+                                )}
+                                <p className="mt-4 text-xs">{selectedItem.additional_information}</p>
+                            </div>
                         </div>
 
                         <div className="mt-2 font-thin">
                             <span>Dates</span>
-                            <div className="p-2 mt-2 text-xs border rounded-lg">
+                            <div className="p-2 text-xs border rounded-lg">
                                 <div className="grid justify-center grid-cols-3 gap-4 divide-x">
                                     <div className="flex justify-center col-span-1">
                                         <div className="inline-block">
@@ -383,9 +388,6 @@ export default function Anomali({auth, anomalis, equipments, bays, voltages, sec
                     </>
                 )}
             </Modal.Body>
-            <Modal.Footer>
-                <Button size="sm" onClick={() => setOpenModalDetail(false)}>Close</Button>
-            </Modal.Footer>
         </Modal>
 
         <div className="relative overflow-auto shadow-lg sm:rounded-lg">

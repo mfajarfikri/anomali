@@ -65,7 +65,7 @@ export default function Substation() {
         name : ""
     })
 
-    // console.log(substations);
+    console.log(substations);
 
     return (
         <>
@@ -84,7 +84,6 @@ export default function Substation() {
                                     value={data.name}
                                     className="block w-full mt-1"
                                     autoComplete="name"
-                                    isFocused={true}
                                     onChange={(e) => setData('name', e.target.value)}
                                     required
                                 />

@@ -18,12 +18,11 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             RoleSeeder::class,
-            AnomaliSeeder::class,
+            // AnomaliSeeder::class,
             SubstationSeeder::class,
             UserSeeder::class,
             EquipmentSeeder::class,
             BaySeeder::class,
-            VoltageSeeder::class,
             SectionSeeder::class,
             StatusSeeder::class,
             TypeSeeder::class,

@@ -8,6 +8,7 @@ import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import { Button, Drawer, Badge } from "flowbite-react";
 import { Select } from "@headlessui/react";
+import { HiOutlinePlus } from "react-icons/hi";
 
 
 export default function Bay() {
@@ -38,9 +39,9 @@ export default function Bay() {
     })
 
     const [isOpen, setIsOpen] = useState(false);
-    const handleClose = () => setIsOpen(false);
+    const handleCloseInsert = () => setIsOpen(false);
 
-    const submit = (e) => {
+    const handleCreate = (e) => {
         e.preventDefault();
         router.post('/bay', data, {
             onSuccess: () => {
@@ -58,17 +59,53 @@ export default function Bay() {
         setIsOpen(false)
     };
 
-    console.log(bays);
+    const { dataEdit, setEdit} = useForm({
+        bayEdit: '',
+        substation : '',
+        condition : ''
+    })
+
+    const handleUpdate = (e) => {
+        console.log(e);
+        e.preventDefault();
+        router.post(`/bay/edit/${id}`, data, {
+            onSuccess: () => {
+                reset();
+                getData();
+                Swal.fire({
+                    title: 'Success',
+                    text: dataEdit.bay +' has been created.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#1C64F2'
+                });
+            },
+        });
+        setIsOpen(false)
+    };
+
+    console.log(dataEdit);
+
+    const [selectedItem, setSelectedItem] = useState(null)
+    const [openModalEdit, setOpenModalEdit] = useState(false)
+    const handleCloseEdit = () => setOpenModalEdit(false);
+
+    const editItem = (data) => {
+        setSelectedItem(data);
+        setOpenModalEdit(true, data);
+        console.log(data); // Log the data parameter instead of selectedItem
+    }
 
     return (
         <>
         <Head title="Bay"/>
         <DashboardLayout user={auth.user}>
 
-        <Drawer open={isOpen} onClose={handleClose} position="top">
-            <Drawer.Header title="Bay" />
+        {/* Drawer Insert */}
+        <Drawer open={isOpen} onClose={handleCloseInsert} position="top">
+            <Drawer.Header title="New Bay" />
             <Drawer.Items>
-                <form onSubmit={submit} className="w-full">
+                <form onSubmit={handleCreate} className="w-full">
                     <div className="grid grid-cols-4 gap-4">
                         <div className="col-span-1">
                         <InputLabel htmlFor="Bay" value="Bay Name" className="text-sm font-thin"/>
@@ -79,6 +116,8 @@ export default function Bay() {
                             value={data.bay}
                             onChange={(e) => setData('bay', e.target.value)}
                             className="mt-1 text-gray-500"
+                            required
+                            autoFocus
                             />
                         </div>
                         <div className="col-span-1">
@@ -115,11 +154,74 @@ export default function Bay() {
                         <div className="flex items-center justify-start col-span-1 mx-4">
                             <PrimaryButton className="h-10 mt-[26px]" disabled={processing}>
                                 <HiOutlinePlus className="w-4 h-4 mr-2"/>
-                                Add substation
+                                Add bay
                             </PrimaryButton>
                         </div>
                     </div>
                 </form>
+            </Drawer.Items>
+        </Drawer>
+
+        {/* Drawer Edit */}
+        <Drawer open={openModalEdit} onClose={handleCloseEdit} position="top">
+            <Drawer.Header title="Edit Bay" />
+            <Drawer.Items>
+                {selectedItem && (
+                    <form onSubmit={()=> handleUpdate(selectedItem.id)} className="w-full">
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="col-span-1">
+                        <InputLabel htmlFor="Bay" value="Bay Name" className="text-sm font-thin"/>
+                            <TextInput
+                            type="text"
+                            sizing="md"
+                            name="bayEdit"
+                            value={selectedItem.name}
+                            onChange={(e) => setData('bayEdit', e.target.value)}
+                            className="mt-1 text-gray-500"
+                            required
+                            autoFocus
+                            />
+                        </div>
+                        <div className="col-span-1">
+                        <InputLabel htmlFor="substation" value="Substation" className="text-sm font-thin"/>
+                            <Select required
+                                name="substation"
+                                onChange={(e) => setData('substation', e.target.value)}
+                                value={selectedItem.substation_id}
+                                className="w-full mt-2 text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                    <option value="" className="text-sm font-thin text-gray-500">Select substation</option>
+                                    {substations.map((substation, index) => (
+                                        <option id='substation'
+                                        key={index}
+                                        value={substation.id}
+                                        className="text-sm font-thin text-gray-500">{substation.name}</option>
+                                    ))}
+                            </Select>
+                            <InputError className='mt-2' message={errors.substations}/>
+                        </div>
+                        <div className="col-span-1">
+                            <InputLabel htmlFor="condition" value="Condition" className="text-sm font-thin"/>
+                            <Select required
+                                name="condition"
+                                onChange={(e) => setData('condition', e.target.value)}
+                                value={selectedItem.condition_id}
+                                className="w-full mt-2 text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                    <option value="" className="text-sm font-thin text-gray-500">Select condition</option>
+                                    {conditions.map((condition, index) => (
+                                        <option id='condition' key={index} value={condition.id} className="text-sm font-thin text-gray-500">{condition.name}</option>
+                                    ))}
+                            </Select>
+                            <InputError className='mt-2' message={errors.conditions}/>
+                        </div>
+                        <div className="flex items-center justify-start col-span-1 mx-4">
+                            <PrimaryButton className="h-10 mt-[26px]" disabled={processing}>
+                                <HiOutlinePlus className="w-4 h-4 mr-2"/>
+                                Add bay
+                            </PrimaryButton>
+                        </div>
+                    </div>
+                    </form>
+                )}
             </Drawer.Items>
         </Drawer>
 
@@ -188,11 +290,11 @@ export default function Bay() {
                                     {bay.condition.name === 'Operasi' ? (
                                         <Badge color="success" className="justify-center w-24">{bay.condition.name}</Badge>
                                     ): (
-                                        <Badge color="failure" className="justify-center">{bay.condition.name}</Badge>
+                                        <Badge color="failure" className="justify-center w-24">{bay.condition.name}</Badge>
                                     )}
                                 </td>
                                 <td className="flex items-center justify-end mx-4 mt-2">
-                                    <Button size="xs" color="warning" className="rounded-lg">
+                                    <Button onClick={() => editItem(bay)} size="xs" color="warning" className="rounded-lg">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>

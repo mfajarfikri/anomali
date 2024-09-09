@@ -32,9 +32,11 @@ Route::middleware(['auth', 'is_role:Admin'])->group(function () {
 
     Route::get('/bay', [BayController::class, 'index'])->name('bay');
     Route::post('/bay', [BayController::class, 'store'])->name('bay.store');
+    Route::post('/bay/edit/{id}', [BayController::class, 'edit'])->name('bay.edit');
     Route::get('/bay/create', [BayController::class, 'create'])->name('bay.create');
 
     Route::get('/approval', [ApprovalController::class, 'index'])->name('approval');
+    Route::get('/approval/update/{id}', [ApprovalController::class, 'update'])->name('approval.update');
     Route::post('/approval/approve/{id}', [ApprovalController::class, 'create'])->name('approval.create');
     Route::delete('/approval/{id}/delete', [ApprovalController::class, 'destroy'])->name('approval.delete');
 

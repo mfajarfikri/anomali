@@ -48,16 +48,16 @@ class Anomali extends Model
         return $this->belongsTo(Equipment::class);
     }
 
-    public function Voltage() : BelongsTo {
-        return $this->belongsTo(Voltage::class);
-    }
-
     public function Bay() : BelongsTo {
         return $this->belongsTo(Bay::class);
     }
 
     public function Status() : BelongsTo {
         return $this->belongsTo(Status::class);
+    }
+
+    public function Document() : BelongsTo {
+        return $this->belongsTo(Document::class);
     }
 
 }

@@ -6,12 +6,11 @@ use App\Models\Bay;
 use App\Models\Type;
 use Inertia\Inertia;
 use App\Models\Anomali;
-use App\Models\Equipment;
 use App\Models\Section;
-use App\Models\Voltage;
+use App\Models\Equipment;
 use App\Models\Substation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 
 class AnomaliController extends Controller
 {
@@ -21,7 +20,7 @@ class AnomaliController extends Controller
     public function index(Request $request)
     {
 
-        // dd(Substation::orderBy('name', 'asc')->get());
+        // dd(Auth::user()->);
 
         return Inertia::render('Anomali/Anomali')->with([
             'anomalis' => Anomali::with(['Substation','Section','Type','User','Equipment','Bay','Status'])->latest()->paginate($request->perpage ?? 10),
@@ -60,6 +59,7 @@ class AnomaliController extends Controller
             'user_id' => $request->user,
             'equipment_id' => $request->equipment,
             'bay_id' => $request->bay,
+            'other' => $request->other,
             'date_find' => $request->date_find,
             'additional_information' => $request->additional_information,
             'status_id' => 1,

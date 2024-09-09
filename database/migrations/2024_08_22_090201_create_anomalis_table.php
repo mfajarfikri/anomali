@@ -16,18 +16,19 @@ return new class extends Migration
             $table->string('titlename');
             $table->string('substation_id')->nullable();
             $table->string('section_id')->nullable();
-            $table->string('type_id')->nullable();
+            $table->foreignId('type_id')->constrained()->onDelete('cascade');
             $table->string('user_id')->nullable();
-            $table->string('equipment_id')->nullable();
+            $table->foreignId('equipment_id')->constrained()->onDelete('cascade');
             $table->string('other')->nullable();
             $table->string('bay_id')->nullable();
             $table->text('additional_information')->nullable();
             $table->date('date_find')->nullable();
             $table->date('date_plan')->nullable();
             $table->date('date_execution')->nullable();
-            $table->string('status_id')->nullable();
+            $table->foreignId('status_id')->constrained()->onDelete('cascade');
             $table->boolean('is_approve');
             $table->string('approve_by')->nullable();
+            $table->string('document_id')->nullable();
             $table->timestamps();
         });
     }
