@@ -32,7 +32,7 @@ class ApprovalController extends Controller
      */
     public function create(Request $request, String $id)
     {
-//        dd($request);
+    //    dd($id);
 
         $approve = Anomali::findOrFail($id);
 

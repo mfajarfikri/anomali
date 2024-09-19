@@ -17,7 +17,7 @@ class BayController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('Bay/Bay', [
-            'bays' => Bay::with(['Substation', 'Condition'])->orderBy('substation_id', 'asc')->paginate($request->perpage ?? 10),
+            'bays' => Bay::with(['Substation', 'Condition'])->orderBy('substation_id', 'asc')->paginate($request->perpage ?? 15),
             'substations' => Substation::all(),
             'conditions' => Condition::all()
         ]);
@@ -48,7 +48,7 @@ class BayController extends Controller
             'substation_id' => $request->substation,
             'condition_id' => $request->condition
         ]);
-        return Redirect::route('bay');
+        return Redirect::route('bay')->with('success', 'berhasil');
     }
 
     /**

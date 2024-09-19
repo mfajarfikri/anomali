@@ -9,6 +9,7 @@ use App\Models\Anomali;
 use App\Models\Section;
 use App\Models\Equipment;
 use App\Models\Substation;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,14 +18,13 @@ class AnomaliController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request,)
     {
-
-        // dd(Auth::user()->);
+        // dd(session());
 
         return Inertia::render('Anomali/Anomali')->with([
-            'anomalis' => Anomali::with(['Substation','Section','Type','User','Equipment','Bay','Status'])->latest()->paginate($request->perpage ?? 10),
-            'substations' => Substation::orderBy('name', 'asc')->get(),
+            'anomalis' => Anomali::with(['Substation','Section','Type','User','Equipment','Bay','Status'])->latest()->paginate($request->perpage ?? 15),
+            'substations' => Substation::with('Bay')->orderBy('name', 'asc')->get(),
             'sections' => Section::orderBy('name', 'asc')->get(),
             'types' => Type::all(),
             'equipments' => Equipment::orderBy('name', 'asc')->get(),

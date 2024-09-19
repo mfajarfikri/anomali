@@ -1,15 +1,17 @@
 import { React, useState } from 'react';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import Dropdown from '@/Components/Dropdown';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Sidebar, Badge, HR } from 'flowbite-react';
+import { Sidebar, Badge, HR, Button, theme, Tooltip } from 'flowbite-react';
 
 import { twMerge } from "tailwind-merge";
 
-import { HiSwitchHorizontal, HiChartPie, HiInbox, HiHome, HiTable, HiUser, HiDocumentReport } from "react-icons/hi";
+import { HiSwitchHorizontal, HiChartPie, HiInbox, HiHome, HiOutlineMoon, HiUser, HiDocumentReport, HiOutlineSun } from "react-icons/hi";
+import ApplicationLogo from '@/Components/ApplicationLogo';
+import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 
 export default function DashboardLayout({children, user}) {
-    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+
 
 
     const menu = () => {
@@ -71,173 +73,174 @@ export default function DashboardLayout({children, user}) {
         }
     };
 
+    const signOut = () => {
+        router.post('logout')
+    }
+
+    const switchMode = () => {
+        const mode = document.getElementById('mode')
+        const moon = document.getElementById('moon')
+        const sun = document.getElementById('sun')
+        const html = document.querySelector('html')
+
+        if (html.classList.contains('dark')) {
+            html.classList.remove('dark')
+            moon.classList.add('hidden')
+            sun.classList.remove('hidden')
+        } else {
+            html.classList.add('dark')
+            moon.classList.remove('hidden')
+            sun.classList.add('hidden')
+        }
+    }
+
+    // Efek hamburger
+    const getHamburger = () => {
+        document.getElementById('hamburger').classList.toggle('hamburger-active')
+        document.getElementById('nav-menu').classList.toggle('hidden')
+    }
+
+    // Efek Nav
+    window.onscroll = function () {
+        const header = document.querySelector('header');
+        const fixedNav = header.offsetTop;
+
+        if (window.pageYOffset > fixedNav) {
+            header.classList.add('navbar-fixed')
+        }else{
+            header.classList.remove('navbar-fixed')
+        }
+    }
     return (
         <>
 
-        <nav className="fixed top-0 z-40 w-full bg-white border-b border-gray-200">
-            <div className="px-3 py-3 lg:px-5 lg:pl-3">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center justify-start rtl:justify-end">
-                        <Link href="/" className="flex ms-2 md:me-24">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/9/97/Logo_PLN.png" className="h-8 me-3" alt="PLN Logo" />
-                            <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap">UPT Karawang</span>
-                        </Link>
+        <header className="absolute top-0 left-0 z-10 items-center w-full bg-transparent">
+            <div className="flex justify-between">
+                <div className="relative flex items-center">
+                    <div className="inline-flex items-center px-4 py-2">
+                        <ApplicationLogo className="w-14 h-14"/>
+                        <span className='text-2xl font-bold dark:text-gray-300'>UPT KARAWANG</span>
                     </div>
-                    <div className="flex items-center">
-                        <div className="flex items-center ms-3">
-                            <div className='flex items-center'>
-                                <div className="mx-4">
-                                    <div className="hidden sm:flex sm:items-center sm:ms-6">
-                                        <div className="inline-flex items-center ms-3">
-                                            <Dropdown>
-                                                <Dropdown.Trigger>
-                                                <button
-                                                    type="button"
-                                                    className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                                                    </svg>
-                                                </button>
-                                                </Dropdown.Trigger>
-                                                <Dropdown.Content>
-                                                    <span></span>
-                                                </Dropdown.Content>
-                                            </Dropdown>
+                </div>
+                <div className="flex items-center px-4">
+                    <button id='hamburger' onClick={getHamburger} type='button' className='absolute block right-4 lg:hidden'>
+                        <span className="transition duration-300 ease-in-out origin-top-left hamburger-line"></span>
+                        <span className="transition duration-300 ease-in-out hamburger-line"></span>
+                        <span className="transition duration-300 ease-in-out origin-bottom-left hamburger-line"></span>
+                    </button>
 
-                                            <Dropdown>
-                                                <Dropdown.Trigger>
-                                                    <button
-                                                        type="button"
-                                                        className="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none">
-                                                        {user.name}
-                                                        <svg className="ms-2 -me-0.5 h-4 w-4"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            viewBox="0 0 20 20"
-                                                            fill="currentColor" >
-                                                            <path fillRule="evenodd"
-                                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                clipRule="evenodd"/>
-                                                        </svg>
-                                                    </button>
-                                                </Dropdown.Trigger>
-
-                                                <Dropdown.Content>
-                                                    <div className="flex">
-                                                        <Dropdown.Link href={route('profile.edit')}>
-                                                            <div className="inline-flex items-center">
-                                                                <span className=''>Profile</span>
-                                                            </div>
-                                                        </Dropdown.Link>
-                                                    </div>
-                                                    <div className="flex">
-                                                        <Dropdown.Link href={route('logout')} method="post" as="button">
-                                                            <div className="inline-flex items-center">
-                                                                <span className=''>Logout</span>
-                                                            </div>
-                                                        </Dropdown.Link>
-                                                    </div>
-                                                </Dropdown.Content>
-                                            </Dropdown>
+                    <nav id='nav-menu' className='hidden absolute bg-white rounded-lg shadow-lg max-w-[250px] w-full right-4 top-full lg:block lg:static lg:bg-transparent lg:max-w-full lg:shadow-none lg:rounded-none dark:bg-dark-300 dark:lg:bg-transparent'>
+                        <ul className='block lg:flex'>
+                            {user.role_id === 1 ? (
+                                <>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                            <a href={route('bay')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Bay</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('substation')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Substation</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('user')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>User</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('approval')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Approval</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Anomali</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('dashboard')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Dashboard</a>
+                            </li>
+                                <Menu as="div" className="relative inline-block text-left">
+                                    <div className=''>
+                                        <MenuButton className="inline-flex items-center justify-center w-full px-3 py-2 text-base font-semibold text-black dark:text-gray-300">
+                                        <img src={'https://www.fivebranches.edu/wp-content/uploads/2021/08/default-image.jpg'} alt="" className='w-10 h-10 rounded-full' />
+                                        <p className='lg:hidden'>{user.name}</p>
+                                        </MenuButton>
+                                    </div>
+                                    <MenuItems
+                                        transition
+                                        className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in dark:bg-dark-400">
+                                        <div className="py-1">
+                                        <MenuItem>
+                                            <a
+                                            href={route('profile.edit')}
+                                            className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 dark:text-gray-200 dark:data-[focus]:bg-gray-600"
+                                            >Profile
+                                            </a>
+                                        </MenuItem>
+                                        <form onSubmit={signOut}>
+                                            <MenuItem>
+                                            <button
+                                                type="submit"
+                                                className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 dark:text-gray-200 dark:data-[focus]:bg-gray-600"
+                                            >
+                                                Sign out
+                                            </button>
+                                            </MenuItem>
+                                        </form>
                                         </div>
-                                    </div>
-
-                                    <div className="flex items-center -me-2 sm:hidden">
-                                        <button
-                                            onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
-                                            className="inline-flex items-center justify-center p-2 text-gray-400 transition duration-150 ease-in-out rounded-md hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500"
-                                        >
-                                            <svg className="w-6 h-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                                <path
-                                                    className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="M4 6h16M4 12h16M4 18h16"
-                                                />
-                                                <path
-                                                    className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="M6 18L18 6M6 6l12 12"
-                                                />
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
+                                    </MenuItems>
+                                </Menu>
+                                </>
+                            ): (
+                                <>
+                                    <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                        <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Anomali</a>
+                                    </li>
+                                    <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                        <a href={route('dashboard')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Dashboard</a>
+                                    </li>
+                                    <Menu as="div" className="relative inline-block text-left">
+                                        <div className=''>
+                                            <MenuButton className="inline-flex items-center justify-center w-full px-3 py-2 text-base font-semibold text-black dark:text-gray-300">
+                                            <img src={'https://www.fivebranches.edu/wp-content/uploads/2021/08/default-image.jpg'} alt="" className='w-10 h-10 rounded-full' />
+                                            <p className='lg:hidden'>{user.name}</p>
+                                            </MenuButton>
+                                        </div>
+                                        <MenuItems
+                                            transition
+                                            className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in dark:bg-dark-400">
+                                            <div className="py-1">
+                                            <MenuItem>
+                                                <a
+                                                href={route('profile.edit')}
+                                                className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 dark:text-gray-200 dark:data-[focus]:bg-gray-600"
+                                                >Profile
+                                                </a>
+                                            </MenuItem>
+                                            <form onSubmit={signOut}>
+                                                <MenuItem>
+                                                <button
+                                                    type="submit"
+                                                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 data-[focus]:bg-gray-100 data-[focus]:text-gray-900 dark:text-gray-200 dark:data-[focus]:bg-gray-600"
+                                                >
+                                                    Sign out
+                                                </button>
+                                                </MenuItem>
+                                            </form>
+                                            </div>
+                                        </MenuItems>
+                                    </Menu>
+                                </>
+                            )
+                            }
+                        </ul>
+                    </nav>
                 </div>
+            </div>
+        </header>
 
-                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
-                            Dashboard
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('substation')} active={route().current('substation')}>
-                            Substation
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('user')} active={route().current('user')}>
-                            User
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('user')} active={route().current('user')}>
-                            peralatan
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="pt-4 pb-1 border-t border-gray-200">
-                        <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">{user.name}</div>
-                            <div className="text-sm font-medium text-gray-500">{user.email}</div>
-                        </div>
-
-                        <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink method="post" href={route('logout')} as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
-                    </div>
-                </div>
-        </nav>
-
-
-
-        <aside className="fixed top-0 left-0 z-30 w-64 h-screen pt-16 transition-transform -translate-x-full border-r border-gray-200 shadow-2xl sm:translate-x-0" aria-label="Sidebar">
-            <Sidebar>
-                <Sidebar.Items>
-                    <Sidebar.ItemGroup >
-
-                        {menu(user.role).map((item,index) => {
-                            return (
-                            <Sidebar.Item
-                                    key={index}
-                                    href={item.href}
-                                    active={item.current}
-                                    icon={item.icon}
-                                    className='text-lg'
-                                >
-                                    {item.name}
-                                </Sidebar.Item>
-                            );
-                        })}
-                    </Sidebar.ItemGroup>
-                </Sidebar.Items>
-            </Sidebar>
-
-        </aside>
-
-
-
-        <main className="px-4 pt-20 sm:ml-64">
-            <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg">
+        <div className="p-4">
+            <div className="mt-16 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
                 {children}
             </div>
-        </main>
+        </div>
+
+        <button id='mode' onClick={switchMode} className='fixed z-50 flex items-center justify-center p-2 transition-all duration-1000 ease-in-out delay-200 bg-gray-300 rounded-full dark:bg-gray-600 hover:animate-pulse bottom-12 right-2'>
+            <HiOutlineSun id='sun' size={30} className='hidden stroke-blue-400'/>
+            <HiOutlineMoon id='moon' size={30} className='stroke-blue-400'/>
+        </button>
 
 
 

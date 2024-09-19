@@ -16,11 +16,33 @@ class Substation extends Model
         'condition_id'
     ];
 
-    public function Bay() : HasMany {
-        return $this->hasMany(Bay::class);
+    /**
+     * Get all of the Bay for the Substation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function Bay(): HasMany
+    {
+        return $this->hasMany(related: Bay::class);
     }
 
-    public function Condition() : BelongsTo {
-        return $this->belongsTo(Condition::class);
+    /**
+     * Get the Condition that owns the Substation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function Condition(): BelongsTo
+    {
+        return $this->belongsTo(related: Condition::class);
+    }
+
+    /**
+     * Get all of the User for the Substation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function User(): HasMany
+    {
+        return $this->hasMany(related: User::class);
     }
 }

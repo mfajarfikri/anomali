@@ -12,7 +12,11 @@ import { HiOutlinePlus } from "react-icons/hi";
 
 
 export default function Bay() {
-    const {bays,auth, conditions, substations} = usePage().props
+    const {bays,auth, conditions, substations, success} = usePage().props
+    console.log(success);
+
+
+
     const perpage = useRef(10);
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;

@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('bay_id')->nullable();
             $table->text('additional_information')->nullable();
             $table->date('date_find')->nullable();
-            $table->date('date_plan')->nullable();
+            $table->date('date_plan_start')->nullable();
+            $table->date('date_plan_end')->nullable();
             $table->date('date_execution')->nullable();
             $table->foreignId('status_id')->constrained()->onDelete('cascade');
             $table->boolean('is_approve');

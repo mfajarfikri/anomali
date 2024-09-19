@@ -8,7 +8,7 @@ export default function Home ({auth}) {
         <div className="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-[url('https://pagedone.io/asset/uploads/1691055810.png')] bg-center bg-cover">
             <div className="relative px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
             <ApplicationLogo className="h-16 max-w-sm mx-auto mb-4"></ApplicationLogo>
-                <h1 className="max-w-2xl mx-auto text-center font-manrope font-bold text-4xl text-gray-900 mb-5 md:text-5xl leading-[50px]">
+                <h1 className="max-w-2xl mx-auto text-center font-manrope font-bold text-4xl text-gray-900 mb-5 md:text-5xl leading-[50px] dark:text-gray-300">
                 Control anomalies with reporting <span className="text-indigo-600">Smart Tool</span>
                 </h1>
                 <p className="max-w-sm mx-auto text-base font-normal leading-7 text-center text-gray-500 mb-9">

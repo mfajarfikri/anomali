@@ -12,6 +12,9 @@ import { Select } from "@headlessui/react";
 
 export default function Substation() {
     const {substations, conditions, auth} = usePage().props
+
+    console.log(substations);
+
     const perpage = useRef(10);
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
@@ -65,7 +68,6 @@ export default function Substation() {
         name : ""
     })
 
-    console.log(substations);
 
     return (
         <>

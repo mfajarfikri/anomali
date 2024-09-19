@@ -8,6 +8,7 @@ use App\Models\Anomali;
 use App\Models\Equipment;
 use App\Models\Substation;
 use App\Models\Type;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -17,9 +18,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-
-        // $data = Equipment::with('Anomali')->get();
-        // dd($data);
 
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),

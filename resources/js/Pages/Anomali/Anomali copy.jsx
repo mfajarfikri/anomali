@@ -1,22 +1,20 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, useForm, router } from "@inertiajs/react";
 import { Button,Badge, HR, Label, Modal, Textarea, TextInput } from "flowbite-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { HiUser, HiOutlineTicket, HiOutlineSearch, HiOutlineCheck, HiDocumentReport } from "react-icons/hi";
-import { Input, Select } from "@headlessui/react";
+import { Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
-import Selector from "@/Components/Selector";
-import Modal2 from "@/Components/Modal2";
 
 export default function Anomali({auth, anomalis, equipments, bays, sections, types, substations}){
 
-    console.log(substations);
+    console.log(auth);
 
     const perpage = useRef(10);
-    const [openModal, setOpenModal] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
 
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
@@ -38,8 +36,7 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
 
     const { data, setData, processing, post, errors, reset} = useForm({
         titlename: '',
-        // substation: auth.user.substation_id,
-        substation: '',
+        substation: auth.user.substation_id,
         section:'',
         type:'',
         user: auth.user.id,
@@ -81,16 +78,27 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
         console.log(data); // Log the data parameter instead of selectedItem
     }
 
-    const [selectedState, setSelectedState] = useState('')
-    console.log(selectedState + data);
-
     return(
         <>
         <Head title="Anomali"/>
         <DashboardLayout user={auth.user}>
 
-            <Modal2 isOpen={openModal} onClose={() => setOpenModal(false)} title="New Anomalies">
-                <form onSubmit={submit}>
+        <Modal size="3xl" show={openModal} onClose={() => setOpenModal(false)} position="center">
+            <Modal.Header>
+                <div className="rounded-lg">
+                    <div className="inline-flex">
+                        <div className="p-2 border rounded-lg">
+                            <HiOutlineTicket style={{ color: "green", fontSize: "1.5em" }}/>
+                        </div>
+                        <div className="flex items-center justify-center mx-2">
+                            <p className="font-bold">New Anomalies</p>
+                        </div>
+                    </div>
+
+                </div>
+            </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={submit}>
                         <div className="">
                             <Label htmlFor="titlename" value="Title Name" className="text-sm font-thin"/>
                             <TextInput
@@ -108,21 +116,19 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="col-span-1">
                                     <Label htmlFor="substation" value="Substation" className="text-sm font-thin"/>
-                                        {/* <Selector data={substations} selected={substationData} mul setSelected={setSubstationData}/> */}
-
-                                        <Select required
+                                    <Select required
                                         name="substation"
-                                        value={data.substation}
                                         onChange={(e) => setData('substation', e.target.value)}
+                                        value={auth.substation_id}
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                        <option value="" className="text-sm font-thin text-gray-500">Select substation</option>
-                                        {substations.map((substation, index) => {
-                                            return <option id='substation' key={index} value={substation.id} className="text-sm font-thin text-gray-500"
-                                            >{substation.name}</option>
-                                        })}
-                                        </Select>
-
-
+                                            <option value="" className="text-sm font-thin text-gray-500">Select substation</option>
+                                            {substations.map((substation, index) => (
+                                                <option id='substation'
+                                                key={index}
+                                                value={data.substation}
+                                                className="text-sm font-thin text-gray-500">{substation.name}</option>
+                                            ))}
+                                    </Select>
                                     <InputError className='mt-2' message={errors.sections}/>
                                 </div>
                                 <div className="col-span-1">
@@ -157,11 +163,6 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                         </div>
                         <div className="mt-2">
                             <div className="w-full">
-                                {/* <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
-                                    <Selector data={bays} selected={bayData} setSelected={setBayData}/>
-                                <InputError className='mt-2' message={errors.bays}/> */}
-                            </div>
-                            <div className="w-full">
                                 <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
                                 <Select required
                                 name="bay"
@@ -176,6 +177,21 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                                 </Select>
                                 <InputError className='mt-2' message={errors.bays}/>
                             </div>
+                            {/* <div className="w-full">
+                                <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
+                                <Select required
+                                name="bay"
+                                value={data.bay}
+                                onChange={(e) => setData('bay', e.target.value)}
+                                className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
+                                <option value="" className="text-sm font-thin text-gray-500">Select Bay</option>
+                                {bays.map((bay, index) => (
+                                    <option id='bay' key={index} value={bay.id} className="text-sm font-thin text-gray-500"
+                                    >{bay.name}</option>
+                                ))}
+                                </Select>
+                                <InputError className='mt-2' message={errors.bays}/>
+                            </div> */}
                         </div>
                         <div className="mt-2">
                             <div className="grid grid-cols-2 gap-4">
@@ -217,7 +233,6 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                         </div>
                         <div className="mt-2">
                             <div className="w-full">
-
                                 <Label htmlFor="date" value="Date" className="text-sm font-thin"/>
                                 <TextInput
                                 type="date"
@@ -246,7 +261,8 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                         </div>
 
                     </form>
-            </Modal2>
+                </Modal.Body>
+        </Modal>
 
         <Modal size="3xl" show={openModalDetail} onClose={() => setOpenModalDetail(false)} position="top-right">
             <Modal.Header>

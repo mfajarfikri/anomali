@@ -23,6 +23,14 @@ export default {
 
     theme: {
         extend: {
+            colors: {
+                dark: {
+                    300: '#202E36',
+                    400: '#1A262D',
+                    500: '#141E22',
+                    700: '#0F171A'
+                }
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
@@ -32,5 +40,6 @@ export default {
     plugins: [
         require('flowbite/plugin'),
         flowbite.plugin(),
+        forms
     ],
 };
