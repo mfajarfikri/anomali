@@ -9,15 +9,16 @@ import {
   createViewMonthAgenda,
   createViewMonthGrid,
   createViewWeek,
+  createViewDay
 } from '@schedule-x/calendar'
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 
-export default function Dashboard({status, equipments, type, anomalis, date_plan, }) {
+export default function Dashboard({status, equipments, type, anomalis }) {
 
 
     const jsonString = JSON.stringify(anomalis);
-    console.log(jsonString.date_find)
+    // console.log(jsonString.date_find)
 
     const { auth } = usePage().props;
 
@@ -93,28 +94,10 @@ export default function Dashboard({status, equipments, type, anomalis, date_plan
         chart.render();
       }
 
-
     const getChartEquipment = () => {
+
     return {
-        series: [
-            equipments[0].anomali.length,
-            equipments[1].anomali.length,
-            equipments[2].anomali.length,
-            equipments[3].anomali.length,
-            equipments[4].anomali.length,
-            equipments[5].anomali.length,
-            equipments[6].anomali.length,
-            equipments[7].anomali.length,
-            equipments[8].anomali.length,
-            equipments[9].anomali.length,
-            equipments[10].anomali.length,
-            equipments[11].anomali.length,
-            equipments[12].anomali.length,
-            // equipments.forEach(element => {
-            //     element.anomali.length
-            //     console.log(element.anomali.length)
-            // }),
-        ],
+        series: equipments.map(equipment => equipment.anomali.length),
         colors: [
             '#1f77b4',
             '#ff7f0e',
@@ -150,21 +133,7 @@ export default function Dashboard({status, equipments, type, anomalis, date_plan
             }
         },
         },
-        labels: [
-            equipments[0].name,
-            equipments[1].name,
-            equipments[2].name,
-            equipments[3].name,
-            equipments[4].name,
-            equipments[5].name,
-            equipments[6].name,
-            equipments[7].name,
-            equipments[8].name,
-            equipments[9].name,
-            equipments[10].name,
-            equipments[11].name,
-            equipments[12].name,
-        ],
+        labels: equipments.map(equipment => equipment.name),
         dataLabels: {
         enabled: true,
         style: {
@@ -199,13 +168,20 @@ export default function Dashboard({status, equipments, type, anomalis, date_plan
     }
 
     const calendar = useCalendarApp({
-        views: [createViewMonthGrid(), createViewMonthAgenda()],
+        views: [createViewMonthGrid(), createViewWeek(), createViewDay(), createViewMonthAgenda()],
         events: [
           {
             id: '1',
             title: 'Event 1',
             start: '2024-09-18',
             end: '2024-09-28',
+            description: 'Example'
+          },
+          {
+            id: '2',
+            title: 'Event 2',
+            start: '2024-09-20',
+            end: '2024-09-30',
             description: 'Example'
           },
         ],
@@ -225,12 +201,12 @@ export default function Dashboard({status, equipments, type, anomalis, date_plan
         <>
             <Head title="Dashboard" />
             <DashboardLayout user={auth.user}>
-                <div className="grid gap-2 m-4 lg:grid-cols-3">
+                <div className="grid gap-6 m-4 lg:grid-cols-3">
                     <div className="flex col-span-1">
                         <ScheduleXCalendar calendarApp={calendar}/>
                     </div>
                     <div className="col-span-1">
-                        <div className="p-4 mx-2 bg-white rounded-lg shadow-lg dark:bg-dark-400 md:p-6">
+                        <div className="p-4 bg-white rounded-lg shadow-lg dark:bg-dark-400 md:p-6">
                             <div className="flex justify-start mb-3">
                                 <div className="flex items-center">
                                     <div className="flex items-center justify-center">

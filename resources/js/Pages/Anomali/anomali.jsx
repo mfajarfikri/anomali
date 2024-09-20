@@ -7,16 +7,14 @@ import { Input, Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
-import Selector from "@/Components/Selector";
 import Modal2 from "@/Components/Modal2";
 
 export default function Anomali({auth, anomalis, equipments, bays, sections, types, substations}){
 
-    console.log(substations);
+    console.log(anomalis);
 
     const perpage = useRef(10);
-    const [openModal, setOpenModal] = useState(true);
+    const [openModal, setOpenModal] = useState(false);
 
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
@@ -101,7 +99,7 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                             onChange={(e) => setData('titlename', e.target.value)}
                             icon={HiOutlineTicket}
                             autoComplete="off"
-                            placeholder="My Suggestion for this ticket"
+                            placeholder="My Suggestion for this title"
                             required/>
                         </div>
                         <div className="mt-2">
@@ -358,15 +356,16 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                                         <div className="inline-block">
                                             <span className="text-sm">Date Found</span>
                                             <p className="flex justify-center">{selectedItem.date_find}</p>
+                                            <p className="flex justify-center">{selectedItem.date_find.toLocaleString('id-ID')}</p>
                                         </div>
                                     </div>
                                     <div className="flex justify-center col-span-1">
                                         <div className="inline-block">
                                             <span>Date Plan</span>
-                                            {selectedItem.date_plan === null ? (
+                                            {selectedItem.date_plan_start === null ? (
                                             <p className="flex justify-center">-</p>
                                         ):(
-                                            <p>{selectedItem.date_plan}</p>
+                                            <p>{selectedItem.date_plan_start} to {selectedItem.date_plan_end}</p>
                                         )}
                                         </div>
                                     </div>

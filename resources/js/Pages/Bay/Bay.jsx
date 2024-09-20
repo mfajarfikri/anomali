@@ -13,7 +13,7 @@ import { HiOutlinePlus } from "react-icons/hi";
 
 export default function Bay() {
     const {bays,auth, conditions, substations, success} = usePage().props
-    console.log(success);
+    console.log(bays);
 
 
 

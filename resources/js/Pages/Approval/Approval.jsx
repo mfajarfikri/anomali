@@ -62,6 +62,13 @@ export default function Approval({auth, anomalis}){
             _method: "delete"
         })
         setOpenReject(false)
+        Swal.fire({
+            title: 'Success',
+            text: 'A anomali has been rejected.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#1C64F2'
+        });
     }
 
     const [editItem, setEditItem] = useState(null)
