@@ -17,9 +17,6 @@ import { createEventModalPlugin } from "@schedule-x/event-modal";
 export default function Dashboard({status, equipments, type, anomalis }) {
 
 
-    const jsonString = JSON.stringify(anomalis);
-    // console.log(jsonString.date_find)
-
     const { auth } = usePage().props;
 
     const getChartStatus = () => {
@@ -62,11 +59,7 @@ export default function Dashboard({status, equipments, type, anomalis }) {
                 bottom: -20,
               },
             },
-            labels: [
-                status[2].name,
-                status[1].name,
-                status[0].name,
-            ],
+            labels: status.map(status => status.name),
             legend: {
               show: true,
               position: "bottom",
@@ -167,24 +160,22 @@ export default function Dashboard({status, equipments, type, anomalis }) {
     }
     }
 
+    const eventDataFromDB = anomalis.map(anomali => ({
+        id: anomali.id,
+        title: anomali.titlename,
+        start: anomali.date_plan_start,
+        end: anomali.date_plan_end
+    }))
+
     const calendar = useCalendarApp({
         views: [createViewMonthGrid(), createViewWeek(), createViewDay(), createViewMonthAgenda()],
-        events: [
-          {
-            id: '1',
-            title: 'Event 1',
-            start: '2024-09-18',
-            end: '2024-09-28',
-            description: 'Example'
-          },
-          {
-            id: '2',
-            title: 'Event 2',
-            start: '2024-09-20',
-            end: '2024-09-30',
-            description: 'Example'
-          },
-        ],
+        events: eventDataFromDB.map(event => ({
+            id: event.id,
+            title: event.title,
+            start: event.start,
+            end: event.end,
+            description: event.description
+          })),
         plugins: [
             createEventModalPlugin()
         ]

@@ -10,68 +10,68 @@ import { HiSwitchHorizontal, HiChartPie, HiInbox, HiHome, HiOutlineMoon, HiUser,
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 
-export default function DashboardLayout({children, user}) {
+export default function DashboardLayout({children, user, status}) {
 
+    // console.log(status);
 
+    // const menu = () => {
+    //     if (user.role_id == "1") {
+    //         return [
+    //             {
+    //                 name: "Dashboard",
+    //                 href: route("dashboard"),
+    //                 current: route().current("dashboard"),
+    //                 icon: HiChartPie
+    //             },
+    //             {
+    //                 name: "Anomali",
+    //                 href: route("anomali"),
+    //                 current: route().current("anomali"),
+    //                 icon: HiInbox
+    //             },
+    //             {
+    //                 name: "User",
+    //                 href: route("user"),
+    //                 current: route().current("user"),
+    //                 icon: HiUser
+    //             },
+    //             {
+    //                 name: "Approval",
+    //                 href: route("approval"),
+    //                 current: route().current("approval"),
+    //                 icon: HiDocumentReport
+    //             },
+    //             {
+    //                 name: "Substation",
+    //                 href: route("substation"),
+    //                 current: route().current("subtation"),
+    //                 icon: HiHome
+    //             },
+    //             {
+    //                 name: "Bay",
+    //                 href: route("bay"),
+    //                 current: route().current("bay"),
+    //                 icon: HiSwitchHorizontal
+    //             }
+    //         ];
+    //     } else {
+    //         return [
+    //             {
+    //                 name: "Dashboard",
+    //                 href: route("dashboard"),
+    //                 current: route().current("dashboard"),
+    //                 icon: HiChartPie
+    //             },
+    //             {
+    //                 name: "Anomali",
+    //                 href: route("anomali"),
+    //                 current: route().current("anomali"),
+    //                 icon: HiInbox
+    //             },
 
-    const menu = () => {
-        if (user.role_id == "1") {
-            return [
-                {
-                    name: "Dashboard",
-                    href: route("dashboard"),
-                    current: route().current("dashboard"),
-                    icon: HiChartPie
-                },
-                {
-                    name: "Anomali",
-                    href: route("anomali"),
-                    current: route().current("anomali"),
-                    icon: HiInbox
-                },
-                {
-                    name: "User",
-                    href: route("user"),
-                    current: route().current("user"),
-                    icon: HiUser
-                },
-                {
-                    name: "Approval",
-                    href: route("approval"),
-                    current: route().current("approval"),
-                    icon: HiDocumentReport
-                },
-                {
-                    name: "Substation",
-                    href: route("substation"),
-                    current: route().current("subtation"),
-                    icon: HiHome
-                },
-                {
-                    name: "Bay",
-                    href: route("bay"),
-                    current: route().current("bay"),
-                    icon: HiSwitchHorizontal
-                }
-            ];
-        } else {
-            return [
-                {
-                    name: "Dashboard",
-                    href: route("dashboard"),
-                    current: route().current("dashboard"),
-                    icon: HiChartPie
-                },
-                {
-                    name: "Anomali",
-                    href: route("anomali"),
-                    current: route().current("anomali"),
-                    icon: HiInbox
-                },
-
-            ];
-        }
-    };
+    //         ];
+    //     }
+    // };
 
     const signOut = () => {
         router.post('logout')
@@ -120,6 +120,7 @@ export default function DashboardLayout({children, user}) {
                     <div className="inline-flex items-center px-4 py-2">
                         <ApplicationLogo className="w-14 h-14"/>
                         <span className='text-2xl font-bold dark:text-gray-300'>UPT KARAWANG</span>
+
                     </div>
                 </div>
                 <div className="flex items-center px-4">
@@ -142,8 +143,15 @@ export default function DashboardLayout({children, user}) {
                             <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
                                 <a href={route('user')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>User</a>
                             </li>
-                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                <a href={route('approval')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Approval</a>
+                            <li className='dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <div className="inline-flex mx-4">
+                                    <a href={route('approval')} className='flex mr-[2px] items-center text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Approval</a>
+                                    <div className="flex -mt-4">
+                                        <div className="flex items-center justify-center px-1 my-6 bg-red-500 border border-red-500 rounded-full">
+                                            <span className='text-xs font-semibold text-slate-100'>12</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
                             <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
                                 <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Anomali</a>

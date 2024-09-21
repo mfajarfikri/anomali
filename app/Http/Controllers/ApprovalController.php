@@ -32,17 +32,19 @@ class ApprovalController extends Controller
      */
     public function create(Request $request, String $id)
     {
-    //    dd($id);
+    //    dd($request);
 
         $approve = Anomali::findOrFail($id);
 
         $approve->update([
             'status_id' => 2,
             'is_approve' => true,
+            'date_plan_start' => $request->date_plan_start,
+            'date_plan_end' => $request->date_plan_end,
             'approve_by' => $request->approve_by
         ]);
 
-        return redirect()->route('approval')->with('success', 'Approve Successfully');
+        return redirect()->route('approval')->with( 'post', 'Approve Successfully');
     }
 
     /**

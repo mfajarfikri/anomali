@@ -24,11 +24,6 @@
     <body class="font-sans antialiased bg-gray-50 dark:bg-dark-500">
         @inertia
 
-
-        <script>
-
-        </script>
-
         <script src="https://cdn.jsdelivr.net/npm/flowbite@2.4.1/dist/flowbite.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

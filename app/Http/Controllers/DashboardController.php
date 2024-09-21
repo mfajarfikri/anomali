@@ -24,7 +24,6 @@ class DashboardController extends Controller
             'type' => Type::with('Anomali')->get(),
             'status' => Status::with(['Anomali'])->get(),
             'anomalis' => Anomali::with(['Status'])->get(),
-            'date_plan' => Anomali::all(['ticketname', 'date_plan']),
         ]);
     }
 

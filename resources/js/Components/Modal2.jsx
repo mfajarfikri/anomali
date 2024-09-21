@@ -12,7 +12,7 @@ const Modal2 = ({ isOpen, onClose, title, children }) => {
             leave="transition-opacity duration-300"
             leaveFrom="opacity-100"
             leaveTo="opacity-0">
-            <div className="absolute inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-70 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-70 backdrop-blur-sm">
                 <Transition
                     show={isOpen}
                     enter="transform transition-transform duration-300"
@@ -22,17 +22,14 @@ const Modal2 = ({ isOpen, onClose, title, children }) => {
                     leaveFrom="scale-100"
                     leaveTo="scale-95"
                 >
-                    <div className="w-full p-6 bg-white rounded-lg shadow-lg lg:max-w-3xl">
-                        <div className="flex items-center justify-between">
-                            <h2 className="my-2 text-xl font-semibold">{title}</h2>
+                    <div className="w-full max-w-3xl p-6 bg-white rounded-lg shadow-lg">
+                        <div className="flex items-center justify-between mb-6 ">
+                            <h2 className="text-xl font-semibold">{title}</h2>
                                 <button className="p-2 rounded-lg hover:bg-gray-100" onClick={onClose}>
                                     <HiX/>
                                 </button>
                         </div>
                         <div>{children}</div>
-                        <div className="mt-4">
-
-                        </div>
                     </div>
                 </Transition>
             </div>

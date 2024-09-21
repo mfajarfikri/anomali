@@ -9,11 +9,9 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 import Modal2 from "@/Components/Modal2";
 
-export default function Anomali({auth, anomalis, equipments, bays, sections, types, substations}){
+export default function Anomali({auth, anomalis, equipments,substations, sections, types}){
 
-    console.log(anomalis);
-
-    const perpage = useRef(10);
+    const perpage = useRef(15);
     const [openModal, setOpenModal] = useState(false);
 
     const handleChangePerPage = (e) => {
@@ -34,10 +32,12 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
         });
     }
 
+    const [selectedSubstations, setSelectedSubstations] = useState('');
+
     const { data, setData, processing, post, errors, reset} = useForm({
         titlename: '',
         // substation: auth.user.substation_id,
-        substation: '',
+        substation: selectedSubstations,
         section:'',
         type:'',
         user: auth.user.id,
@@ -47,6 +47,22 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
         date_find: '',
         additional_information: ''
     })
+
+
+    const [bays, setbays] = useState([]);
+    const [selectedBays, setSelectedBays] = useState('');
+
+    const handleCategoryChange = (e) => {
+        const categoryId = e.target.value;
+        setSelectedSubstations(categoryId);
+        const selected = substations.find(category => category.id === parseInt(categoryId));
+        console.log(selected);
+        setbays(selected ? selected.bay : []);
+        setSelectedBays(''); // Reset selected subcategory
+        return selected
+    };
+
+
 
     const submit = (e) => {
         e.preventDefault();
@@ -79,8 +95,10 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
         console.log(data); // Log the data parameter instead of selectedItem
     }
 
-    const [selectedState, setSelectedState] = useState('')
-    console.log(selectedState + data);
+
+
+    console.log(data);
+
 
     return(
         <>
@@ -110,8 +128,9 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
 
                                         <Select required
                                         name="substation"
-                                        value={data.substation}
-                                        onChange={(e) => setData('substation', e.target.value)}
+                                        value={selectedSubstations}
+                                        onChange={handleCategoryChange}
+                                        // onChange={(e) => setData('substation', e.target.value)}
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
                                         <option value="" className="text-sm font-thin text-gray-500">Select substation</option>
                                         {substations.map((substation, index) => {
@@ -121,7 +140,8 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                                         </Select>
 
 
-                                    <InputError className='mt-2' message={errors.sections}/>
+
+                                    <InputError className='mt-2' message={errors.substations}/>
                                 </div>
                                 <div className="col-span-1">
                                     <Label htmlFor="section" value="Section" className="text-sm font-thin"/>
@@ -161,17 +181,20 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                             </div>
                             <div className="w-full">
                                 <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
+
                                 <Select required
                                 name="bay"
+                                disabled={!selectedSubstations}
                                 value={data.bay}
                                 onChange={(e) => setData('bay', e.target.value)}
                                 className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500">
-                                <option value="" className="text-sm font-thin text-gray-500">Select Bay</option>
-                                {bays.map((bay, index) => (
-                                    <option id='bay' key={index} value={bay.id} className="text-sm font-thin text-gray-500"
-                                    >{bay.name}</option>
+                                <option value="" className="text-sm font-thin text-gray-500">Select Substation first</option>
+                                {bays.map(bay => (
+                                    <option key={bay.id} value={bay.id}>{bay.name}</option>
                                 ))}
                                 </Select>
+
+
                                 <InputError className='mt-2' message={errors.bays}/>
                             </div>
                         </div>
@@ -210,6 +233,7 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
                             type="text"
                             name="other"
                             value={data.other}
+                            autoComplete="off"
                             onChange={(e) => setData('other', e.target.value)}
                             className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
@@ -552,3 +576,5 @@ export default function Anomali({auth, anomalis, equipments, bays, sections, typ
         </>
     );
 }
+
+
