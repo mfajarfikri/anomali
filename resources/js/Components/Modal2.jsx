@@ -12,7 +12,7 @@ const Modal2 = ({ isOpen, onClose, title, children }) => {
             leave="transition-opacity duration-300"
             leaveFrom="opacity-100"
             leaveTo="opacity-0">
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-70 backdrop-blur-sm">
+            <div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center bg-gray-500 bg-opacity-70 backdrop-blur-sm">
                 <Transition
                     show={isOpen}
                     enter="transform transition-transform duration-300"

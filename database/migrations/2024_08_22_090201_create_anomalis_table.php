@@ -14,22 +14,22 @@ return new class extends Migration
         Schema::create('anomalis', function (Blueprint $table) {
             $table->id();
             $table->string('titlename');
-            $table->string('substation_id')->nullable();
-            $table->string('section_id')->nullable();
+            $table->string('substation_id');
+            $table->string('section_id');
             $table->foreignId('type_id')->constrained()->onDelete('cascade');
-            $table->string('user_id')->nullable();
+            $table->string('user_id');
             $table->foreignId('equipment_id')->constrained()->onDelete('cascade');
-            $table->string('other')->nullable();
-            $table->string('bay_id')->nullable();
-            $table->text('additional_information')->nullable();
-            $table->date('date_find')->nullable();
+            $table->string('bay_id');
+            $table->text('additional_information');
+            $table->date('date_find');
             $table->date('date_plan_start')->nullable();
             $table->date('date_plan_end')->nullable();
             $table->date('date_execution')->nullable();
             $table->foreignId('status_id')->constrained()->onDelete('cascade');
             $table->boolean('is_approve');
             $table->string('approve_by')->nullable();
-            $table->string('document_id')->nullable();
+            $table->string('attachment_filename');
+            $table->string('attachment_path');
             $table->timestamps();
         });
     }

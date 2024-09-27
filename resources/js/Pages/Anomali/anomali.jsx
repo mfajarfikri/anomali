@@ -1,6 +1,6 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, useForm, router } from "@inertiajs/react";
-import { Button,Badge, HR, Label, Modal, Textarea, TextInput } from "flowbite-react";
+import { Button,Badge, HR, Label, Modal, Textarea, TextInput, FileInput } from "flowbite-react";
 import { useState, useRef, useEffect } from "react";
 import { HiUser, HiOutlineTicket, HiOutlineSearch, HiOutlineCheck, HiDocumentReport } from "react-icons/hi";
 import { Input, Select } from "@headlessui/react";
@@ -9,95 +9,98 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 import Modal2 from "@/Components/Modal2";
 
-export default function Anomali({auth, anomalis, equipments,substations, sections, types}){
-
-    const perpage = useRef(15);
-    const [openModal, setOpenModal] = useState(false);
-
-    const handleChangePerPage = (e) => {
-        perpage.current = e.target.value;
-        getData();
-    }
-
-    const [isLoading, setisLoading] = useState(false);
-
-    const getData = () => {
-        setisLoading(true)
-        router.get(route().current(), {
-            perpage: perpage.current
-        },{
-            preserveScroll : true,
-            preserveState : true,
-            onFinish : () => setisLoading(false)
-        });
-    }
-
-    const [selectedSubstations, setSelectedSubstations] = useState('');
-
-    const { data, setData, processing, post, errors, reset} = useForm({
-        titlename: '',
-        // substation: auth.user.substation_id,
-        substation: selectedSubstations,
-        section:'',
-        type:'',
-        user: auth.user.id,
-        equipment: '',
-        other: '',
-        bay: '',
-        date_find: '',
-        additional_information: ''
-    })
-
-
-    const [bays, setbays] = useState([]);
-    const [selectedBays, setSelectedBays] = useState('');
-
-    const handleCategoryChange = (e) => {
-        const categoryId = e.target.value;
-        setSelectedSubstations(categoryId);
-        const selected = substations.find(category => category.id === parseInt(categoryId));
-        console.log(selected);
-        setbays(selected ? selected.bay : []);
-        setSelectedBays(''); // Reset selected subcategory
-        return selected
-    };
+export default function Anomali({auth, anomalis, equipments,substations, sections, types, progress}){
 
 
 
-    const submit = (e) => {
-        e.preventDefault();
-        post(route('anomali.create'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setOpenModal(false);
-                getData();
-                Swal.fire({
-                    title: 'Success',
-                    text: 'A anomali has been created.',
-                    icon: 'success',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#1C64F2'
-                });
-            },
-            onError: (errors) => {
-                console.error('Error creating user:', errors);
-            },
-        });
-    }
+const perpage = useRef(15);
+const [openModal, setOpenModal] = useState(false);
 
-    const [selectedItem, setSelectedItem] = useState(null)
-    const [openModalDetail, setOpenModalDetail] = useState(false)
+const handleChangePerPage = (e) => {
+    perpage.current = e.target.value;
+    getData();
+}
 
-    const detailItem = (data) => {
-        setSelectedItem(data);
-        setOpenModalDetail(true, data);
-        console.log(data); // Log the data parameter instead of selectedItem
-    }
+const [isLoading, setisLoading] = useState(false);
 
+const getData = () => {
+    setisLoading(true);
+    router.get(route().current(), {
+        perpage: perpage.current
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        onFinish: () => setisLoading(false)
+    });
+}
 
+const [selectedSubstations, setSelectedSubstations] = useState('');
+const { data, setData, processing, post, errors, reset } = useForm({
+    titlename: '',
+    // substation: auth.user.substation_id,
+    substation: '',
+    section: '',
+    type: '',
+    user: auth.user.id,
+    equipment: '',
+    bay: '',
+    date_find: '',
+    additional_information: '',
+    file: null
+});
 
-    console.log(data);
+const [bays, setBays] = useState([]);
+const [selectedBays, setSelectedBays] = useState('');
+
+const handleCategoryChange = (e) => {
+    setData('substation', e.target.value)
+    const getSubstationID = e.target.value;
+    setSelectedSubstations(getSubstationID);
+    const selected = substations.find(category => category.id === parseInt(getSubstationID));
+    setBays(selected ? selected.bay : []);
+    setSelectedBays(''); // Reset selected subcategory
+    setData('substation', e.target.value)
+};
+
+const submit = (e) => {
+    e.preventDefault();
+    post(route('anomali.create'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            reset();
+            setOpenModal(false);
+            getData();
+            Swal.fire({
+                title: 'Success',
+                text: data.titlename + ' has been created.',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#1C64F2'
+            });
+        },
+        onError: (errors) => {
+            Swal.fire({
+                title: errors,
+                text: 'Error Create ' + data.titlename,
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#1C64F2'
+            });
+        },
+    });
+};
+
+const [selectedItem, setSelectedItem] = useState(null);
+const [openModalDetail, setOpenModalDetail] = useState(false);
+
+const detailItem = (data) => {
+    setSelectedItem(data);
+    setOpenModalDetail(true); // Removed the second argument
+    console.log(data); // Log the data parameter instead of selectedItem
+};
+
+console.log(errors);
+
 
 
     return(
@@ -118,7 +121,8 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                             icon={HiOutlineTicket}
                             autoComplete="off"
                             placeholder="My Suggestion for this title"
-                            required/>
+                            />
+                            <InputError className='mt-2' message={errors.titlename}/>
                         </div>
                         <div className="mt-2">
                             <div className="grid grid-cols-3 gap-4">
@@ -126,7 +130,7 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                                     <Label htmlFor="substation" value="Substation" className="text-sm font-thin"/>
                                         {/* <Selector data={substations} selected={substationData} mul setSelected={setSubstationData}/> */}
 
-                                        <Select required
+                                        <Select
                                         name="substation"
                                         value={selectedSubstations}
                                         onChange={handleCategoryChange}
@@ -141,11 +145,11 @@ export default function Anomali({auth, anomalis, equipments,substations, section
 
 
 
-                                    <InputError className='mt-2' message={errors.substations}/>
+                                    <InputError className='mt-2' message={errors.substation}/>
                                 </div>
                                 <div className="col-span-1">
                                     <Label htmlFor="section" value="Section" className="text-sm font-thin"/>
-                                    <Select required
+                                    <Select
                                         name="section"
                                         onChange={(e) => setData('section', e.target.value)}
                                         value={data.section}
@@ -155,11 +159,11 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                                                 <option id='section' key={index} value={section.id} className="text-sm font-thin text-gray-500">{section.name}</option>
                                             ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.sections}/>
+                                    <InputError className='mt-2' message={errors.section}/>
                                 </div>
                                 <div className="col-span-1">
-                                    <Label htmlFor="section" value="Types Anomalies" className="text-sm font-thin"/>
-                                    <Select required
+                                    <Label htmlFor="section" value="Type" className="text-sm font-thin"/>
+                                    <Select
                                         name="type"
                                         onChange={(e) => setData('type', e.target.value)}
                                         value={data.type}
@@ -169,7 +173,7 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                                                 <option id='types' key={index} value={types.id} className="text-sm font-thin text-gray-500">{types.name}</option>
                                             ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.types}/>
+                                    <InputError className='mt-2' message={errors.type}/>
                                 </div>
                             </div>
                         </div>
@@ -182,7 +186,7 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                             <div className="w-full">
                                 <Label htmlFor="date" value="Bay" className="text-sm font-thin"/>
 
-                                <Select required
+                                <Select
                                 name="bay"
                                 disabled={!selectedSubstations}
                                 value={data.bay}
@@ -195,7 +199,7 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                                 </Select>
 
 
-                                <InputError className='mt-2' message={errors.bays}/>
+                                <InputError className='mt-2' message={errors.bay}/>
                             </div>
                         </div>
                         <div className="mt-2">
@@ -213,7 +217,7 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                                 </div>
                                 <div className="col-span-1">
                                 <Label htmlFor="equipment" value="Equipment" className="text-sm font-thin"/>
-                                    <Select required
+                                    <Select
                                     name="equipment"
                                     onChange={(e) => setData('equipment', e.target.value)}
                                     value={data.equipment}
@@ -223,46 +227,58 @@ export default function Anomali({auth, anomalis, equipments,substations, section
                                             <option id='equipment' key={index} value={equipment.id} className="text-sm font-thin text-gray-500">{equipment.name}</option>
                                         ))}
                                     </Select>
-                                    <InputError className='mt-2' message={errors.equipments}/>
+                                    <InputError className='mt-2' message={errors.equipment}/>
                                 </div>
                             </div>
-                        </div>
-                        <div className="mt-2">
-                            <Label htmlFor="other" value="Explanation" className="text-sm font-thin"/>
-                            <TextInput
-                            type="text"
-                            name="other"
-                            value={data.other}
-                            autoComplete="off"
-                            onChange={(e) => setData('other', e.target.value)}
-                            className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
                         </div>
                         <div className="mt-2">
                             <div className="w-full">
 
                                 <Label htmlFor="date" value="Date" className="text-sm font-thin"/>
+
                                 <TextInput
                                 type="date"
                                 name="date_find"
                                 value={data.date_find}
                                 onChange={(e) => setData('date_find', e.target.value)}
-                                className="text-gray-500"
-                                />
+                                className="text-gray-500"/>
+
+                                <InputError className='mt-2' message={errors.date_find}/>
                             </div>
                         </div>
                         <div className="mt-2">
                             <Label htmlFor="additional_information" value="Description" className="text-sm font-thin"/>
+
                             <Textarea id="additional_information"
                             name="additional_information"
                             value={data.additional_information}
                             onChange={(e) => setData('additional_information', e.target.value)}
-                            placeholder="Leave a comment..." required rows={2}/>
+                            placeholder="Leave a comment..." rows={2}/>
+
+                            <InputError className='mt-2' message={errors.additional_information}/>
+
+                        </div>
+                        <div className="mt-2">
+
+
+                            <Label htmlFor="attachment" value="Attachment" className="text-sm font-thin"/>
+
+                            <input
+                            type="file"
+                            name="file"
+                            value={data.other}
+                            onChange={(e) => setData('file', e.target.files[0])}
+                            className="w-full text-sm font-thin text-gray-500 border border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500"/>
+                            <p className="mt-1 text-xs text-gray-500 dark:text-gray-300" id="file_input_help">* PNG, JPG or PDF (Max. 3048kb).</p>
+
+                            <InputError className='mt-2' message={errors.file}/>
+
                         </div>
 
                         <HR/>
 
                         <div className="flex items-center justify-end">
-                            <PrimaryButton className="ms-4" disabled={processing}>
+                            <PrimaryButton className="ms-4 bg-cyan-600" disabled={processing}>
                                 Add ticket
                             </PrimaryButton>
                         </div>

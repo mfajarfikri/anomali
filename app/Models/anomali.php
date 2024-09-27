@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -26,7 +27,9 @@ class Anomali extends Model
         'date_execution',
         'status_id',
         'is_approve',
-        'approve_by'
+        'approve_by',
+        'attachment_filename',
+        'attachment_path'
     ];
 
     public function Substation() : BelongsTo {
@@ -57,8 +60,17 @@ class Anomali extends Model
         return $this->belongsTo(Status::class);
     }
 
-    public function Document() : BelongsTo {
-        return $this->belongsTo(Document::class);
+    // public function Document() : BelongsTo {
+    //     return $this->belongsTo(Document::class);
+    // }
+
+    public function scopeNonEmptyColumns(Builder $query, $columns)
+    {
+        foreach ($columns as $column) {
+            $query->whereNotNull($column)->where($column, '!=', '');
+        }
+
+        return $query;
     }
 
 }

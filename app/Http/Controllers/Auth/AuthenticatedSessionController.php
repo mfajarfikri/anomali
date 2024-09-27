@@ -33,10 +33,9 @@ class AuthenticatedSessionController extends Controller
 
         $request->authenticate();
         $request->session()->regenerate();
-        $post = Anomali::where('status_id', 1 )->count();
-        // dd(Anomali::where('status_id', 1 )->count());
-        // return redirect()->intended(route('dashboard',  absolute:false, ));
-        return redirect('dashboard')->with('post', $post);
+        return redirect()->route('dashboard', [
+            'approve' => Anomali::where('status_id', 1 )->count()
+        ]);
     }
 
     /**

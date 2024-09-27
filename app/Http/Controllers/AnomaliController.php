@@ -6,6 +6,7 @@ use App\Models\Bay;
 use App\Models\Type;
 use Inertia\Inertia;
 use App\Models\Anomali;
+use App\Models\Document;
 use App\Models\Section;
 use App\Models\Equipment;
 use App\Models\Substation;
@@ -39,17 +40,24 @@ class AnomaliController extends Controller
      */
     public function create(Request $request)
     {
+
+        // dd($request->file('file')->getClientOriginalName());
+
         $request->validate([
-            'titlename' => 'required',
+            'titlename' => 'required|string',
             'substation' => 'required',
             'section' => 'required',
             'type' => 'required',
             'user' => 'required',
             'equipment' => 'required',
             'bay' => 'required',
-            'date_find' => 'required',
-            'additional_information' => 'required'
+            'date_find' => 'required|date',
+            'additional_information' => 'required',
+            'file' => 'required|file|mimes:jpg,png,pdf|max:3048'
         ]);
+
+        $path = $request->file('file')->store('lampiranAnomali', 'public');
+        $file = $request->file('file')->getClientOriginalName();
 
         $ticket = Anomali::create([
             'titlename' => $request->titlename,
@@ -59,11 +67,12 @@ class AnomaliController extends Controller
             'user_id' => $request->user,
             'equipment_id' => $request->equipment,
             'bay_id' => $request->bay,
-            'other' => $request->other,
             'date_find' => $request->date_find,
             'additional_information' => $request->additional_information,
             'status_id' => 1,
-            'is_approve' => false
+            'is_approve' => false,
+            'attachment_filename' => $file,
+            'attachment_path' => $path
         ]);
         if ($ticket) {
             return redirect()->route('anomali')->with('success', 'Anomalies created successfully');

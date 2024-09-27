@@ -10,7 +10,7 @@ import { HiSwitchHorizontal, HiChartPie, HiInbox, HiHome, HiOutlineMoon, HiUser,
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 
-export default function DashboardLayout({children, user, status}) {
+export default function DashboardLayout({children, user}) {
 
     // console.log(status);
 
@@ -130,34 +130,34 @@ export default function DashboardLayout({children, user, status}) {
                         <span className="transition duration-300 ease-in-out origin-bottom-left hamburger-line"></span>
                     </button>
 
-                    <nav id='nav-menu' className='hidden absolute bg-white rounded-lg shadow-lg max-w-[250px] w-full right-4 top-full lg:block lg:static lg:bg-transparent lg:max-w-full lg:shadow-none lg:rounded-none dark:bg-dark-300 dark:lg:bg-transparent'>
+                    <nav id='nav-menu' className='hidden text-base font-medium absolute bg-white rounded-lg shadow-lg max-w-[250px] w-full right-4 top-full lg:block lg:static lg:bg-transparent lg:max-w-full lg:shadow-none lg:rounded-none dark:bg-dark-300 dark:lg:bg-transparent'>
                         <ul className='block lg:flex'>
                             {user.role_id === 1 ? (
                                 <>
                             <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                            <a href={route('bay')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Bay</a>
+                                <a href={route('dashboard')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500'>Dashboard</a>
                             </li>
                             <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                <a href={route('substation')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Substation</a>
+                                <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500'>Anomali</a>
                             </li>
                             <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                <a href={route('user')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>User</a>
+                                <a href={route('substation')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500'>Substation</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('bay')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500'>Bay</a>
+                            </li>
+                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
+                                <a href={route('user')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500'>User</a>
                             </li>
                             <li className='dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
                                 <div className="inline-flex mx-4">
-                                    <a href={route('approval')} className='flex mr-[2px] items-center text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Approval</a>
+                                    <a href={route('approval')} className='flex mr-[2px] items-center text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500'>Approval</a>
                                     <div className="flex -mt-4">
                                         <div className="flex items-center justify-center px-1 my-6 bg-red-500 border border-red-500 rounded-full">
                                             <span className='text-xs font-semibold text-slate-100'>12</span>
                                         </div>
                                     </div>
                                 </div>
-                            </li>
-                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Anomali</a>
-                            </li>
-                            <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                <a href={route('dashboard')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Dashboard</a>
                             </li>
                                 <Menu as="div" className="relative inline-block text-left">
                                     <div className=''>
@@ -194,10 +194,10 @@ export default function DashboardLayout({children, user, status}) {
                             ): (
                                 <>
                                     <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                        <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Anomali</a>
+                                        <a href={route('anomali')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex '>Anomali</a>
                                     </li>
                                     <li className='items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex'>
-                                        <a href={route('dashboard')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-blue-700'>Dashboard</a>
+                                        <a href={route('dashboard')} className='flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex '>Dashboard</a>
                                     </li>
                                     <Menu as="div" className="relative inline-block text-left">
                                         <div className=''>

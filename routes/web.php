@@ -14,6 +14,7 @@ Route::get('/', function () {
     return Inertia::render('Home');
 });
 
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/anomali', [AnomaliController::class, 'index'])->name('anomali');
@@ -37,7 +38,7 @@ Route::middleware(['auth', 'is_role:Admin'])->group(function () {
 
     Route::get('/approval', [ApprovalController::class, 'index'])->name('approval');
     Route::get('/approval/update/{id}', [ApprovalController::class, 'update'])->name('approval.update');
-    Route::post('/approval/approve/{id}', [ApprovalController::class, 'create'])->name('approval.create');
+    Route::post('/approval/approve/{id}', [ApprovalController::class, 'create'])->name('approval.approve');
     Route::delete('/approval/{id}/delete', [ApprovalController::class, 'destroy'])->name('approval.delete');
 
 

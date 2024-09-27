@@ -19,11 +19,16 @@ class DashboardController extends Controller
     public function index()
     {
 
+        // $data = Anomali::nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get();
+
+        // dd($data);
+
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
             'type' => Type::with('Anomali')->get(),
             'status' => Status::with(['Anomali'])->get(),
             'anomalis' => Anomali::with(['Status'])->get(),
+            'anomalis_date' => Anomali::nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get()
         ]);
     }
 

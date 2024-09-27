@@ -3,12 +3,13 @@ import React from "react";
 import { Head, useForm, router } from "@inertiajs/react";
 import { Button,Badge, Label, Modal, Textarea, TextInput, FileInput } from "flowbite-react";
 import { useState, useRef } from "react";
-import { HiCheck, HiOutlinePencil, HiOutlineX, HiOutlineTicket, HiOutlineExclamation, HiOutlineCheck  } from "react-icons/hi";
+import { HiCheck, HiOutlinePencil, HiOutlineX, HiOutlineTicket, HiOutlineExclamation, HiOutlineCheck, HiLockClosed  } from "react-icons/hi";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import Modal2 from "@/Components/Modal2";
 import InputLabel from "@/Components/InputLabel";
+import InputError from "@/Components/InputError";
 
 export default function Approval({auth, anomalis}){
 
@@ -34,8 +35,7 @@ export default function Approval({auth, anomalis}){
     }
     const { data, setData, processing, post, errors, reset} = useForm({
         approve_by : auth.user.name,
-        date_plan_start : '',
-        date_plan_end : '',
+        date_plan : '',
         date_execution : '',
         action : '',
     })
@@ -46,17 +46,9 @@ export default function Approval({auth, anomalis}){
         setSelectedApprove(data)
         setOpenApprove(true, data)
     }
-    const handleApprove = (id, titlename) => {
+    const handleApprove = (id) => {
         router.post(`/approval/approve/${id}`, data)
         setOpenApprove(false)
-        reset()
-        Swal.fire({
-            title: 'Success',
-            text: titlename + ' has been approve.',
-            icon: 'success',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#1C64F2'
-        });
     }
 
     const [selectedReject, setSelectedReject] = useState(null)
@@ -290,6 +282,8 @@ export default function Approval({auth, anomalis}){
                     )}
             </Modal2>
 
+
+
             <Dialog open={openReject} onClose={setOpenReject} className="relative z-10">
                 <DialogBackdrop transition
                 className="fixed inset-0 bg-gray-500 bg-opacity-70 backdrop-blur-sm transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"/>
@@ -305,7 +299,7 @@ export default function Approval({auth, anomalis}){
                                 </div>
                                 <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                                 <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                    Reject {selectedReject && selectedReject.titlename}
+                                    Reject {selectedReject && selectedReject.titlename} ?
                                 </DialogTitle>
                                 <div className="mt-2">
                                     <p className="text-sm text-gray-500">
@@ -316,7 +310,7 @@ export default function Approval({auth, anomalis}){
                                 </div>
                             </div>
                         </div>
-                        <div className="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+                        <div className="px-4 py-3 justify-between bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
                             <button
                                 type="button"
                                 onClick={()=> handleReject(selectedReject.id)}
@@ -327,7 +321,7 @@ export default function Approval({auth, anomalis}){
                                 type="button"
                                 data-autofocus
                                 onClick={() => setOpenReject(false)}
-                                className="inline-flex justify-center w-full px-3 py-2 mt-3 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                                className="inline-flex justify-center w-full px-3 py-2 mt-3 text-sm font-semibold text-gray-900 bg-white rounded-md shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto">
                                 Cancel
                             </button>
                         </div>
@@ -351,42 +345,45 @@ export default function Approval({auth, anomalis}){
                                 <HiOutlineCheck aria-hidden="true" className="w-6 h-6 text-blue-600"/>
                                 </div>
                                 <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                                    <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                        Approve {selectedApprove && selectedApprove.titlename} ?
-                                    </DialogTitle>
-                                    <div className="mt-2">
-                                        <p className="text-sm text-gray-500">
-                                        Are you sure you want to <strong className="font-bold underline">approve</strong> this anomalies? This action will be permanently accept and cannot be reject or delete.
-                                        </p>
-                                    </div>
-                                        <p className="mt-4 text-sm text-rose-400">Please set the date bellow</p>
-                                    <form>
-                                        <div className="grid grid-cols-2 gap-4 mt-2">
-                                            <div className="col-span-1">
-                                                <InputLabel value="Date Plan Start"/>
-                                                <TextInput type="date"
-                                                    name="date_plan_start"
-                                                    value={data.date_plan_start}
-                                                    onChange={(e) => setData('date_plan_start', e.target.value)}
-                                                    className="text-gray-500"/>
-                                            </div>
-                                            <div className="col-span-1">
-                                                <InputLabel value="Date Plan End"/>
-                                                <TextInput type="date"
-                                                    name="date_plan_start"
-                                                    value={data.date_plan_end}
-                                                    onChange={(e) => setData('date_plan_end', e.target.value)}
-                                                    className="text-gray-500"/>
-                                            </div>
+                                <DialogTitle as="h3" className="text-base font-semibold leading-6 text-gray-900">
+                                    Approve {selectedApprove && selectedApprove.titlename} ?
+                                </DialogTitle>
+                                <div className="mt-2">
+                                    <p className="text-sm text-gray-500">
+                                    Are you sure you want to <strong className="font-bold underline">approve</strong> this anomalies? This action will be permanently accept and
+                                    cannot be reject or delete.
+                                    </p>
+                                </div>
+                                    <p className="mt-4 text-sm text-rose-400">Please set the date bellow</p>
+                                    <div className="grid grid-cols-2 gap-4 mt-2">
+                                        <div className="col-span-1">
+                                            <InputLabel value="Date Plan Start"/>
+                                            <TextInput type="date"
+                                                name="date_plan_start"
+                                                value={data.date_plan_start}
+                                                // onChange={}
+                                                className="text-gray-500"/>
+
+                                            <InputError className='mt-2' message={errors.date_plan_start}/>
                                         </div>
-                                    </form>
+                                        <div className="col-span-1">
+                                            <InputLabel value="Date Plan End"/>
+
+                                            <TextInput type="date"
+                                                name="date_plan_end"
+                                                value={data.date_plan_end}
+                                                // onChange={}
+                                                className="text-gray-500"/>
+                                            <InputError className='mt-2' message={errors.date_plan_end}/>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div className="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
                         <button
                             type="button"
-                            onClick={() => handleApprove(selectedApprove.id, selectedApprove.titlename)}
+                            onClick={() => handleApprove(selectedApprove.id)}
                             className="inline-flex justify-center w-full px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
                         >
                             Approve
@@ -514,11 +511,7 @@ export default function Approval({auth, anomalis}){
                         }
                         </td>
                         <td>
-                            {anomali.is_approve === 0 ? (
-                                <span className="flex items-center justify-center">No</span>
-                            ): (
-                                <span className="flex items-center justify-center">Yes</span>
-                            )}
+                            {anomali.additional_information}
                         </td>
                         <td className="flex items-center justify-center">
                             {anomali.is_approve === 0 ? (
@@ -535,9 +528,9 @@ export default function Approval({auth, anomalis}){
                                 </>
                             ):(
                             // <Button onClick={() => editedItem(anomali)} color="warning" size="xs" className="mx-4">
-                            <Button onClick={() => toggleModal(anomali)} color="warning" size="xs" className="mx-4">
-                                <HiOutlinePencil className="w-4 h-4 mr-2" />
-                                Edit
+                            <Button onClick={() => toggleModal(anomali)} color="success" size="xs" className="mx-4 ">
+                                <HiLockClosed className="w-4 h-4 mr-2" />
+                                Close
                             </Button>
                             )
                             }

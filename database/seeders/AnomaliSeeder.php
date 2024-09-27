@@ -35,6 +35,7 @@ class AnomaliSeeder extends Seeder
                 'date_execution' => null,
                 'status_id' => 1,
                 'is_approve' => false,
+                'document_id' => 1
             ),
         ));
     }

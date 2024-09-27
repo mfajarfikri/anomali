@@ -14,8 +14,9 @@ import {
 import '@schedule-x/theme-default/dist/index.css'
 import { createEventModalPlugin } from "@schedule-x/event-modal";
 
-export default function Dashboard({status, equipments, type, anomalis }) {
+export default function Dashboard({status, equipments, approve, anomalis, anomalis_date }) {
 
+    // window.location.reload()
 
     const { auth } = usePage().props;
 
@@ -160,7 +161,7 @@ export default function Dashboard({status, equipments, type, anomalis }) {
     }
     }
 
-    const eventDataFromDB = anomalis.map(anomali => ({
+    const eventDataFromDB = anomalis_date.map(anomali => ({
         id: anomali.id,
         title: anomali.titlename,
         start: anomali.date_plan_start,
@@ -168,8 +169,9 @@ export default function Dashboard({status, equipments, type, anomalis }) {
     }))
 
     const calendar = useCalendarApp({
-        views: [createViewMonthGrid(), createViewWeek(), createViewDay(), createViewMonthAgenda()],
-        events: eventDataFromDB.map(event => ({
+        views: [createViewMonthGrid(), createViewMonthAgenda()],
+        events:
+        eventDataFromDB.map(event => ({
             id: event.id,
             title: event.title,
             start: event.start,
@@ -192,11 +194,14 @@ export default function Dashboard({status, equipments, type, anomalis }) {
         <>
             <Head title="Dashboard" />
             <DashboardLayout user={auth.user}>
-                <div className="grid gap-6 m-4 lg:grid-cols-3">
-                    <div className="flex col-span-1">
+                <div className="">
+                    <p>Welcome {auth.user.name}</p>
+                </div>
+                <div className="grid gap-6 m-4 lg:grid-cols-5 md:grid-cols-1">
+                    <div className="flex col-span-3">
                         <ScheduleXCalendar calendarApp={calendar}/>
                     </div>
-                    <div className="col-span-1">
+                    <div className="flex col-span-1">
                         <div className="p-4 bg-white rounded-lg shadow-lg dark:bg-dark-400 md:p-6">
                             <div className="flex justify-start mb-3">
                                 <div className="flex items-center">
@@ -267,7 +272,7 @@ export default function Dashboard({status, equipments, type, anomalis }) {
                         </div>
                     </div>
 
-                    <div className="col-span-1">
+                    <div className="flex col-span-1">
 
                         <div className="w-full p-4 bg-white rounded-lg shadow-lg dark:bg-dark-400 md:p-6">
 
@@ -275,44 +280,11 @@ export default function Dashboard({status, equipments, type, anomalis }) {
                                 <div className="flex-col items-center">
                                     <div className="flex items-center mb-1">
                                         <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-gray-100 me-1">Equipment</h5>
-                                            <svg className="w-3.5 h-3.5 text-gray-500  hover:text-gray-900 cursor-pointer ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm0 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm1-5.034V12a1 1 0 0 1-2 0v-1.418a1 1 0 0 1 1.038-.999 1.436 1.436 0 0 0 1.488-1.441 1.501 1.501 0 1 0-3-.116.986.986 0 0 1-1.037.961 1 1 0 0 1-.96-1.037A3.5 3.5 0 1 1 11 11.466Z"/>
-                                            </svg>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-end">
-                                    <button id="widgetDropdownButton" data-dropdown-toggle="widgetDropdown" data-dropdown-placement="bottom" type="button"  className="inline-flex items-center justify-center w-8 h-8 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 "><svg className="w-3.5 h-3.5 text-gray-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
-                                        <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
-                                    </svg><span className="sr-only">Open dropdown</span>
-                                    </button>
-                                    <div id="widgetDropdown" className="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 ">
-                                        <ul className="py-2 text-sm text-gray-700" aria-labelledby="widgetDropdownButton">
-                                        <li>
-                                            <a href="#" className="flex items-center px-4 py-2 hover:bg-gray-100"><svg className="w-3 h-3 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 21 21">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7.418 17.861 1 20l2.139-6.418m4.279 4.279 10.7-10.7a3.027 3.027 0 0 0-2.14-5.165c-.802 0-1.571.319-2.139.886l-10.7 10.7m4.279 4.279-4.279-4.279m2.139 2.14 7.844-7.844m-1.426-2.853 4.279 4.279"/>
-                                            </svg>Edit widget
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" className="flex items-center px-4 py-2 hover:bg-gray-100"><svg className="w-3 h-3 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z"/>
-                                                <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/>
-                                            </svg>Download data
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" className="flex items-center px-4 py-2 hover:bg-gray-100"><svg className="w-3 h-3 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-                                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m5.953 7.467 6.094-2.612m.096 8.114L5.857 9.676m.305-1.192a2.581 2.581 0 1 1-5.162 0 2.581 2.581 0 0 1 5.162 0ZM17 3.84a2.581 2.581 0 1 1-5.162 0 2.581 2.581 0 0 1 5.162 0Zm0 10.322a2.581 2.581 0 1 1-5.162 0 2.581 2.581 0 0 1 5.162 0Z"/>
-                                            </svg>Add to repository
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" className="flex items-center px-4 py-2 hover:bg-gray-100"><svg className="w-3 h-3 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
-                                                <path d="M17 4h-4V2a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2H1a1 1 0 0 0 0 2h1v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1a1 1 0 1 0 0-2ZM7 2h4v2H7V2Zm1 14a1 1 0 1 1-2 0V8a1 1 0 0 1 2 0v8Zm4 0a1 1 0 0 1-2 0V8a1 1 0 0 1 2 0v8Z"/>
-                                            </svg>Delete widget
-                                            </a>
-                                        </li>
-                                        </ul>
+                                            <Tooltip trigger="click" content="Perhitungan tiap peralatan dari total anomali">
+                                                <svg className="w-3.5 h-3.5 text-gray-500  hover:text-gray-900 cursor-pointer ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm0 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm1-5.034V12a1 1 0 0 1-2 0v-1.418a1 1 0 0 1 1.038-.999 1.436 1.436 0 0 0 1.488-1.441 1.501 1.501 0 1 0-3-.116.986.986 0 0 1-1.037.961 1 1 0 0 1-.96-1.037A3.5 3.5 0 1 1 11 11.466Z"/>
+                                                </svg>
+                                            </Tooltip>
                                     </div>
                                 </div>
                             </div>
@@ -335,6 +307,8 @@ export default function Dashboard({status, equipments, type, anomalis }) {
 
                     </div>
                 </div>
+
+                <div className=""></div>
             </DashboardLayout>
         </>
     );
