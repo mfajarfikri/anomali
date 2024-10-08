@@ -9,7 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SubstationController;
-
+use App\Http\Controllers\ApiController;
 Route::get('/', function () {
     return Inertia::render('Home');
 });
@@ -26,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'is_role:Admin'])->group(function () {
+
+    // Route::get('/api/jumlah-status-new', [ApiController::class, 'countNewStatus'])->name('api.countNewStatus');
+
     Route::get('/substation', [SubstationController::class, 'index'])->name('substation');
     Route::post('/substation/create', [SubstationController::class, 'create'])->name('substation.create');
     Route::post('/substation', [SubstationController::class, 'store'])->name('substation.store');

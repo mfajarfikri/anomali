@@ -19,20 +19,48 @@ class AnomaliController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request,)
+    public function index(Request $request)
     {
-        // dd(session());
+        $query = Anomali::with(['Substation', 'Section', 'Type', 'User', 'Equipment', 'Bay', 'Status'])->latest();
 
-        return Inertia::render('Anomali/Anomali')->with([
-            'anomalis' => Anomali::with(['Substation','Section','Type','User','Equipment','Bay','Status'])->latest()->paginate($request->perpage ?? 15),
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('titlename', 'LIKE', "%{$searchTerm}%")
+                  ->orWhereHas('Substation', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('Section', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('Type', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('User', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('Equipment', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('Bay', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('Status', function ($q) use ($searchTerm) {
+                      $q->where('name', 'LIKE', "%{$searchTerm}%");
+                  });
+            });
+        }
+
+        $anomalis = $query->paginate($request->perpage ?? 15);
+
+        return Inertia::render('Anomali/Anomali', [
+            'anomalis' => $anomalis,
             'substations' => Substation::with('Bay')->orderBy('name', 'asc')->get(),
             'sections' => Section::orderBy('name', 'asc')->get(),
             'types' => Type::all(),
             'equipments' => Equipment::orderBy('name', 'asc')->get(),
             'bays' => Bay::all(),
         ]);
-
-
     }
 
     /**
@@ -40,9 +68,6 @@ class AnomaliController extends Controller
      */
     public function create(Request $request)
     {
-
-        // dd($request->file('file')->getClientOriginalName());
-
         $request->validate([
             'titlename' => 'required|string',
             'substation' => 'required',
@@ -56,8 +81,14 @@ class AnomaliController extends Controller
             'file' => 'required|file|mimes:jpg,png,pdf|max:3048'
         ]);
 
-        $path = $request->file('file')->store('lampiranAnomali', 'public');
-        $file = $request->file('file')->getClientOriginalName();
+        $file = $request->file('file');
+        $originalName = $file->getClientOriginalName();
+        $extension = $file->getClientOriginalExtension();
+        $fileName = pathinfo($originalName, PATHINFO_FILENAME);
+        $safeFileName = preg_replace("/[^A-Za-z0-9]/", '_', $fileName);
+        $newFileName = $safeFileName . '_' . time() . '.' . $extension;
+
+        $path = $file->storeAs('lampiranAnomali', $newFileName, 'public');
 
         $ticket = Anomali::create([
             'titlename' => $request->titlename,
@@ -71,15 +102,15 @@ class AnomaliController extends Controller
             'additional_information' => $request->additional_information,
             'status_id' => 1,
             'is_approve' => false,
-            'attachment_filename' => $file,
+            'attachment_filename' => $newFileName,
             'attachment_path' => $path
         ]);
+
         if ($ticket) {
             return redirect()->route('anomali')->with('success', 'Anomalies created successfully');
         }
 
         return redirect()->back()->with('error', 'Failed to create anomalies');
-
     }
 
     /**

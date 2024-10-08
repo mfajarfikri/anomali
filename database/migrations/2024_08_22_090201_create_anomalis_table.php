@@ -28,8 +28,8 @@ return new class extends Migration
             $table->foreignId('status_id')->constrained()->onDelete('cascade');
             $table->boolean('is_approve');
             $table->string('approve_by')->nullable();
-            $table->string('attachment_filename');
-            $table->string('attachment_path');
+            $table->string('attachment_filename')->nullable();
+            $table->string('attachment_path')->nullable();
             $table->timestamps();
         });
     }

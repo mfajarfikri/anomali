@@ -32,11 +32,11 @@ class ApprovalController extends Controller
      */
     public function create(Request $request, String $id)
     {
-    //    dd( $approve);
-        // $request->validate([
-        //     'date_plan_start' => 'required',
-        //     'date_plan_end' => 'required',
-        // ]);
+    //    dd($request);
+        $request->validate([
+            'date_plan_start' => 'required',
+            'date_plan_end' => 'required',
+        ]);
 
         $approve = Anomali::findOrFail($id);
 

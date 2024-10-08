@@ -10,6 +10,8 @@ use App\Models\Substation;
 use App\Models\Type;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -18,17 +20,27 @@ class DashboardController extends Controller
      */
     public function index()
     {
-
-        // $data = Anomali::nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get();
-
-        // dd($data);
+        $anomaliPerBulan = Anomali::select(
+            DB::raw("strftime('%m', created_at) as bulan"),
+            DB::raw("strftime('%Y', created_at) as tahun"),
+            DB::raw('COUNT(*) as jumlah')
+        )
+        ->groupBy('tahun', 'bulan')
+        ->orderBy('tahun', 'asc')
+        ->orderBy('bulan', 'asc')
+        ->get()
+        ->map(function ($item) {
+            $item->bulan_tahun = Carbon::createFromDate($item->tahun, $item->bulan, 1)->format('M Y');
+            return $item;
+        });
 
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
             'type' => Type::with('Anomali')->get(),
             'status' => Status::with(['Anomali'])->get(),
             'anomalis' => Anomali::with(['Status'])->get(),
-            'anomalis_date' => Anomali::nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get()
+            'anomalis_date' => Anomali::with(['Status'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
+            'anomaliPerBulan' => $anomaliPerBulan,
         ]);
     }
 

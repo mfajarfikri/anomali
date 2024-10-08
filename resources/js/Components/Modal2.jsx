@@ -1,6 +1,6 @@
-import React from 'react';
-import { Transition } from '@headlessui/react';
-import { HiX } from 'react-icons/hi';
+import React from "react";
+import { Transition } from "@headlessui/react";
+import { HiX } from "react-icons/hi";
 
 const Modal2 = ({ isOpen, onClose, title, children }) => {
     return (
@@ -11,8 +11,9 @@ const Modal2 = ({ isOpen, onClose, title, children }) => {
             enterTo="opacity-100"
             leave="transition-opacity duration-300"
             leaveFrom="opacity-100"
-            leaveTo="opacity-0">
-            <div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center bg-gray-500 bg-opacity-70 backdrop-blur-sm">
+            leaveTo="opacity-0"
+        >
+            <div className="fixed inset-0 z-50 overflow-auto flex items-center justify-center bg-gray-500 bg-opacity-70 dark:bg-gray-900 dark:bg-opacity-70 backdrop-blur-sm p-4">
                 <Transition
                     show={isOpen}
                     enter="transform transition-transform duration-300"
@@ -22,14 +23,21 @@ const Modal2 = ({ isOpen, onClose, title, children }) => {
                     leaveFrom="scale-100"
                     leaveTo="scale-95"
                 >
-                    <div className="w-full max-w-3xl p-6 bg-white rounded-lg shadow-lg">
-                        <div className="flex items-center justify-between mb-6 ">
-                            <h2 className="text-xl font-semibold">{title}</h2>
-                                <button className="p-2 rounded-lg hover:bg-gray-100" onClick={onClose}>
-                                    <HiX/>
-                                </button>
+                    <div className="w-full max-w-3xl p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                        <div className="flex items-center justify-between mb-4 sm:mb-6">
+                            <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                                {title}
+                            </h2>
+                            <button
+                                className="p-1 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+                                onClick={onClose}
+                            >
+                                <HiX className="w-5 h-5 sm:w-6 sm:h-6" />
+                            </button>
                         </div>
-                        <div>{children}</div>
+                        <div className="max-h-[70vh] px-1 overflow-y-auto text-gray-800 dark:text-gray-200">
+                            {children}
+                        </div>
                     </div>
                 </Transition>
             </div>

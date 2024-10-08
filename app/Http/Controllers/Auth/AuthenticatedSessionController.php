@@ -30,11 +30,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-
         $request->authenticate();
         $request->session()->regenerate();
+
+        // Menambahkan pesan sukses login
+        session()->flash('success', 'Login berhasil!');
+
         return redirect()->route('dashboard', [
-            'approve' => Anomali::where('status_id', 1 )->count()
+            'approve' => Anomali::where('status_id', 1)->count()
         ]);
     }
 

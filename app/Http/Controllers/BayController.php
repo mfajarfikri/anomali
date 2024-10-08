@@ -64,15 +64,34 @@ class BayController extends Controller
      */
     public function edit(string $id)
     {
-        dd($id);
+        $bay = Bay::findOrFail($id);
+
+        return response()->json([
+            'bay' => $bay,
+            'substation' => $bay->substation,
+            'condition' => $bay->condition
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Bay $bay)
+    public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'bayEdit' => 'required',
+            'substationEdit' => 'required',
+            'conditionEdit' => 'required'
+        ]);
+
+        $bay = Bay::findOrFail($id);
+        $bay->update([
+            'name' => $request->bayEdit,
+            'substation_id' => $request->substationEdit,
+            'condition_id' => $request->conditionEdit
+        ]);
+
+        return Redirect::route('bay')->with('success', 'Bay berhasil diperbarui');
     }
 
     /**

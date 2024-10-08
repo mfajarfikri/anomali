@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             TypeSeeder::class,
             ConditionSeeder::class
         ]);
-        // User::factory(40)->create();
-        // Anomali::factory(30)->create();
+        User::factory(40)->create();
+        Anomali::factory(30)->create();
     }
 }

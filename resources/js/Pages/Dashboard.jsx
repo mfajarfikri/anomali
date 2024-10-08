@@ -1,314 +1,566 @@
-import React from "react";
-import DashboardLayout from '@/Layouts/DashboardLayout';
+import React, { useEffect, useState, useRef } from "react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, usePage } from "@inertiajs/react";
-import ApexCharts from 'apexcharts'
+import ApexCharts from "apexcharts";
+import dateFormat from "dateformat";
 import { Tooltip } from "flowbite-react";
-import CountUp from 'react-countup';
-import { useCalendarApp, ScheduleXCalendar } from '@schedule-x/react'
-import {
-  createViewMonthAgenda,
-  createViewMonthGrid,
-  createViewWeek,
-  createViewDay
-} from '@schedule-x/calendar'
-import '@schedule-x/theme-default/dist/index.css'
-import { createEventModalPlugin } from "@schedule-x/event-modal";
+import CountUp from "react-countup";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import ApplicationLogo from "@/Components/ApplicationLogo";
+import Modal2 from "@/Components/Modal2"; // Pastikan path import sesuai
 
-export default function Dashboard({status, equipments, approve, anomalis, anomalis_date }) {
-
-    // window.location.reload()
-
+export default function Dashboard({
+    status,
+    equipments,
+    approve,
+    anomalis,
+    anomalis_date,
+    anomaliPerBulan,
+    anomaliPerSubstation, // Tambahkan prop baru
+}) {
     const { auth } = usePage().props;
+    const [events, setEvents] = useState([]);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
-    const getChartStatus = () => {
-        let statusNew = status[0].anomali.length / anomalis.length * 100
-        let statusOpen = status[1].anomali.length / anomalis.length * 100
-        let statusClose = status[2].anomali.length / anomalis.length * 100
+    // Gunakan useRef untuk menyimpan referensi chart
+    const radialChartRef = useRef(null);
+    const pieChartRef = useRef(null);
+    const lineChartRef = useRef(null);
+    const substationChartRef = useRef(null);
 
-        return {
-            series: [ statusClose.toFixed(1), statusOpen.toFixed(1), statusNew.toFixed(1)],
-            colors: ["#0EA5E9", "#10B981", "#EF4444"],
-            chart: {
-              height: "380px",
-              width: "100%",
-              type: "radialBar",
-              sparkline: {
-                enabled: true,
-              },
-            },
-            plotOptions: {
-              radialBar: {
-                track: {
-                  background: '#E5E7EB',
-                },
-                dataLabels: {
-                  show: true,
-                },
-                hollow: {
-                  margin: 0,
-                  size: "32%",
-                }
-              },
-            },
-            grid: {
-              show: false,
-              strokeDashArray: 4,
-              padding: {
-                left: 2,
-                right: 2,
-                top: -23,
-                bottom: -20,
-              },
-            },
-            labels: status.map(status => status.name),
-            legend: {
-              show: true,
-              position: "bottom",
-              fontFamily: "Inter, sans-serif",
-            },
-            tooltip: {
-              enabled: true,
-              x: {
-                show: false,
-              },
-            },
-            yaxis: {
-              show: false,
-              labels: {
-                formatter: function (value) {
-                  return value + '%';
-                }
-              }
+    useEffect(() => {
+        const formattedEvents = anomalis_date.map((anomali) => ({
+            id: anomali.id,
+            title: anomali.titlename,
+            start: anomali.date_plan_start,
+            end: anomali.date_plan_end,
+            backgroundColor: getEventColor(anomali.status.name),
+            borderColor: getEventColor(anomali.status.name),
+            extendedProps: { ...anomali },
+        }));
+        setEvents(formattedEvents);
+
+        // Inisialisasi chart
+        if (typeof ApexCharts !== "undefined") {
+            if (!radialChartRef.current) {
+                radialChartRef.current = new ApexCharts(
+                    document.querySelector("#radial-chart"),
+                    getChartStatus()
+                );
+                radialChartRef.current.render();
+            } else {
+                radialChartRef.current.updateOptions(getChartStatus());
             }
-          }
+
+            if (!pieChartRef.current) {
+                pieChartRef.current = new ApexCharts(
+                    document.getElementById("pie-chart"),
+                    getChartEquipment()
+                );
+                pieChartRef.current.render();
+            } else {
+                pieChartRef.current.updateOptions(getChartEquipment());
+            }
+
+            if (anomaliPerBulan && anomaliPerBulan.length > 0) {
+                if (!lineChartRef.current) {
+                    lineChartRef.current = new ApexCharts(
+                        document.getElementById("line-chart"),
+                        getChartAnomaliPerBulan()
+                    );
+                    lineChartRef.current.render();
+                } else {
+                    lineChartRef.current.updateOptions(
+                        getChartAnomaliPerBulan()
+                    );
+                }
+            }
         }
 
-      if (document.getElementById("radial-chart") && typeof ApexCharts !== 'undefined') {
-        const chart = new ApexCharts(document.querySelector("#radial-chart"), getChartStatus());
-        chart.render();
-      }
+        // Cleanup function
+        return () => {
+            if (radialChartRef.current) {
+                radialChartRef.current.destroy();
+                radialChartRef.current = null;
+            }
+            if (pieChartRef.current) {
+                pieChartRef.current.destroy();
+                pieChartRef.current = null;
+            }
+            if (lineChartRef.current) {
+                lineChartRef.current.destroy();
+                lineChartRef.current = null;
+            }
+            if (substationChartRef.current) {
+                substationChartRef.current.destroy();
+                substationChartRef.current = null;
+            }
+        };
+    }, [anomaliPerBulan, anomaliPerSubstation, status, equipments, anomalis]);
+
+    const getEventColor = (status) => {
+        switch (status) {
+            case "Open":
+                return "#10B981";
+            case "Close":
+                return "#0EA5E9";
+            default:
+                return "#10B981";
+        }
+    };
+
+    const handleEventClick = (clickInfo) => {
+        setSelectedEvent(clickInfo.event.extendedProps);
+        setShowModal(true);
+    };
+
+    const getChartStatus = () => {
+        let statusNew = (status[0].anomali.length / anomalis.length) * 100;
+        let statusOpen = (status[1].anomali.length / anomalis.length) * 100;
+        let statusClose = (status[2].anomali.length / anomalis.length) * 100;
+
+        return {
+            series: [
+                statusNew.toFixed(1),
+                statusOpen.toFixed(1),
+                statusClose.toFixed(1),
+            ],
+            colors: ["#EF4444", "#10B981", "#0EA5E9"],
+            chart: {
+                height: 280,
+                width: "100%",
+                type: "radialBar",
+                sparkline: {
+                    enabled: true,
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                    },
+                    export: {
+                        svg: {
+                            filename: "status_anomali_svg",
+                        },
+                        png: {
+                            filename: "status_anomali_png",
+                        },
+                    },
+                },
+            },
+            plotOptions: {
+                radialBar: {
+                    track: {
+                        background: "#E5E7EB",
+                    },
+                    dataLabels: {
+                        show: false,
+                    },
+                    hollow: {
+                        margin: 0,
+                        size: "32%",
+                    },
+                },
+            },
+            grid: {
+                show: false,
+                strokeDashArray: 4,
+                padding: {
+                    left: 2,
+                    right: 2,
+                    top: -23,
+                    bottom: -20,
+                },
+            },
+            labels: status.map((status) => status.name),
+            legend: {
+                show: true,
+                position: "bottom",
+                fontFamily: "Inter, sans-serif",
+            },
+            tooltip: {
+                enabled: true,
+                x: {
+                    show: false,
+                },
+            },
+            yaxis: {
+                show: false,
+                labels: {
+                    formatter: function (value) {
+                        return value + "%";
+                    },
+                },
+            },
+        };
+    };
 
     const getChartEquipment = () => {
-
-    return {
-        series: equipments.map(equipment => equipment.anomali.length),
-        colors: [
-            '#1f77b4',
-            '#ff7f0e',
-            '#2ca02c',
-            '#d62728',
-            '#9467bd',
-            '#8c564b',
-            '#e377c2',
-            '#7f7f7f',
-            '#295F98',
-            '#bcbd22',
-            '#17becf',
-            '#ffcc00',
-            '#a52a2a',
-        ],
-        chart: {
-        height: 420,
-        width: "100%",
-        type: "pie",
-        },
-        stroke: {
-        colors: ["white"],
-        lineCap: "",
-        },
-        plotOptions: {
-        pie: {
-            labels: {
-            show: true,
+        return {
+            series: equipments.map((equipment) => equipment.anomali.length),
+            colors: [
+                "#1f77b4",
+                "#ff7f0e",
+                "#2ca02c",
+                "#d62728",
+                "#9467bd",
+                "#8c564b",
+                "#e377c2",
+                "#7f7f7f",
+                "#295F98",
+                "#bcbd22",
+                "#17becf",
+                "#ffcc00",
+                "#a52a2a",
+            ],
+            chart: {
+                height: 350,
+                width: "100%",
+                type: "pie",
+                zoom: {
+                    enabled: true,
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                    },
+                    export: {
+                        svg: {
+                            filename: "distribusi_equipment_svg",
+                        },
+                        png: {
+                            filename: "distribusi_equipment_png",
+                        },
+                    },
+                },
             },
-            size: "100%",
+            stroke: {
+                colors: ["white"],
+                lineCap: "",
+            },
+            plotOptions: {
+                pie: {
+                    labels: {
+                        show: true,
+                    },
+                    size: "100%",
+                    dataLabels: {
+                        offset: -25,
+                    },
+                },
+            },
+            labels: equipments.map((equipment) => equipment.name),
             dataLabels: {
-            offset: -25
-            }
-        },
-        },
-        labels: equipments.map(equipment => equipment.name),
-        dataLabels: {
-        enabled: true,
-        style: {
-            fontFamily: "Inter, sans-serif",
-        },
-        },
-        legend: {
-        position: "bottom",
-        fontFamily: "Inter, sans-serif",
-        },
-        yaxis: {
-        labels: {
-            formatter: function (value) {
-            return value
+                enabled: true,
+                style: {
+                    fontFamily: "Inter, sans-serif",
+                },
             },
-        },
-        },
-        xaxis: {
-        labels: {
-            formatter: function (value) {
-            return value
+            legend: {
+                position: "bottom",
+                fontFamily: "Inter, sans-serif",
             },
-        },
-        axisTicks: {
-            show: false,
-        },
-        axisBorder: {
-            show: false,
-        },
-        },
-    }
-    }
+            yaxis: {
+                labels: {
+                    formatter: function (value) {
+                        return value;
+                    },
+                },
+            },
+            xaxis: {
+                labels: {
+                    formatter: function (value) {
+                        return value;
+                    },
+                },
+                axisTicks: {
+                    show: false,
+                },
+                axisBorder: {
+                    show: false,
+                },
+            },
+        };
+    };
 
-    const eventDataFromDB = anomalis_date.map(anomali => ({
-        id: anomali.id,
-        title: anomali.titlename,
-        start: anomali.date_plan_start,
-        end: anomali.date_plan_end
-    }))
+    const getChartAnomaliPerBulan = () => {
+        if (!anomaliPerBulan || anomaliPerBulan.length === 0) {
+            return {}; // atau berikan konfigurasi default
+        }
 
-    const calendar = useCalendarApp({
-        views: [createViewMonthGrid(), createViewMonthAgenda()],
-        events:
-        eventDataFromDB.map(event => ({
-            id: event.id,
-            title: event.title,
-            start: event.start,
-            end: event.end,
-            description: event.description
-          })),
-        plugins: [
-            createEventModalPlugin()
-        ]
-      })
+        return {
+            series: [
+                {
+                    name: "Jumlah Anomali",
+                    data: anomaliPerBulan.map((item) => item.jumlah),
+                },
+            ],
+            chart: {
+                height: 280,
+                type: "line",
+                zoom: {
+                    enabled: true,
+                },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true,
+                    },
+                    export: {
+                        svg: {
+                            filename: "Anomali_Per_Month_svg",
+                        },
+                        png: {
+                            filename: "Anomali_Per_Month_png",
+                        },
+                    },
+                },
+            },
+            dataLabels: {
+                enabled: false,
+            },
+            stroke: {
+                curve: "straight",
+            },
+            grid: {
+                row: {
+                    colors: ["#f3f3f3", "transparent"],
+                    opacity: 0.5,
+                },
+            },
+            xaxis: {
+                categories: anomaliPerBulan.map((item) => item.bulan_tahun),
+            },
+        };
+    };
 
-    if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
-    const chart = new ApexCharts(document.getElementById("pie-chart"), getChartEquipment());
-    chart.render();
-    }
+    const { flash } = usePage().props;
 
-
-
+    console.log(anomalis);
     return (
         <>
             <Head title="Dashboard" />
             <DashboardLayout user={auth.user}>
-                <div className="">
-                    <p>Welcome {auth.user.name}</p>
-                </div>
-                <div className="grid gap-6 m-4 lg:grid-cols-5 md:grid-cols-1">
-                    <div className="flex col-span-3">
-                        <ScheduleXCalendar calendarApp={calendar}/>
-                    </div>
-                    <div className="flex col-span-1">
-                        <div className="p-4 bg-white rounded-lg shadow-lg dark:bg-dark-400 md:p-6">
-                            <div className="flex justify-start mb-3">
-                                <div className="flex items-center">
-                                    <div className="flex items-center justify-center">
-                                        <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-gray-100 pe-1">Anomali progress</h5>
-                                        <Tooltip trigger="click" content="Progress dari setiap anomali">
-                                          <svg className="w-3.5 h-3.5 text-gray-500  hover:text-gray-900 cursor-pointer ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm0 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm1-5.034V12a1 1 0 0 1-2 0v-1.418a1 1 0 0 1 1.038-.999 1.436 1.436 0 0 0 1.488-1.441 1.501 1.501 0 1 0-3-.116.986.986 0 0 1-1.037.961 1 1 0 0 1-.96-1.037A3.5 3.5 0 1 1 11 11.466Z"/>
-                                          </svg>
-                                        </Tooltip>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="p-3 border rounded-lg dark:border-gray-500 bg-gray-50 dark:bg-dark-400">
-                                <div className="grid grid-cols-3 gap-3 mb-2">
-                                <dl className="bg-rose-50 rounded-lg flex flex-col items-center justify-center h-[78px]">
-                                    <dt className="flex items-center justify-center w-8 h-8 mb-1 text-sm font-medium border rounded-full text-rose-600 bg-rose-100 border-rose-300 ">
-                                        <CountUp end={status[0].anomali.length}/>
-                                    </dt>
-                                    <dd className="inline-flex items-center text-sm font-medium text-rose-600 ">
-                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="mx-1 stroke-2 size-3 stroke-rose-600">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                                      </svg>
-
-                                      {status[0].name}
-                                      </dd>
-                                </dl>
-                                <dl className="bg-teal-50 rounded-lg flex flex-col items-center justify-center h-[78px]">
-                                    <dt className="flex items-center justify-center w-8 h-8 mb-1 text-sm font-medium text-teal-600 bg-teal-100 border border-teal-300 rounded-full">
-                                        <CountUp end={status[1].anomali.length}/>
-                                    </dt>
-                                    <dd className="inline-flex items-center text-sm font-medium text-teal-600">
-                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="mx-1 stroke-2 stroke-teal-600 size-3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                                      </svg>
-
-                                      {status[1].name}
-                                      </dd>
-                                </dl>
-                                <dl className="bg-blue-50 rounded-lg flex flex-col items-center justify-center h-[78px]">
-                                    <dt className="flex items-center justify-center w-8 h-8 mb-1 text-sm font-medium text-blue-600 bg-blue-100 border border-blue-300 rounded-full">
-                                        <CountUp end={status[2].anomali.length}/>
-                                    </dt>
-                                    <dd className="inline-flex items-center text-sm font-medium text-blue-600">
-                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="mx-1 stroke-2 stroke-blue-600 size-3">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                                      </svg>
-
-                                      {status[2].name}
-                                    </dd>
-                                </dl>
-                                </div>
-
-                            </div>
-
-                            <div className="py-7" id="radial-chart"></div>
-
-                            <div className="grid items-center grid-cols-1 border-t border-gray-200">
-                                <div className="flex items-center justify-end pt-5">
-                                  <a href={route('anomali')} className="inline-flex items-center px-3 py-2 text-sm font-semibold text-blue-600 uppercase rounded-lg hover:text-blue-700 hover:bg-gray-100 ">
-                                      Progress report
-                                      <svg className="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                      <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
-                                      </svg>
-                                  </a>
-                                </div>
+                <div className="p-4 space-y-4">
+                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg shadow-lg text-white">
+                        <div className="flex items-center">
+                            <ApplicationLogo className="w-10 h-10 mr-3 text-white" />
+                            <div>
+                                <h1 className="text-2xl font-bold">
+                                    Selamat Datang, {auth.user.name}!
+                                </h1>
+                                <p className="text-sm opacity-90">
+                                    Mari kita lihat perkembangan anomali kita
+                                    hari ini.
+                                </p>
                             </div>
                         </div>
                     </div>
-
-                    <div className="flex col-span-1">
-
-                        <div className="w-full p-4 bg-white rounded-lg shadow-lg dark:bg-dark-400 md:p-6">
-
-                            <div className="flex items-start justify-between w-full">
-                                <div className="flex-col items-center">
-                                    <div className="flex items-center mb-1">
-                                        <h5 className="text-xl font-bold leading-none text-gray-900 dark:text-gray-100 me-1">Equipment</h5>
-                                            <Tooltip trigger="click" content="Perhitungan tiap peralatan dari total anomali">
-                                                <svg className="w-3.5 h-3.5 text-gray-500  hover:text-gray-900 cursor-pointer ms-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm0 16a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm1-5.034V12a1 1 0 0 1-2 0v-1.418a1 1 0 0 1 1.038-.999 1.436 1.436 0 0 0 1.488-1.441 1.501 1.501 0 1 0-3-.116.986.986 0 0 1-1.037.961 1 1 0 0 1-.96-1.037A3.5 3.5 0 1 1 11 11.466Z"/>
-                                                </svg>
-                                            </Tooltip>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Status Anomali
+                            </h2>
+                            <div id="radial-chart" className="h-44"></div>
+                            <div className="grid grid-cols-3 gap-2 mt-2">
+                                {status.map((item, index) => (
+                                    <div
+                                        key={index}
+                                        className={`p-2 rounded-lg text-center ${
+                                            index === 0
+                                                ? "bg-rose-100 dark:bg-rose-900 dark:text-white"
+                                                : index === 1
+                                                ? "bg-teal-100 dark:bg-teal-900 dark:text-white"
+                                                : "bg-blue-100 dark:bg-blue-900 dark:text-white"
+                                        }`}
+                                    >
+                                        <p className="text-sm font-semibold">
+                                            {item.anomali.length}
+                                        </p>
+                                        <p className="text-xs">{item.name}</p>
                                     </div>
-                                </div>
-                            </div>
-
-
-                            <div className="py-[61px]" id="pie-chart"></div>
-
-                            <div className="grid items-center justify-between grid-cols-1 border-t border-gray-200 ">
-                                <div className="flex items-center justify-end pt-5">
-                                    <a href="#"
-                                    className="inline-flex items-center px-3 py-2 text-sm font-semibold text-blue-600 uppercase rounded-lg hover:text-blue-700hover:bg-gray-100 ">
-                                    Traffic analysis
-                                    <svg className="w-2.5 h-2.5 ms-1.5 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/>
-                                    </svg>
-                                    </a>
-                                </div>
+                                ))}
                             </div>
                         </div>
-
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Distribusi Equipment
+                            </h2>
+                            <div id="pie-chart" className="h-44"></div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Anomali per Month
+                            </h2>
+                            <div id="line-chart" className="h-44"></div>
+                        </div>
+                    </div>
+                    <div className="grid gap-4 lg:grid-cols-12">
+                        <div className="lg:col-span-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Kalender Anomali
+                            </h2>
+                            <div className="h-[600px] md:h-[450px] lg:h-[600px]">
+                                <FullCalendar
+                                    plugins={[
+                                        dayGridPlugin,
+                                        timeGridPlugin,
+                                        interactionPlugin,
+                                    ]}
+                                    initialView="dayGridMonth"
+                                    headerToolbar={{
+                                        left: "prev,next today",
+                                        center: "title",
+                                        right: "dayGridMonth,timeGridWeek,timeGridDay",
+                                    }}
+                                    events={events}
+                                    eventClick={handleEventClick}
+                                    height="100%"
+                                    eventMouseEnter={(info) => {
+                                        info.el.style.cursor = "pointer";
+                                    }}
+                                    dayMaxEvents={3} // Menampilkan maksimal 3 event per hari
+                                    eventDisplay="block" // Menampilkan event sebagai blok
+                                    slotEventOverlap={false} // Mencegah event saling tumpang tindih
+                                    eventContent={(arg) => {
+                                        return (
+                                            <div className="p-1 text-xs">
+                                                <div className="font-bold">
+                                                    {arg.timeText}
+                                                </div>
+                                                <div>{arg.event.title}</div>
+                                            </div>
+                                        );
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Ringkasan Anomali Terbaru
+                            </h2>
+                            <div className="overflow-x-auto max-h-[400px] md:max-h-[450px] lg:max-h-[500px]">
+                                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                        <tr>
+                                            <th
+                                                scope="col"
+                                                className="px-3 py-2"
+                                            >
+                                                Judul
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                className="px-3 py-2"
+                                            >
+                                                Tanggal Mulai
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                className="px-3 py-2"
+                                            >
+                                                Tanggal Selesai
+                                            </th>
+                                            <th
+                                                scope="col"
+                                                className="px-3 py-2"
+                                            >
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {anomalis_date
+                                            .slice(0, 5)
+                                            .map((anomali, index) => (
+                                                <tr
+                                                    key={index}
+                                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                                                >
+                                                    <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">
+                                                        {anomali.titlename}
+                                                    </td>
+                                                    <td className="px-3 py-2">
+                                                        {dateFormat(
+                                                            anomali.date_plan_start,
+                                                            "dd mmm yyyy"
+                                                        )}
+                                                    </td>
+                                                    <td className="px-3 py-2">
+                                                        {dateFormat(
+                                                            anomali.date_plan_end,
+                                                            "dd mmm yyyy"
+                                                        )}
+                                                    </td>
+                                                    <td className="px-3 py-2">
+                                                        {anomali.status.name}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div className=""></div>
+                {/* Modal2 untuk menampilkan detail event */}
+                <Modal2
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Detail Anomali"
+                >
+                    {selectedEvent && (
+                        <div className="space-y-4">
+                            <p>
+                                <strong>Judul:</strong>{" "}
+                                {selectedEvent.titlename}
+                            </p>
+                            <p>
+                                <strong>Tanggal Mulai:</strong>{" "}
+                                {dateFormat(
+                                    selectedEvent.date_plan_start,
+                                    "dd mmmm yyyy"
+                                )}
+                            </p>
+                            <p>
+                                <strong>Tanggal Selesai:</strong>{" "}
+                                {dateFormat(
+                                    selectedEvent.date_plan_end,
+                                    "dd mmmm yyyy"
+                                )}
+                            </p>
+                            <p>
+                                <strong>Status:</strong>{" "}
+                                {selectedEvent.status.name}
+                            </p>
+                            <p>
+                                <strong>Deskripsi:</strong>{" "}
+                                {selectedEvent.description ||
+                                    "Tidak ada deskripsi"}
+                            </p>
+                            {/* Tambahkan field lain sesuai kebutuhan */}
+                        </div>
+                    )}
+                    <div className="mt-4 flex justify-end">
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                </Modal2>
             </DashboardLayout>
         </>
     );

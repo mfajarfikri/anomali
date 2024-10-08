@@ -1,14 +1,18 @@
-import DeleteUserForm from './Partials/DeleteUserForm';
-import UpdatePasswordForm from './Partials/UpdatePasswordForm';
-import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
-import { Head } from '@inertiajs/react';
-import DashboardLayout from '@/Layouts/DashboardLayout';
+import DeleteUserForm from "./Partials/DeleteUserForm";
+import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
+import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
+import { Head } from "@inertiajs/react";
+import DashboardLayout from "@/Layouts/DashboardLayout";
 
 export default function Edit({ auth, mustVerifyEmail, status }) {
     return (
         <DashboardLayout
             user={auth.user}
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-300">Profile</h2>}
+            header={
+                <h2 className="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-300">
+                    Profile
+                </h2>
+            }
         >
             <Head title="Profile" />
 
@@ -33,15 +37,41 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                     </div>
                 </div>
                 <div className="col-span-1 mx-5">
-                    <div className="w-full mt-8 bg-gray-300 rounded-lg">
-                        <div className="flex justify-start py-8 pl-8">
-                            <img src="https://images.unsplash.com/photo-1652026921593-e92f05d46cce?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" className='w-48 h-48 border-4 border-white rounded-full'/>
-                            <div class="flex flex-col justify-between py-16 mx-4 leading-normal">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{auth.user.name}</h5>
-                                <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">{auth.user.email}</p>
-                            </div>
+                    <div className="mt-7 p-2 bg-white shadow sm:p-8 sm:rounded-lg dark:bg-dark-400">
+                        <div className="flex flex-col items-center">
+                            <img
+                                src={
+                                    auth.user.profile_photo_url ||
+                                    "https://via.placeholder.com/250"
+                                }
+                                alt="Foto Profil"
+                                className="w-48 h-48 rounded-full mb-4 border-4 border-white dark:border-gray-700"
+                            />
+                            <form className="w-full">
+                                <div className="mb-4">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        // onChange={handleFileChange}
+                                        className="w-full bg-white text-sm font-thin text-gray-500 border border-gray-300 rounded-md shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300 dark:focus:border-cyan-600 dark:focus:ring-cyan-600"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                                >
+                                    Upload Foto
+                                </button>
+                            </form>
                         </div>
-
+                        <div className="mt-4">
+                            <h3 className="text-xl font-semibold dark:text-gray-200">
+                                {auth.user.name}
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400">
+                                {auth.user.email}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

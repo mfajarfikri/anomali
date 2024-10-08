@@ -32,7 +32,8 @@ class Anomali extends Model
         'attachment_path'
     ];
 
-    public function Substation() : BelongsTo {
+    public function substation(): BelongsTo
+    {
         return $this->belongsTo(Substation::class);
     }
 

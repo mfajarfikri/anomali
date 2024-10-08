@@ -21,11 +21,17 @@
         "vite": "^5.0"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.15",
+        "@fullcalendar/daygrid": "^6.1.15",
+        "@fullcalendar/interaction": "^6.1.15",
+        "@fullcalendar/react": "^6.1.15",
+        "@fullcalendar/timegrid": "^6.1.15",
         "@heroicons/react": "^2.1.5",
         "@schedule-x/event-modal": "^1.63.1",
         "@schedule-x/react": "^1.63.1",
         "@schedule-x/theme-default": "^1.63.1",
         "apexcharts": "^3.53.0",
+        "dateformat": "^5.0.3",
         "flowbite": "^2.5.1",
         "flowbite-react": "^0.10.1",
         "quill": "^2.0.2",
