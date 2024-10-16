@@ -190,8 +190,6 @@ export default function Approval({ auth, anomalis }) {
         }
     };
 
-    console.log(data);
-
     return (
         <>
             <Head title="Anomali" />

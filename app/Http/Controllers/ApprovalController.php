@@ -143,7 +143,8 @@ class ApprovalController extends Controller
             'status_id' => 3,
             'date_execution' => $request->date_execution,
             'action' => $request->action,
-            'official_report_path' => $path
+            'official_report' => $newFileName,
+            'report_path' => $path
         ]);
 
         return redirect()->route('approval')->with( 'post', 'Close Successfully');

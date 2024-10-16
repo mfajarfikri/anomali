@@ -537,7 +537,7 @@ export default function Anomali({
                 <Modal2
                     isOpen={openModalDetail}
                     onClose={() => setOpenModalDetail(false)}
-                    title={selectedItem && selectedItem.titlename}
+                    title={`Preview`.selectedItem && selectedItem.titlename}
                 >
                     {selectedItem && (
                         <>
@@ -739,7 +739,7 @@ export default function Anomali({
                             </div>
                             <div className="mt-4">
                                 <span className="font-thin dark:text-gray-300">
-                                    Attachment
+                                    Attachment :
                                 </span>
                                 {selectedItem.attachment_path && (
                                     <>
@@ -787,6 +787,26 @@ export default function Anomali({
                                 {!selectedItem.attachment_path && (
                                     <p className="text-red-800 text-xs italic dark:text-gray-400">
                                         No file available
+                                    </p>
+                                )}
+
+                                {selectedItem.report_path && (
+                                    <div className="mt-4">
+                                        <span className="font-thin dark:text-gray-300">
+                                            Berita Acara :
+                                        </span>
+                                        <embed
+                                            src={`/storage/${selectedItem.report_path}`}
+                                            type="application/pdf"
+                                            width="100%"
+                                            height="600px"
+                                            className="rounded-lg shadow-md"
+                                        />
+                                    </div>
+                                )}
+                                {!selectedItem.report_path && (
+                                    <p className="mt-4 text-red-800 text-xs italic dark:text-gray-400">
+                                        Official report is not yet available
                                     </p>
                                 )}
                             </div>
