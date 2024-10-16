@@ -10,12 +10,12 @@ import {
     TextInput,
     FileInput,
 } from "flowbite-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import {
     HiCheck,
     HiOutlinePencil,
     HiOutlineX,
-    HiOutlineTicket,
+    HiEye,
     HiOutlineExclamation,
     HiOutlineCheck,
     HiLockClosed,
@@ -32,35 +32,48 @@ import Modal2 from "@/Components/Modal2";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
 import dateFormat, { masks } from "dateformat";
+import debounce from "lodash/debounce";
+import Swal from "sweetalert2";
 
 export default function Approval({ auth, anomalis }) {
     const perpage = useRef(15);
+    const [search, setSearch] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const getData = useCallback(
+        debounce((query) => {
+            setIsLoading(true);
+            router.get(
+                route().current(),
+                { perpage: perpage.current, search: query },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    onFinish: () => setIsLoading(false),
+                }
+            );
+        }, 300),
+        []
+    );
+
+    const handleSearch = (e) => {
+        const query = e.target.value;
+        setSearch(query);
+        getData(query);
+    };
 
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
-        getData();
+        getData(search);
     };
 
-    const [isLoading, setisLoading] = useState(false);
-
-    const getData = () => {
-        setisLoading(true);
-        router.get(
-            route().current(),
-            {
-                perpage: perpage.current,
-            },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                onFinish: () => setisLoading(false),
-            }
-        );
-    };
     const { data, setData, processing, post, errors, reset } = useForm({
         approve_by: auth.user.name,
         date_plan_start: "",
         date_plan_end: "",
+        date_execution: "",
+        action: "",
+        officialReport: null,
     });
 
     const [selectedApprove, setSelectedApprove] = useState(null);
@@ -104,7 +117,6 @@ export default function Approval({ auth, anomalis }) {
     const reject = (data) => {
         setSelectedReject(data);
         setOpenReject(true, data);
-        console.log(data);
         // router.post(`/approval/approve/${id}`, data)
     };
     const handleReject = (id) => {
@@ -128,285 +140,448 @@ export default function Approval({ auth, anomalis }) {
     const toggleModal = (data) => {
         setEditItem(data);
         setIsModalOpen(true, data);
-        console.log(data);
     };
 
-    const [file, setFile] = useState(false);
-    const FileInputField = useRef(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [openModalDetail, setOpenModalDetail] = useState(false);
 
-    const handleFileChange = (e) => {
-        setFile(event.target.files[0].name);
+    const handlePreview = (data) => {
+        setSelectedItem(data);
+        setOpenModalDetail(true);
     };
 
-    const save = (e) => {
+    const handleClose = (e) => {
         e.preventDefault();
+        {
+            const formData = new FormData();
+            formData.append("date_execution", data.date_execution);
+            formData.append("action", data.action);
+            formData.append("officialReport", data.officialReport);
 
-        const formData = new FormData();
-        formData.append("attachment", file);
-
-        // router.post(`/approval/update/${id}`, [formData, data], {
-        //     headers: {
-        //         'Content-Type': 'multipart/form-data',
-        //     },
-        // });
+            post(route("approval.close", editItem.id), formData, {
+                forceFormData: true,
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setIsModalOpen(false);
+                    getData();
+                    // Menampilkan Swal ketika berhasil
+                    Swal.fire({
+                        title: "Berhasil",
+                        text: `${editItem.titlename} telah ditutup.`,
+                        icon: "success",
+                        confirmButtonText: "OK",
+                        confirmButtonColor: "#1C64F2",
+                    });
+                },
+                onError: (errors) => {
+                    Swal.fire({
+                        title: "Gagal",
+                        text: `Gagal menutup ${
+                            editItem.titlename
+                        }. ${Object.values(errors).join(", ")}`,
+                        icon: "error",
+                        confirmButtonText: "OK",
+                        confirmButtonColor: "#1C64F2",
+                    });
+                },
+            });
+        }
     };
+
+    console.log(data);
 
     return (
         <>
             <Head title="Anomali" />
             <DashboardLayout user={auth.user}>
                 <Modal2
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    title={editItem && editItem.titlename}
+                    isOpen={openModalDetail}
+                    onClose={() => setOpenModalDetail(false)}
+                    title={selectedItem && selectedItem.titlename}
                 >
-                    {editItem && (
+                    {selectedItem && (
                         <>
                             <div className="grid grid-flow-col grid-cols-2 gap-4 text-xs divide-x dark:divide-gray-700">
                                 <div className="col-span-1 mt-4">
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Request By</span>
-                                        <span className="font-semibold">
-                                            {editItem.user.name}
+                                        <span className="dark:text-gray-300">
+                                            Request By
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
+                                            {selectedItem.user.name}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Email</span>
-                                        <span className="font-semibold">
-                                            {editItem.user.email}
+                                        <span className="dark:text-gray-300">
+                                            Email
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
+                                            {selectedItem.user.email}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Substation</span>
-                                        <span className="font-semibold">
-                                            {editItem.substation.name}
+                                        <span className="dark:text-gray-300">
+                                            Substation
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
+                                            {selectedItem.substation.name}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Section</span>
-                                        <span className="font-semibold">
-                                            {editItem.section.name}
+                                        <span className="dark:text-gray-300">
+                                            Section
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
+                                            {selectedItem.section.name}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Status</span>
-
-                                        {editItem.status.name === "Open" ? (
+                                        <span className="dark:text-gray-300">
+                                            Status
+                                        </span>
+                                        {selectedItem.status.name === "Open" ? (
                                             <Badge color="success">
-                                                {editItem.status.name}
+                                                {selectedItem.status.name}
                                             </Badge>
-                                        ) : editItem.status.name === "Close" ? (
+                                        ) : selectedItem.status.name ===
+                                          "Close" ? (
                                             <Badge color="failure">
-                                                {editItem.status.name}
+                                                {selectedItem.status.name}
                                             </Badge>
                                         ) : (
                                             <Badge color="info">
-                                                {editItem.status.name}
+                                                {selectedItem.status.name}
                                             </Badge>
                                         )}
-                                    </div>
-                                    <hr className="dark:border-gray-700" />
-                                    <div className="flex justify-between my-2">
-                                        <span>Date Found</span>
-                                        <span className="font-semibold">
-                                            {dateFormat(
-                                                editItem.date_find,
-                                                "dd mmmm yyyy"
-                                            )}
-                                        </span>
                                     </div>
                                 </div>
                                 <div className="col-span-1 px-4 mt-4">
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Type</span>
-                                        {editItem.type.name === "Major" ? (
+                                        <span className="dark:text-gray-300">
+                                            Type
+                                        </span>
+                                        {selectedItem.type.name === "Major" ? (
                                             <Badge color="failure">
-                                                {editItem.type.name}
+                                                {selectedItem.type.name}
                                             </Badge>
                                         ) : (
                                             <Badge color="indigo">
-                                                {editItem.type.name}
+                                                {selectedItem.type.name}
                                             </Badge>
                                         )}
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Equipment</span>
-                                        <span className="font-semibold">
-                                            {editItem.equipment.name}
+                                        <span className="dark:text-gray-300">
+                                            Equipment
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
+                                            {selectedItem.equipment.name}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Bay</span>
-                                        <span className="font-semibold">
-                                            {editItem.bay.name}
+                                        <span className="dark:text-gray-300">
+                                            Bay
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
+                                            {selectedItem.bay.name}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Created At</span>
-                                        <span className="font-semibold">
+                                        <span className="dark:text-gray-300">
+                                            Created At
+                                        </span>
+                                        <span className="font-semibold dark:text-gray-300">
                                             {dateFormat(
-                                                editItem.created_at,
-                                                "dd mm yyyy, hh:MM TT"
+                                                selectedItem.created_at,
+                                                "dd mmmm yyyy, hh:MM"
                                             )}
                                         </span>
                                     </div>
                                     <hr className="dark:border-gray-700" />
                                     <div className="flex justify-between my-2">
-                                        <span>Approve By</span>
-                                        {editItem.approve_by === null ? (
-                                            <span>-</span>
+                                        <span className="dark:text-gray-300">
+                                            Approve By
+                                        </span>
+                                        {selectedItem.approve_by === null ? (
+                                            <span className="dark:text-gray-300">
+                                                -
+                                            </span>
                                         ) : (
-                                            <span className="font-semibold">
-                                                {editItem.approve_by}
+                                            <span className="font-semibold dark:text-gray-300">
+                                                {selectedItem.approve_by}
                                             </span>
                                         )}
                                     </div>
-                                    <hr className="dark:border-gray-700" />
-                                    <div className="flex justify-between my-2">
-                                        <span>Plan</span>
-                                        <div className="font-semibold">
-                                            {dateFormat(
-                                                editItem.date_plan_start,
-                                                "dd mmmm yyyy"
-                                            )}
-                                            <span className="mx-1">to</span>
-                                            {dateFormat(
-                                                editItem.date_plan_end,
-                                                "dd mmmm yyyy"
-                                            )}
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                            <hr className="mt-2 dark:border-gray-700" />
-                            <div className="mt-2 font-thin">
-                                <span>Note</span>
-                            </div>
-                            <div className="mt-1 border rounded-md dark:border-gray-700">
-                                <div className="m-4">
-                                    {editItem.other === null ? (
-                                        <span>-</span>
-                                    ) : (
-                                        <span className="text-xs">
-                                            {editItem.other}
-                                        </span>
-                                    )}
+                            <hr className="mt-4 dark:border-gray-700" />
 
-                                    <p className="text-xs">
-                                        {editItem.additional_information}
+                            <div className="mt-2">
+                                <span className="font-thin dark:text-gray-300">
+                                    Description
+                                </span>
+                                <div className="p-4 border rounded-md dark:border-gray-700 dark:bg-gray-800">
+                                    <p className="text-xs dark:text-gray-300">
+                                        {selectedItem.additional_information}
                                     </p>
                                 </div>
                             </div>
-                            <div className="mt-2">
-                                <form>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <div className="col-span-1">
-                                            <Label
-                                                htmlFor="dateExecution"
-                                                value="Date Execution"
-                                            />
-                                            <TextInput
-                                                type="date"
-                                                name="date_execution"
-                                                value={data.date_execution}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "date_execution",
-                                                        e.target.value
-                                                    )
-                                                }
-                                            />
+
+                            <div className="mt-2 font-thin">
+                                <span className="font-thin dark:text-gray-300">
+                                    Dates
+                                </span>
+                                <div className="p-2 text-xs border rounded-lg dark:border-gray-700 dark:bg-gray-800">
+                                    <div className="grid grid-cols-3 gap-4 divide-x dark:divide-gray-700">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-sm dark:text-gray-300">
+                                                Date Found
+                                            </span>
+                                            <p className="dark:text-gray-300">
+                                                {dateFormat(
+                                                    selectedItem.date_find,
+                                                    "dd mmmm yyyy"
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-sm dark:text-gray-300">
+                                                Date Plan
+                                            </span>
+                                            {selectedItem.date_plan_start ===
+                                            null ? (
+                                                <p className="dark:text-gray-300">
+                                                    -
+                                                </p>
+                                            ) : (
+                                                <p className="dark:text-gray-300">
+                                                    {dateFormat(
+                                                        selectedItem.date_plan_start,
+                                                        "dd mmmm yyyy"
+                                                    )}{" "}
+                                                    to{" "}
+                                                    {dateFormat(
+                                                        selectedItem.date_plan_end,
+                                                        "dd mmmm yyyy"
+                                                    )}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-sm dark:text-gray-300">
+                                                Date Execution
+                                            </span>
+                                            {selectedItem.date_execution ===
+                                            null ? (
+                                                <p className="dark:text-gray-300">
+                                                    -
+                                                </p>
+                                            ) : (
+                                                <p className="dark:text-gray-300">
+                                                    {dateFormat(
+                                                        selectedItem.date_execution,
+                                                        "dd mmmm yyyy"
+                                                    )}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
-                                    <div className="mt-2">
-                                        <Label
-                                            htmlFor="action"
-                                            value="Action"
-                                        />
-                                        <Textarea
-                                            name="action"
-                                            value={data.action}
-                                            onChange={(e) =>
-                                                setData(
-                                                    "action",
-                                                    e.target.value
-                                                )
-                                            }
-                                            placeholder="Leave an action ..."
-                                            required
-                                            rows={2}
-                                        />
-                                    </div>
-                                    <div className="mt-2">
-                                        <Label
-                                            htmlFor="attachment"
-                                            value="Attachment"
-                                        />
-                                        <div className="flex items-center justify-center w-full mt-1">
-                                            <Label
-                                                htmlFor="dropzone-file"
-                                                className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600"
-                                            >
-                                                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                    <div className="p-4">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            className="stroke-2 stroke-gray-400 size-6 dark:stroke-gray-200"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
-                                                            />
-                                                        </svg>
-                                                    </div>
-                                                    <span>{file}</span>
-                                                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                        <span className="font-semibold text-blue-600 dark:text-blue-400">
-                                                            Click to upload
-                                                        </span>{" "}
-                                                        or drag and drop
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                        PDF Only (MAX. 200kb)
-                                                    </p>
-                                                </div>
-                                                <FileInput
-                                                    name="attachment"
-                                                    id="dropzone-file"
-                                                    className="hidden"
-                                                    onChange={handleFileChange}
-                                                    ref={FileInputField}
+                                </div>
+                            </div>
+                            <div className="mt-4">
+                                <span className="font-thin dark:text-gray-300">
+                                    Attachment
+                                </span>
+                                {selectedItem.attachment_path && (
+                                    <>
+                                        {selectedItem.attachment_path
+                                            .toLowerCase()
+                                            .endsWith(".pdf") ? (
+                                            <embed
+                                                src={`/storage/${selectedItem.attachment_path}`}
+                                                type="application/pdf"
+                                                width="100%"
+                                                height="600px"
+                                                className="rounded-lg shadow-md"
+                                            />
+                                        ) : (
+                                            <div className="relative">
+                                                <img
+                                                    src={`/storage/${selectedItem.attachment_path}`}
+                                                    alt="attachment"
+                                                    className="max-w-full h-auto rounded-lg shadow-md"
                                                 />
-                                            </Label>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-end">
-                                        <div className="mt-6">
-                                            <PrimaryButton>Save</PrimaryButton>
-                                        </div>
-                                    </div>
-                                </form>
+                                                <a
+                                                    href={`/storage/${selectedItem.attachment_path}`}
+                                                    download
+                                                    className="absolute top-1 left-1 bg-gray-500 bg-opacity-50 hover:bg-gray-600 hover:bg-opacity-70 text-white font-bold py-1 px-2 rounded-md"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        className="w-6 h-6"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth={2}
+                                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                                        />
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                                {!selectedItem.attachment_path && (
+                                    <p className="text-red-800 text-xs italic dark:text-gray-400">
+                                        No file available
+                                    </p>
+                                )}
                             </div>
                         </>
+                    )}
+                </Modal2>
+
+                <Modal2
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        reset();
+                    }}
+                    title={editItem && editItem.titlename}
+                >
+                    {editItem && (
+                        <form onSubmit={handleClose}>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="col-span-1">
+                                    <Label
+                                        htmlFor="dateExecution"
+                                        value="Date Execution"
+                                    />
+                                    <TextInput
+                                        type="date"
+                                        name="date_execution"
+                                        value={data.date_execution}
+                                        onChange={(e) =>
+                                            setData(
+                                                "date_execution",
+                                                e.target.value
+                                            )
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.date_execution}
+                                        className="mt-2"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-2">
+                                <Label htmlFor="action" value="Action" />
+                                <Textarea
+                                    name="action"
+                                    value={data.action}
+                                    onChange={(e) =>
+                                        setData("action", e.target.value)
+                                    }
+                                    placeholder="Leave an action ..."
+                                    required
+                                    rows={2}
+                                />
+                                <InputError
+                                    message={errors.action}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div className="mt-2">
+                                <Label
+                                    htmlFor="officialReport"
+                                    value="Official Report"
+                                />
+                                <div className="flex items-center justify-center w-full mt-1">
+                                    <Label
+                                        htmlFor="officialReport"
+                                        className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600"
+                                    >
+                                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <div className="p-4">
+                                                <svg
+                                                    className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 20 16"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <span className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                                {data.officialReport
+                                                    ? data.officialReport.name
+                                                    : "No file chosen"}
+                                            </span>
+                                            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                                    Clik to upload
+                                                </span>{" "}
+                                                or drag and drop
+                                            </p>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                PDF Only (MAKS. 2000kb)
+                                            </p>
+                                        </div>
+                                        <FileInput
+                                            name="officialReport"
+                                            id="officialReport"
+                                            className="hidden"
+                                            onChange={(e) =>
+                                                setData(
+                                                    "officialReport",
+                                                    e.target.files[0]
+                                                )
+                                            }
+                                        />
+                                    </Label>
+                                </div>
+                                <InputError
+                                    message={errors.officialReport}
+                                    className="mt-2"
+                                />
+                            </div>
+                            <div className="flex items-center justify-end">
+                                <div className="mt-6">
+                                    <PrimaryButton disabled={processing}>
+                                        Simpan
+                                    </PrimaryButton>
+                                </div>
+                            </div>
+                        </form>
                     )}
                 </Modal2>
 
                 <Dialog
                     open={openReject}
                     onClose={setOpenReject}
-                    className="relative z-10"
+                    className="relative z-51"
                 >
                     <DialogBackdrop
                         transition
@@ -635,8 +810,10 @@ export default function Approval({ auth, anomalis }) {
                                         </div>
                                         <input
                                             type="search"
-                                            className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100 dark:focus:ring-gray-700 dark:bg-gray-700 dark:text-gray-300"
+                                            className="block w-full text-sm font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100 dark:focus:ring-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                             placeholder="Search Ticket"
+                                            value={search}
+                                            onChange={handleSearch}
                                         />
                                     </div>
                                 </form>
@@ -719,133 +896,157 @@ export default function Approval({ auth, anomalis }) {
                             </tr>
                         </thead>
                         <tbody className="dark:bg-gray-800 dark:text-gray-300">
-                            {anomalis.data.map((anomali, index) => (
-                                <tr
-                                    key={anomali.id}
-                                    className="bg-white border-b cursor-pointer dark:bg-dark-400 hover:bg-zinc-100 dark:hover:bg-gray-700 dark:border-gray-700"
-                                >
-                                    <td className="px-4 py-2 font-medium text-gray-900 dark:text-gray-300">
-                                        {anomalis.from + index}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.titlename}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.substation.name}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.section.name}
-                                    </td>
-                                    <td className="px-4 ">
-                                        {anomali.type.name === "Major" ? (
-                                            <Badge
-                                                color="failure"
-                                                className="justify-center"
-                                            >
-                                                {anomali.type.name}
-                                            </Badge>
-                                        ) : (
-                                            <Badge
-                                                color="indigo"
-                                                className="justify-center"
-                                            >
-                                                {anomali.type.name}
-                                            </Badge>
-                                        )}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.user.name}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.equipment.name}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.bay.name === null ? null : (
-                                            <span>{anomali.bay.name}</span>
-                                        )}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {dateFormat(
-                                            anomali.date_find,
-                                            "dd mmmm yyyy"
-                                        )}
-                                    </td>
-                                    <td className="px-4 ">
-                                        {anomali.status.name === "Open" ? (
-                                            <Badge
-                                                color="success"
-                                                className="justify-center"
-                                            >
-                                                {anomali.status.name}
-                                            </Badge>
-                                        ) : anomali.status.name ===
-                                          "Pending" ? (
-                                            <Badge
-                                                color="warning"
-                                                className="justify-center"
-                                            >
-                                                {anomali.status.name}
-                                            </Badge>
-                                        ) : anomali.status.name === "Close" ? (
-                                            <Badge
-                                                color="failure"
-                                                className="justify-center"
-                                            >
-                                                {anomali.status.name}
-                                            </Badge>
-                                        ) : (
-                                            <Badge
-                                                color="info"
-                                                className="justify-center"
-                                            >
-                                                {anomali.status.name}
-                                            </Badge>
-                                        )}
-                                    </td>
-                                    <td className="dark:text-gray-300">
-                                        {anomali.additional_information}
-                                    </td>
-                                    <td className="flex items-center justify-center">
-                                        {anomali.is_approve === 0 ? (
-                                            <>
-                                                <Button
-                                                    className="flex items-center mx-1 dark:bg-blue-600 dark:hover:bg-blue-700"
-                                                    size="xs"
-                                                    onClick={() =>
-                                                        approve(anomali)
-                                                    }
-                                                >
-                                                    <HiCheck className="w-4 h-4 mr-2" />
-                                                    Approve
-                                                </Button>
-                                                <Button
-                                                    color="failure"
-                                                    size="xs"
-                                                    onClick={() =>
-                                                        reject(anomali)
-                                                    }
-                                                    className="dark:bg-red-600 dark:hover:bg-red-700"
-                                                >
-                                                    <HiOutlineX className="w-4 h-4 mr-2" />
-                                                    Reject
-                                                </Button>
-                                            </>
-                                        ) : (
-                                            <Button
-                                                onClick={() =>
-                                                    toggleModal(anomali)
-                                                }
-                                                color="success"
-                                                size="xs"
-                                                className="mx-4 dark:bg-green-600 dark:hover:bg-green-700"
-                                            >
-                                                <HiLockClosed className="w-4 h-4 mr-2" />
-                                                Close
-                                            </Button>
-                                        )}
+                            {isLoading ? (
+                                <tr className="max-w-sm animate-pulse">
+                                    <td
+                                        colSpan="12"
+                                        className="text-center py-4 dark:text-gray-400"
+                                    >
+                                        Loading.....
                                     </td>
                                 </tr>
-                            ))}
+                            ) : anomalis.data.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan="12"
+                                        className="text-center py-4 dark:text-gray-400"
+                                    >
+                                        No data matches the filter
+                                    </td>
+                                </tr>
+                            ) : (
+                                anomalis.data.map((anomali, index) => (
+                                    <tr
+                                        key={anomali.id}
+                                        className="bg-white border-b cursor-pointer dark:bg-[#1A262D] hover:bg-zinc-100 dark:hover:bg-gray-700 dark:border-gray-700"
+                                    >
+                                        <td className="px-4 py-2 font-medium text-gray-900 dark:text-gray-300">
+                                            {anomalis.from + index}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.titlename}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.substation.name}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.section.name}
+                                        </td>
+                                        <td className="px-4 ">
+                                            {anomali.type.name === "Major" ? (
+                                                <Badge
+                                                    color="failure"
+                                                    className="justify-center"
+                                                >
+                                                    {anomali.type.name}
+                                                </Badge>
+                                            ) : (
+                                                <Badge
+                                                    color="indigo"
+                                                    className="justify-center"
+                                                >
+                                                    {anomali.type.name}
+                                                </Badge>
+                                            )}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.user.name}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.equipment.name}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.bay.name ===
+                                            null ? null : (
+                                                <span>{anomali.bay.name}</span>
+                                            )}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {dateFormat(
+                                                anomali.date_find,
+                                                "dd mmmm yyyy"
+                                            )}
+                                        </td>
+                                        <td className="px-4 ">
+                                            {anomali.status.name === "Open" ? (
+                                                <Badge
+                                                    color="success"
+                                                    className="justify-center"
+                                                >
+                                                    {anomali.status.name}
+                                                </Badge>
+                                            ) : anomali.status.name ===
+                                              "Pending" ? (
+                                                <Badge
+                                                    color="warning"
+                                                    className="justify-center"
+                                                >
+                                                    {anomali.status.name}
+                                                </Badge>
+                                            ) : anomali.status.name ===
+                                              "Close" ? (
+                                                <Badge
+                                                    color="failure"
+                                                    className="justify-center"
+                                                >
+                                                    {anomali.status.name}
+                                                </Badge>
+                                            ) : (
+                                                <Badge
+                                                    color="info"
+                                                    className="justify-center"
+                                                >
+                                                    {anomali.status.name}
+                                                </Badge>
+                                            )}
+                                        </td>
+                                        <td className="dark:text-gray-300">
+                                            {anomali.additional_information}
+                                        </td>
+                                        <td className="flex items-center justify-center">
+                                            <div className="flex items-center mt-1 space-x-2">
+                                                <button
+                                                    onClick={() =>
+                                                        handlePreview(anomali)
+                                                    }
+                                                    className="flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                                                >
+                                                    <HiEye className="w-4 h-4" />
+                                                </button>
+                                                {anomali.is_approve === 0 ? (
+                                                    <>
+                                                        <button
+                                                            onClick={() =>
+                                                                approve(anomali)
+                                                            }
+                                                            className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-200"
+                                                        >
+                                                            <HiCheck className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                reject(anomali)
+                                                            }
+                                                            className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 transition-colors duration-200"
+                                                        >
+                                                            <HiOutlineX className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={() =>
+                                                            toggleModal(anomali)
+                                                        }
+                                                        className="flex items-center px-3 py-1.5 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 dark:bg-teal-700 dark:hover:bg-teal-600 transition-colors duration-200"
+                                                    >
+                                                        <HiLockClosed className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                     <div className="flex items-center justify-between mx-2 dark:text-gray-300">

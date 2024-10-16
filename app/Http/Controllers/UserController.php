@@ -18,8 +18,24 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $query = User::with(['Role', 'Substation'])->latest();
+
+        if ($request->has('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%")
+                  ->orWhereHas('Substation', function ($subQuery) use ($searchTerm) {
+                      $subQuery->where('name', 'like', "%{$searchTerm}%");
+                  })
+                  ->orWhereHas('Role', function ($subQuery) use ($searchTerm) {
+                      $subQuery->where('name', 'like', "%{$searchTerm}%");
+                  });
+            });
+        }
+
         return Inertia::render('User/User', [
-            'users' => User::with(['Role', 'Substation'])->latest()->paginate($request->perpage ?? 15),
+            'users' => $query->paginate($request->perpage ?? 15),
             'substations' => Substation::orderBy('name', 'asc')->get(),
             'roles' => Role::all(),
         ]);
@@ -77,11 +93,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-
         return Inertia::render('User/Edit', [
-            'substations' => Substation::all(),
+            'user' => $user->load('role', 'substation'),
+            'substations' => Substation::orderBy('name', 'asc')->get(),
             'roles' => Role::all(),
-            'users' => $user
         ]);
     }
 
@@ -90,25 +105,17 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-
-        // dd($request);
-
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'gardu' => 'required',
-            'role' => 'required'
+            'substation_id' => 'required|exists:substations,id',
+            'role_id' => 'required|exists:roles,id',
         ]);
 
         $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'gardu' => $request->gardu,
-            'role' => $request->role,
-            'updated_at' => now()
+            'substation_id' => $request->substation_id,
+            'role_id' => $request->role_id,
         ]);
 
-        return redirect()->route('user')->with('message', 'Berhasil diupdate');
+        return redirect()->route('user')->with('success', 'Data pengguna berhasil diperbarui');
     }
 
     /**

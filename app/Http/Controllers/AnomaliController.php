@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Closure;
 use App\Models\Bay;
 use App\Models\Type;
 use Inertia\Inertia;
+use App\Models\status;
 use App\Models\Anomali;
-use App\Models\Document;
 use App\Models\Section;
+use App\Models\Document;
 use App\Models\Equipment;
 use App\Models\Substation;
-use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,6 +23,36 @@ class AnomaliController extends Controller
     public function index(Request $request)
     {
         $query = Anomali::with(['Substation', 'Section', 'Type', 'User', 'Equipment', 'Bay', 'Status'])->latest();
+
+        if ($request->filled('substation')) {
+            $query->where('substation_id', $request->substation);
+        }
+
+        if ($request->filled('section')) {
+            $query->where('section_id', $request->section);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type_id', $request->type);
+        }
+
+        if ($request->filled('equipment')) {
+            $query->where('equipment_id', $request->equipment);
+        }
+
+        if ($request->filled('status')) {
+            $query->whereHas('status', function ($q) use ($request) {
+                $q->where('name', $request->status);
+            });
+        }
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('date_find', [$request->start_date, $request->end_date]);
+        } elseif ($request->filled('start_date')) {
+            $query->where('date_find', '>=', $request->start_date);
+        } elseif ($request->filled('end_date')) {
+            $query->where('date_find', '<=', $request->end_date);
+        }
 
         if ($request->has('search')) {
             $searchTerm = $request->search;
@@ -51,7 +82,7 @@ class AnomaliController extends Controller
             });
         }
 
-        $anomalis = $query->paginate($request->perpage ?? 15);
+        $anomalis = $query->paginate($request->input('perpage', 15));
 
         return Inertia::render('Anomali/Anomali', [
             'anomalis' => $anomalis,
@@ -60,6 +91,7 @@ class AnomaliController extends Controller
             'types' => Type::all(),
             'equipments' => Equipment::orderBy('name', 'asc')->get(),
             'bays' => Bay::all(),
+            'status' => Status::all(),
         ]);
     }
 

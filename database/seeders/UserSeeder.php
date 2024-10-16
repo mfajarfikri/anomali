@@ -29,15 +29,6 @@ class UserSeeder extends Seeder
                 'substation_id' => 1,
                 'role_id' => 1,
             ),
-            1 =>
-            array(
-                'id' => 2,
-                'name' => 'User',
-                'email' => 'user@gmail.com',
-                'password' => bcrypt('123123123'),
-                'substation_id' => 1,
-                'role_id' => 2,
-            ),
         ));
     }
 }

@@ -12,8 +12,6 @@ import { Select } from "@headlessui/react";
 export default function Substation() {
     const { substations, conditions, auth } = usePage().props;
 
-    console.log(substations);
-
     const perpage = useRef(10);
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
@@ -175,47 +173,6 @@ export default function Substation() {
                                         />
                                     </svg>
                                 </button>
-                                <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={1.5}
-                                        className="stroke-gray-700 size-6 dark:stroke-gray-300"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
-                                        />
-                                    </svg>
-                                </button>
-                                <form className="">
-                                    <div className="relative bg-transparent">
-                                        <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
-                                            <svg
-                                                className="text-gray-700 size-5 dark:text-gray-400"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                />
-                                            </svg>
-                                        </div>
-                                        <input
-                                            type="search"
-                                            className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:text-gray-100 dark:focus:ring-gray-700 dark:focus:border-gray-700"
-                                            placeholder="Search Substation"
-                                        />
-                                    </div>
-                                </form>
                             </div>
                         </caption>
                         <thead className="text-xs text-gray-700 uppercase bg-slate-50 dark:bg-gray-700 dark:text-gray-100">
@@ -238,7 +195,12 @@ export default function Substation() {
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td>Loading...</td>
+                                    <td
+                                        colSpan="5"
+                                        className="text-center py-4"
+                                    >
+                                        Loading...
+                                    </td>
                                 </tr>
                             ) : (
                                 substations.data.map((substation, index) => (
@@ -275,7 +237,13 @@ export default function Substation() {
                                         </td>
                                         <td className="flex items-center justify-end mx-4 mt-2">
                                             <div className="flex">
-                                                <Link href="" className="mx-1">
+                                                <Link
+                                                    href={route(
+                                                        "substation.edit",
+                                                        substation.id
+                                                    )}
+                                                    className="mx-1"
+                                                >
                                                     <Button
                                                         size="xs"
                                                         color="warning"

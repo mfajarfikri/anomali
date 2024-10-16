@@ -9,6 +9,7 @@ import { Badge, Button, Label, Modal, TextInput } from "flowbite-react";
 import {
     HiUser,
     HiOutlineMail,
+    HiPencilAlt,
     HiOfficeBuilding,
     HiUserCircle,
     HiLockClosed,
@@ -18,12 +19,16 @@ import {
 import Modal2 from "@/Components/Modal2";
 
 export default function User({ auth, users, substations, roles }) {
-    console.log(roles);
-
     const [openModal, setOpenModal] = useState(false);
-
+    const [searchTerm, setSearchTerm] = useState('');
     const perpage = useRef(10);
     const [isLoading, setisLoading] = useState(false);
+    const [editingUser, setEditingUser] = useState(null);
+    const { data, setData, patch, processing, errors, reset } = useForm({
+        substation_id: "",
+        role_id: "",
+    });
+
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
         getData();
@@ -35,6 +40,7 @@ export default function User({ auth, users, substations, roles }) {
             route().current(),
             {
                 perpage: perpage.current,
+                search: searchTerm,
             },
             {
                 preserveScroll: true,
@@ -43,7 +49,13 @@ export default function User({ auth, users, substations, roles }) {
             }
         );
     };
-    const { data, setData, processing, post, errors, reset } = useForm({
+
+    const handleSearch = (e) => {
+        setSearchTerm(e.target.value);
+        getData();
+    };
+
+    const { data: createData, setData: setCreateData, post, errors: createErrors, reset: resetCreate } = useForm({
         name: "",
         email: "",
         substation_id: "",
@@ -57,7 +69,7 @@ export default function User({ auth, users, substations, roles }) {
         post(route("user.create"), {
             preserveScroll: true,
             onSuccess: () => {
-                reset();
+                resetCreate();
                 setOpenModal(false);
                 getData();
                 Swal.fire({
@@ -74,10 +86,59 @@ export default function User({ auth, users, substations, roles }) {
         });
     };
 
+    const openEditModal = (user) => {
+        setEditingUser(user);
+        setData({
+            substation_id: user.substation_id,
+            role_id: user.role_id,
+        });
+    };
+
+    const closeEditModal = () => {
+        setEditingUser(null);
+        reset();
+    };
+
+    const submitEdit = (e) => {
+        e.preventDefault();
+        patch(route("user.update", editingUser.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                closeEditModal();
+                Swal.fire({
+                    title: "Success",
+                    text: "User has been updated.",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#1C64F2",
+                    customClass: {
+                        popup: 'dark:bg-gray-800 dark:text-white',
+                        confirmButton: 'dark:bg-blue-600 dark:hover:bg-blue-700'
+                    }
+                });
+            },
+            onError: (errors) => {
+                console.error("Error updating user:", errors);
+                Swal.fire({
+                    title: "Error",
+                    text: "Failed to update user.",
+                    icon: "error",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#1C64F2",
+                    customClass: {
+                        popup: 'dark:bg-gray-800 dark:text-white',
+                        confirmButton: 'dark:bg-blue-600 dark:hover:bg-blue-700'
+                    }
+                });
+            },
+        });
+    };
+
     return (
         <>
             <Head title="User" />
             <DashboardLayout user={auth.user}>
+                {/* add user */}
                 <Modal2
                     isOpen={openModal}
                     onClose={() => setOpenModal(false)}
@@ -90,19 +151,18 @@ export default function User({ auth, users, substations, roles }) {
                                 <TextInput
                                     id="name"
                                     name="name"
-                                    value={data.name}
+                                    value={createData.name}
                                     autoComplete="off"
                                     className="block w-full mt-1"
-                                    isFocused={true}
                                     onChange={(e) =>
-                                        setData("name", e.target.value)
+                                        setCreateData("name", e.target.value)
                                     }
                                     required
                                     icon={HiUser}
                                     placeholder="Use the name you want to appear"
                                 />
                                 <InputError
-                                    message={errors.name}
+                                    message={createErrors.name}
                                     className="mt-2"
                                 />
                             </div>
@@ -112,18 +172,18 @@ export default function User({ auth, users, substations, roles }) {
                                     id="email"
                                     type="email"
                                     name="email"
-                                    value={data.email}
+                                    value={createData.email}
                                     className="block w-full mt-1"
                                     autoComplete="username"
                                     onChange={(e) =>
-                                        setData("email", e.target.value)
+                                        setCreateData("email", e.target.value)
                                     }
                                     required
                                     icon={HiOutlineMail}
                                     placeholder="example@domain.com"
                                 />
                                 <InputError
-                                    message={errors.email}
+                                    message={createErrors.email}
                                     className="mt-2"
                                 />
                             </div>
@@ -137,12 +197,11 @@ export default function User({ auth, users, substations, roles }) {
                                     id="substation"
                                     name="substation_id"
                                     className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-                                    value={data.substation_id}
+                                    value={createData.substation_id}
                                     onChange={(e) =>
-                                        setData("substation_id", e.target.value)
+                                        setCreateData("substation_id", e.target.value)
                                     }
                                     required
-                                    icon={HiOfficeBuilding}
                                 >
                                     <option value="">
                                         Select a Substation
@@ -155,7 +214,7 @@ export default function User({ auth, users, substations, roles }) {
                                 </Select>
                                 <InputError
                                     className="mt-2"
-                                    message={errors.substation_id}
+                                    message={createErrors.substation_id}
                                 />
                             </div>
 
@@ -165,12 +224,11 @@ export default function User({ auth, users, substations, roles }) {
                                     id="role"
                                     name="role_id"
                                     className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-                                    value={data.role_id}
+                                    value={createData.role_id}
                                     onChange={(e) =>
-                                        setData("role_id", e.target.value)
+                                        setCreateData("role_id", e.target.value)
                                     }
                                     required
-                                    icon={HiUserCircle}
                                 >
                                     <option value="">Select a role</option>
                                     {roles.map((r) => (
@@ -181,7 +239,7 @@ export default function User({ auth, users, substations, roles }) {
                                 </Select>
                                 <InputError
                                     className="mt-2"
-                                    message={errors.role_id}
+                                    message={createErrors.role_id}
                                 />
                             </div>
 
@@ -191,17 +249,18 @@ export default function User({ auth, users, substations, roles }) {
                                     id="password"
                                     type="password"
                                     name="password"
-                                    value={data.password}
+                                    autoComplete="new-password"
+                                    value={createData.password}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        setData("password", e.target.value)
+                                        setCreateData("password", e.target.value)
                                     }
                                     required
                                     icon={HiLockClosed}
                                     placeholder="Keep your password confidential"
                                 />
                                 <InputError
-                                    message={errors.password}
+                                    message={createErrors.password}
                                     className="mt-2"
                                 />
                             </div>
@@ -215,20 +274,21 @@ export default function User({ auth, users, substations, roles }) {
                                     id="password_confirmation"
                                     type="password"
                                     name="password_confirmation"
-                                    value={data.password_confirmation}
+                                    value={createData.password_confirmation}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        setData(
+                                        setCreateData(
                                             "password_confirmation",
                                             e.target.value
                                         )
                                     }
                                     required
+                                    autoComplete="new-password"
                                     icon={HiLockClosed}
                                     placeholder="Re-enter your password"
                                 />
                                 <InputError
-                                    message={errors.password_confirmation}
+                                    message={createErrors.password_confirmation}
                                     className="mt-2"
                                 />
                             </div>
@@ -242,19 +302,75 @@ export default function User({ auth, users, substations, roles }) {
                             >
                                 Add User
                             </button>
-
-                            {/* <PrimaryButton type="submit" disabled={processing}>
-                            <HiUserAdd className="w-4 h-4 mr-2" />
-                            Add User
-                        </PrimaryButton> */}
                         </div>
                     </form>
+                </Modal2>
+
+                {/* edit user */}
+                <Modal2 isOpen={editingUser !== null} onClose={closeEditModal} title="Edit User">
+                        <form onSubmit={submitEdit} className="space-y-6">
+                            <div className="mb-4">
+                                <Label htmlFor="name" value="Nama Pengguna" />
+                                <input
+                                    id="name"
+                                    value={editingUser?.name}
+                                    className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                                    disabled
+                                />
+                            </div>
+
+                            <div className="mb-4">
+                                <Label htmlFor="substation" value="Substation" />
+                                <Select
+                                    id="substation"
+                                    name="substation_id"
+                                    value={data.substation_id}
+                                    onChange={(e) => setData("substation_id", e.target.value)}
+                                    required
+                                    className="block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                                >
+                                    <option value="">Pilih Substation</option>
+                                    {substations.map((s) => (
+                                        <option key={s.id} value={s.id}>
+                                            {s.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                                <InputError message={errors.substation_id} className="mt-2" />
+                            </div>
+
+                            <div className="mb-4">
+                                <Label htmlFor="role" value="Role" />
+                                <Select
+                                    id="role"
+                                    name="role_id"
+                                    value={data.role_id}
+                                    onChange={(e) => setData("role_id", e.target.value)}
+                                    required
+                                    className="block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                                >
+                                    <option value="">Pilih Role</option>
+                                    {roles.map((r) => (
+                                        <option key={r.id} value={r.id}>
+                                            {r.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                                <InputError message={errors.role_id} className="mt-2" />
+                            </div>
+
+                            <div className="flex items-center justify-end py-2 mt-4">
+                                <PrimaryButton type="submit" disabled={processing} className="p-2 text-sm text-white rounded-md focus:ring-4 focus:ring-sky-300 bg-sky-600 dark:bg-sky-700 dark:focus:ring-sky-800">
+                                    Save
+                                </PrimaryButton>
+                            </div>
+                        </form>
                 </Modal2>
 
                 <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
                     <table className="w-full text-sm text-gray-500 dark:text-gray-400">
                         <caption className="p-4 text-lg font-semibold text-left bg-gray-100 rtl:text-right dark:bg-gray-800 dark:text-gray-100">
-                            <div className="inline-flex gap-3">
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setOpenModal(true)}
                                     className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl dark:bg-emerald-900 dark:border-emerald-600"
@@ -263,7 +379,7 @@ export default function User({ auth, users, substations, roles }) {
                                         xmlns="http://www.w3.org/2000/svg"
                                         fill="none"
                                         viewBox="0 0 24 24"
-                                        className="transition ease-in-out stroke-1 stroke-emerald-700 size-5 hover:rotate-45 dark:stroke-emerald-300"
+                                        className="transition ease-in-out stroke-1 stroke-emerald-700 size-5 hover:rotate-45 dark:stroke-emerald-400"
                                     >
                                         <path
                                             strokeLinecap="round"
@@ -272,38 +388,32 @@ export default function User({ auth, users, substations, roles }) {
                                         />
                                     </svg>
                                 </button>
-                                <form>
-                                    <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            className="stroke-gray-700 size-6 dark:stroke-gray-300"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                                            />
-                                        </svg>
-                                    </button>
-                                </form>
-                                <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={1.5}
-                                        className="stroke-gray-700 size-6 dark:stroke-gray-300"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
+                                <div className="relative bg-transparent flex-1">
+                                        <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                                            <svg
+                                                className="text-gray-700 size-5 dark:text-gray-400"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    stroke="currentColor"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            type="search"
+                                            className="block w-1/6 text-md font-thin border border-gray-300 rounded-lg ps-14 py-2 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-gray-600 dark:focus:border-gray-600"
+                                            placeholder="Search Anything"
+                                            value={searchTerm}
+                                            onChange={handleSearch}
                                         />
-                                    </svg>
-                                </button>
+                                    </div>
                             </div>
                         </caption>
 
@@ -324,7 +434,7 @@ export default function User({ auth, users, substations, roles }) {
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td>Loading....</td>
+                                    <td colSpan="6" className="text-center py-4">Loading....</td>
                                 </tr>
                             ) : (
                                 users.data.map((user, index) => (
@@ -360,6 +470,28 @@ export default function User({ auth, users, substations, roles }) {
                                                     {user.role.name}
                                                 </Badge>
                                             )}
+                                        </td>
+                                        <td className="py-2">
+                                            <Button onClick={() => openEditModal(user)}
+                                                size="xs"
+                                                color="warning"
+                                                className="rounded-lg dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="w-4 h-4"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                    />
+                                                </svg>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))

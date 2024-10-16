@@ -29,7 +29,10 @@ class Anomali extends Model
         'is_approve',
         'approve_by',
         'attachment_filename',
-        'attachment_path'
+        'attachment_path',
+        'action',
+        'official_report',
+        'report_path'
     ];
 
     public function substation(): BelongsTo

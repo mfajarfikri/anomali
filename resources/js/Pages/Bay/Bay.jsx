@@ -1,4 +1,4 @@
-import { React, useRef, useState } from "react";
+import { React, useRef, useState, useEffect } from "react";
 import { Head, router, usePage, useForm, Link } from "@inertiajs/react";
 import Pagination from "@/Components/Pagination";
 import DashboardLayout from "@/Layouts/DashboardLayout";
@@ -6,33 +6,75 @@ import InputLabel from "@/Components/InputLabel";
 import { TextInput } from "flowbite-react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { Button, Drawer, Badge } from "flowbite-react";
-import { Select } from "@headlessui/react";
+import { Button, Drawer, Badge, Select } from "flowbite-react";
 import { HiOutlinePlus } from "react-icons/hi";
+import debounce from "lodash/debounce";
+import Swal from "sweetalert2";
 
 export default function Bay() {
-    const { bays, auth, conditions, substations, success } = usePage().props;
-    console.log(bays);
+    const { bays, auth, conditions, substations, filters } = usePage().props;
 
-    const perpage = useRef(10);
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [filterSubstation, setFilterSubstation] = useState(
+        filters.substation || ""
+    );
+    const [filterCondition, setFilterCondition] = useState(
+        filters.condition || ""
+    );
+    const [isLoading, setIsLoading] = useState(false);
+
+    const perpage = useRef(filters.perpage || 15);
+
+    useEffect(() => {
+        setSearchTerm(filters.search || "");
+        setFilterSubstation(filters.substation || "");
+        setFilterCondition(filters.condition || "");
+        perpage.current = filters.perpage || 15;
+    }, [filters]);
+
+    const debouncedSearch = useRef(
+        debounce((search, substation, condition, perpage) => {
+            setIsLoading(true);
+            router.get(
+                route(route().current()),
+                { search, substation, condition, perpage },
+                {
+                    preserveState: true,
+                    replace: true,
+                    onFinish: () => setIsLoading(false),
+                }
+            );
+        }, 300)
+    ).current;
+
+    useEffect(() => {
+        debouncedSearch(
+            searchTerm,
+            filterSubstation,
+            filterCondition,
+            perpage.current
+        );
+    }, [searchTerm, filterSubstation, filterCondition]);
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const handleSubstationChange = (e) => {
+        setFilterSubstation(e.target.value);
+    };
+
+    const handleConditionChange = (e) => {
+        setFilterCondition(e.target.value);
+    };
+
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
-        getData();
-    };
-    const [isLoading, setisLoading] = useState(false);
-
-    const getData = () => {
-        setisLoading(true);
-        router.get(
-            route().current(),
-            {
-                perpage: perpage.current,
-            },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                onFinish: () => setisLoading(false),
-            }
+        debouncedSearch(
+            searchTerm,
+            filterSubstation,
+            filterCondition,
+            perpage.current
         );
     };
 
@@ -40,6 +82,12 @@ export default function Bay() {
         bay: "",
         substation: "",
         condition: "",
+    });
+
+    const { dataEdit, setEdit } = useForm({
+        bayEdit: "",
+        substationEdit: "",
+        conditionEdit: "",
     });
 
     const [isOpen, setIsOpen] = useState(false);
@@ -50,10 +98,16 @@ export default function Bay() {
         router.post("/bay", data, {
             onSuccess: () => {
                 reset();
-                getData();
+                debouncedSearch(
+                    searchTerm,
+                    filterSubstation,
+                    filterCondition,
+                    perpage.current
+                );
+                setIsOpen(false);
                 Swal.fire({
-                    title: "Success",
-                    text: data.bay + " has been created.",
+                    title: "Berhasil",
+                    text: data.bay + " telah dibuat.",
                     icon: "success",
                     confirmButtonText: "OK",
                     confirmButtonColor: "#1C64F2",
@@ -67,28 +121,35 @@ export default function Bay() {
                         : "#000000",
                 });
             },
+            onError: (errors) => {
+                Swal.fire({
+                    title: "Gagal",
+                    text: "Terjadi kesalahan saat membuat bay.",
+                    icon: "error",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#1C64F2",
+                });
+            },
         });
-        setIsOpen(false);
     };
-
-    const { dataEdit, setEdit } = useForm({
-        bayEdit: "",
-        substation: "",
-        condition: "",
-    });
 
     const handleUpdate = (id) => {
         router.put(
             `/bay/${id}`,
             {
-                bayEdit: data.bay,
-                substationEdit: data.substation,
-                conditionEdit: data.condition,
+                bay: data.bay,
+                substation: data.substation,
+                condition: data.condition,
             },
             {
                 onSuccess: () => {
                     reset();
-                    getData();
+                    debouncedSearch(
+                        searchTerm,
+                        filterSubstation,
+                        filterCondition,
+                        perpage.current
+                    );
                     setOpenModalEdit(false);
                     Swal.fire({
                         title: "Berhasil",
@@ -111,8 +172,6 @@ export default function Bay() {
         );
     };
 
-    console.log(dataEdit);
-
     const [selectedItem, setSelectedItem] = useState(null);
     const [openModalEdit, setOpenModalEdit] = useState(false);
     const handleCloseEdit = () => setOpenModalEdit(false);
@@ -127,23 +186,17 @@ export default function Bay() {
         });
     };
 
-    // Tambahkan state untuk menyimpan kata kunci pencarian
-    const [searchTerm, setSearchTerm] = useState("");
+    useEffect(() => {
+        if (selectedItem) {
+            setData({
+                bay: selectedItem.name,
+                substation: selectedItem.substation_id,
+                condition: selectedItem.condition_id,
+            });
+        }
+    }, [selectedItem]);
 
-    // Fungsi untuk menangani pencarian
-    const handleSearch = (e) => {
-        e.preventDefault();
-        setisLoading(true);
-        router.get(
-            route(route().current()),
-            { search: searchTerm, perpage: perpage.current },
-            {
-                preserveState: true,
-                replace: true,
-                onFinish: () => setisLoading(false),
-            }
-        );
-    };
+    console.log(data);
 
     return (
         <>
@@ -286,7 +339,7 @@ export default function Bay() {
                         title="Edit Bay"
                         className="dark:text-gray-200"
                     />
-                    <Drawer.Items className="dark:bg-gray-700">
+                    <Drawer.Items className="dark:bg-gray-800">
                         {selectedItem && (
                             <form
                                 onSubmit={(e) => {
@@ -298,52 +351,48 @@ export default function Bay() {
                                 <div className="grid grid-cols-4 gap-4">
                                     <div className="col-span-1">
                                         <InputLabel
-                                            htmlFor="bayEdit"
+                                            htmlFor="bay"
                                             value="Bay Name"
                                             className="text-sm font-thin dark:text-gray-300"
                                         />
                                         <TextInput
-                                            id="bayEdit"
+                                            id="bay"
                                             type="text"
                                             sizing="md"
-                                            name="bayEdit"
+                                            name="bay"
                                             value={
-                                                data.bayEdit ||
-                                                selectedItem.name
+                                                data.bay || selectedItem.name
                                             }
                                             onChange={(e) =>
-                                                setData(
-                                                    "bayEdit",
-                                                    e.target.value
-                                                )
+                                                setData("bay", e.target.value)
                                             }
-                                            className="mt-1 text-gray-500 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
+                                            className="mt-1 text-gray-500 dark:text-gray-200 dark:border-gray-500"
                                             required
                                             autoFocus
                                         />
                                         <InputError
-                                            message={errors.bayEdit}
+                                            message={errors.bay}
                                             className="mt-2"
                                         />
                                     </div>
                                     <div className="col-span-1">
                                         <InputLabel
-                                            htmlFor="substationEdit"
+                                            htmlFor="substation"
                                             value="Substation"
                                             className="text-sm font-thin dark:text-gray-300"
                                         />
                                         <Select
-                                            id="substationEdit"
+                                            id="substation"
                                             required
-                                            name="substationEdit"
+                                            name="substation"
                                             onChange={(e) =>
                                                 setData(
-                                                    "substationEdit",
+                                                    "substation",
                                                     e.target.value
                                                 )
                                             }
                                             value={
-                                                data.substationEdit ||
+                                                data.substation ||
                                                 selectedItem.substation_id
                                             }
                                             className="w-full mt-2 text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
@@ -361,28 +410,28 @@ export default function Bay() {
                                             ))}
                                         </Select>
                                         <InputError
-                                            message={errors.substationEdit}
+                                            message={errors.substation}
                                             className="mt-2"
                                         />
                                     </div>
                                     <div className="col-span-1">
                                         <InputLabel
-                                            htmlFor="conditionEdit"
+                                            htmlFor="condition"
                                             value="Condition"
                                             className="text-sm font-thin dark:text-gray-300"
                                         />
                                         <Select
-                                            id="conditionEdit"
+                                            id="condition"
                                             required
-                                            name="conditionEdit"
+                                            name="condition"
                                             onChange={(e) =>
                                                 setData(
-                                                    "conditionEdit",
+                                                    "condition",
                                                     e.target.value
                                                 )
                                             }
                                             value={
-                                                data.conditionEdit ||
+                                                data.condition ||
                                                 selectedItem.condition_id
                                             }
                                             className="w-full mt-2 text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500"
@@ -400,7 +449,7 @@ export default function Bay() {
                                             ))}
                                         </Select>
                                         <InputError
-                                            message={errors.conditionEdit}
+                                            message={errors.condition}
                                             className="mt-2"
                                         />
                                     </div>
@@ -421,7 +470,7 @@ export default function Bay() {
                 <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
                     <table className="w-full text-sm text-gray-500 dark:text-gray-400">
                         <caption className="p-5 text-lg font-semibold text-left text-gray-900 bg-gray-100 rtl:text-right dark:bg-gray-800 dark:text-gray-100">
-                            <div className="inline-flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <button
                                     onClick={() => setIsOpen(true)}
                                     className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border rounded-full bg-emerald-50 border-emerald-500 focus:shadow-outline hover:scale-105 hover:shadow-xl dark:bg-emerald-900 dark:border-emerald-600"
@@ -439,23 +488,8 @@ export default function Bay() {
                                         />
                                     </svg>
                                 </button>
-                                <button className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={1.5}
-                                        className="stroke-gray-700 size-6 dark:stroke-gray-300"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"
-                                        />
-                                    </svg>
-                                </button>
-                                <form onSubmit={handleSearch}>
-                                    <div className="relative bg-transparent">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <div className="relative bg-transparent flex-1">
                                         <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
                                             <svg
                                                 className="text-gray-700 size-5 dark:text-gray-400"
@@ -475,15 +509,45 @@ export default function Bay() {
                                         </div>
                                         <input
                                             type="search"
-                                            className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:focus:ring-gray-600 dark:focus:border-gray-600"
+                                            className="block w-full text-md font-thin border border-gray-300 rounded-lg ps-14 py-2 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-cyan-600 dark:focus:border-cyan-600"
                                             placeholder="Cari bay"
                                             value={searchTerm}
-                                            onChange={(e) =>
-                                                setSearchTerm(e.target.value)
-                                            }
+                                            onChange={handleSearchChange}
                                         />
                                     </div>
-                                </form>
+                                    <Select
+                                        id="filterSubstation"
+                                        value={filterSubstation}
+                                        onChange={handleSubstationChange}
+                                        className="text-xs flex-1 py-2"
+                                    >
+                                        <option value="">All Substation</option>
+                                        {substations.map((substation) => (
+                                            <option
+                                                key={substation.id}
+                                                value={substation.id}
+                                            >
+                                                {substation.name}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                    <Select
+                                        id="filterCondition"
+                                        value={filterCondition}
+                                        onChange={handleConditionChange}
+                                        className="text-xs flex-1 py-2"
+                                    >
+                                        <option value="">All Condition</option>
+                                        {conditions.map((condition) => (
+                                            <option
+                                                key={condition.id}
+                                                value={condition.id}
+                                            >
+                                                {condition.name}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </div>
                             </div>
                         </caption>
                         <thead className="text-xs text-gray-700 uppercase bg-slate-50 dark:bg-gray-700 dark:text-gray-300">
@@ -506,7 +570,21 @@ export default function Bay() {
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td>Loading....</td>
+                                    <td
+                                        colSpan="5"
+                                        className="text-center py-4"
+                                    >
+                                        Memuat data...
+                                    </td>
+                                </tr>
+                            ) : bays.data.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan="5"
+                                        className="text-center py-4"
+                                    >
+                                        Tidak ada data yang ditemukan.
+                                    </td>
                                 </tr>
                             ) : (
                                 bays.data.map((bay, index) => (

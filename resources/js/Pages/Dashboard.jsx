@@ -18,8 +18,9 @@ export default function Dashboard({
     approve,
     anomalis,
     anomalis_date,
-    anomaliPerBulan,
-    anomaliPerSubstation, // Tambahkan prop baru
+    anomaliPerBulan, // Tambahkan prop baru
+    anomaliPerType, // Tambahkan prop baru
+    anomaliPerTypeStatus, // Tambahkan prop baru
 }) {
     const { auth } = usePage().props;
     const [events, setEvents] = useState([]);
@@ -30,7 +31,7 @@ export default function Dashboard({
     const radialChartRef = useRef(null);
     const pieChartRef = useRef(null);
     const lineChartRef = useRef(null);
-    const substationChartRef = useRef(null);
+    const typeChartRef = useRef(null);
 
     useEffect(() => {
         const formattedEvents = anomalis_date.map((anomali) => ({
@@ -79,6 +80,18 @@ export default function Dashboard({
                     );
                 }
             }
+
+            if (anomaliPerTypeStatus && anomaliPerTypeStatus.length > 0) {
+                if (!typeChartRef.current) {
+                    typeChartRef.current = new ApexCharts(
+                        document.getElementById("type-chart"),
+                        getChartAnomaliPerType()
+                    );
+                    typeChartRef.current.render();
+                } else {
+                    typeChartRef.current.updateOptions(getChartAnomaliPerType());
+                }
+            }
         }
 
         // Cleanup function
@@ -95,12 +108,12 @@ export default function Dashboard({
                 lineChartRef.current.destroy();
                 lineChartRef.current = null;
             }
-            if (substationChartRef.current) {
-                substationChartRef.current.destroy();
-                substationChartRef.current = null;
+            if (typeChartRef.current) {
+                typeChartRef.current.destroy();
+                typeChartRef.current = null;
             }
         };
-    }, [anomaliPerBulan, anomaliPerSubstation, status, equipments, anomalis]);
+    }, [anomaliPerBulan, status, equipments, anomalis, anomaliPerType, anomaliPerTypeStatus]);
 
     const getEventColor = (status) => {
         switch (status) {
@@ -131,7 +144,7 @@ export default function Dashboard({
             ],
             colors: ["#EF4444", "#10B981", "#0EA5E9"],
             chart: {
-                height: 280,
+                height: 330,
                 width: "100%",
                 type: "radialBar",
                 sparkline: {
@@ -211,14 +224,15 @@ export default function Dashboard({
                 "#8c564b",
                 "#e377c2",
                 "#7f7f7f",
-                "#295F98",
                 "#bcbd22",
                 "#17becf",
                 "#ffcc00",
                 "#a52a2a",
+                "#555555"
+
             ],
             chart: {
-                height: 350,
+                height: 390,
                 width: "100%",
                 type: "pie",
                 zoom: {
@@ -258,7 +272,7 @@ export default function Dashboard({
             dataLabels: {
                 enabled: true,
                 style: {
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "Inter, sans-serif"
                 },
             },
             legend: {
@@ -301,7 +315,7 @@ export default function Dashboard({
                 },
             ],
             chart: {
-                height: 280,
+                height: 350,
                 type: "line",
                 zoom: {
                     enabled: true,
@@ -341,13 +355,91 @@ export default function Dashboard({
             },
             xaxis: {
                 categories: anomaliPerBulan.map((item) => item.bulan_tahun),
+                labels: {
+                    style: {
+                        colors: ["#000000"] // Menambahkan warna hitam pada label agar terlihat saat diekspor
+                    }
+                }
             },
         };
     };
 
-    const { flash } = usePage().props;
+    const getChartAnomaliPerType = () => {
+        if (!anomaliPerTypeStatus || anomaliPerTypeStatus.length === 0) {
+            return {
+                options: {
+                    chart: {
+                        type: 'bar',
+                        height: 350,
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                        }
+                    },
+                    series: [],
+                    xaxis: {
+                        categories: []
+                    }
+                }
+            };
+        }
 
-    console.log(anomalis);
+        const series = anomaliPerTypeStatus.map(type => ({
+            name: type.name,
+            data: type.data.map(status => status.jumlah)
+        }));
+
+        const categories = anomaliPerTypeStatus[0].data.map(status => status.name);
+
+        return {
+            series: series,
+            chart: {
+                type: 'bar',
+                height: 350,
+                stacked: true,
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    dataLabels: {
+                        total: {
+                            enabled: true,
+                            offsetX: 0,
+                            style: {
+                                fontSize: '13px',
+                                fontWeight: 900
+                            }
+                        }
+                    }
+                },
+            },
+            stroke: {
+                width: 1,
+                colors: ['#fff']
+            },
+            xaxis: {
+                categories: categories,
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + " anomali"
+                    }
+                }
+            },
+            fill: {
+                opacity: 1
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left',
+                offsetX: 40
+            },
+            colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0']
+        };
+    };
+
     return (
         <>
             <Head title="Dashboard" />
@@ -373,7 +465,7 @@ export default function Dashboard({
                                 Status Anomali
                             </h2>
                             <div id="radial-chart" className="h-44"></div>
-                            <div className="grid grid-cols-3 gap-2 mt-2">
+                            <div className="grid grid-cols-4 gap-2 mt-2">
                                 {status.map((item, index) => (
                                     <div
                                         key={index}
@@ -391,6 +483,12 @@ export default function Dashboard({
                                         <p className="text-xs">{item.name}</p>
                                     </div>
                                 ))}
+                                <div className="p-2 rounded-lg text-center bg-gray-100 dark:bg-gray-900 dark:text-white">
+                                    <p className="text-sm font-semibold">
+                                        {anomalis.length}
+                                    </p>
+                                    <p className="text-xs">Total</p>
+                                </div>
                             </div>
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
@@ -401,9 +499,15 @@ export default function Dashboard({
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Anomali per Month
+                                Monthly Anomalies
                             </h2>
                             <div id="line-chart" className="h-44"></div>
+                        </div>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+                                Distribusi Anomali per Tipe
+                            </h2>
+                            <div id="type-chart" className="h-80"></div>
                         </div>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-12">
@@ -411,7 +515,7 @@ export default function Dashboard({
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
                                 Kalender Anomali
                             </h2>
-                            <div className="h-[600px] md:h-[450px] lg:h-[600px]">
+                            <div className="h-[650px] md:h-[460px] lg:h-[700px]">
                                 <FullCalendar
                                     plugins={[
                                         dayGridPlugin,

@@ -11,13 +11,7 @@ import {
     FileInput,
 } from "flowbite-react";
 import { useState, useRef, useEffect } from "react";
-import {
-    HiUser,
-    HiOutlineTicket,
-    HiOutlineSearch,
-    HiOutlineCheck,
-    HiDocumentReport,
-} from "react-icons/hi";
+import { HiUser, HiOutlineTicket, HiOutlineFilter } from "react-icons/hi";
 import { Input, Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
@@ -33,6 +27,7 @@ export default function Anomali({
     substations,
     sections,
     types,
+    status,
     progress,
 }) {
     const perpage = useRef(15);
@@ -60,10 +55,12 @@ export default function Anomali({
         );
     };
 
-    const [selectedSubstations, setSelectedSubstations] = useState("");
+    const [bays, setBays] = useState([]);
+    const isAdmin = auth.user.role_id === 1;
+
     const { data, setData, processing, post, errors, reset } = useForm({
         titlename: "",
-        substation: "",
+        substation: isAdmin ? "" : auth.user.substation_id, // Mengisi substation dengan nilai default
         section: "",
         type: "",
         user: auth.user.id,
@@ -74,19 +71,41 @@ export default function Anomali({
         file: null,
     });
 
-    const [bays, setBays] = useState([]);
-    const [selectedBays, setSelectedBays] = useState("");
+    const handleSubstationChange = (e) => {
+        const substationId = e.target.value;
+        setData("substation", substationId);
 
-    const handleCategoryChange = (e) => {
-        const getSubstationID = e.target.value;
-        setSelectedSubstations(getSubstationID);
-        const selected = substations.find(
-            (category) => category.id === parseInt(getSubstationID)
+        const selectedSubstation = substations.find(
+            (substation) => substation.id === parseInt(substationId)
         );
-        setBays(selected ? selected.bay : []);
-        setSelectedBays(""); // Reset selected subcategory
-        setData("substation", e.target.value);
+
+        if (selectedSubstation) {
+            setBays(selectedSubstation.bay);
+            setData("bay", ""); // Reset bay selection
+        } else {
+            setBays([]);
+        }
     };
+
+    useEffect(() => {
+        if (isAdmin) {
+            // Mengatur bay berdasarkan substation yang dipilih jika admin login
+            const selectedSubstation = substations.find(
+                (substation) => substation.id === parseInt(data.substation)
+            );
+            if (selectedSubstation) {
+                setBays(selectedSubstation.bay);
+            }
+        } else {
+            // Mengatur bay berdasarkan substation user jika user login
+            const userSubstation = substations.find(
+                (substation) => substation.id === auth.user.substation_id
+            );
+            if (userSubstation) {
+                setBays(userSubstation.bay);
+            }
+        }
+    }, [isAdmin, substations, data.substation, auth.user.substation_id]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -134,7 +153,58 @@ export default function Anomali({
         setOpenFilterModal(false);
     };
 
-    console.log(errors);
+    const [filters, setFilters] = useState({
+        substation: "",
+        section: "",
+        type: "",
+        equipment: "",
+        status: "",
+        start_date: "",
+        end_date: "",
+    });
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [name]: value,
+        }));
+    };
+
+    const applyFilters = (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        router.get(
+            route().current(),
+            {
+                ...filters,
+                perpage: perpage.current,
+            },
+            {
+                preserveState: true,
+                replace: true,
+                onFinish: () => setIsLoading(false),
+            }
+        );
+        setOpenFilterModal(false);
+    };
+
+    const resetFilters = () => {
+        setFilters({
+            substation: "",
+            section: "",
+            type: "",
+            equipment: "",
+            status: "",
+            start_date: "",
+            end_date: "",
+        });
+        router.get(route().current(), { perpage: perpage.current });
+        setOpenFilterModal(false);
+    };
+
+    console.log(data);
+    // console.log(auth.user.role_id);
 
     return (
         <>
@@ -163,7 +233,7 @@ export default function Anomali({
                                 icon={HiOutlineTicket}
                                 autoComplete="off"
                                 placeholder="My Suggestion for this title"
-                                className="dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
+                                className="dark:text-gray-300 dark:border-gray-600"
                             />
                             <InputError
                                 className="mt-2"
@@ -180,20 +250,22 @@ export default function Anomali({
                                     />
                                     <Select
                                         name="substation"
-                                        value={selectedSubstations}
-                                        onChange={handleCategoryChange}
+                                        value={data.substation}
+                                        onChange={
+                                            isAdmin
+                                                ? (e) =>
+                                                      setData(
+                                                          "substation",
+                                                          e.target.value
+                                                      )
+                                                : handleSubstationChange
+                                        }
                                         className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
+                                        disabled={auth.user.role_id !== 1}
                                     >
-                                        <option
-                                            value=""
-                                            className="text-sm font-thin text-gray-500 dark:text-gray-300"
-                                        >
-                                            Select substation
-                                        </option>
                                         {substations.map(
                                             (substation, index) => (
                                                 <option
-                                                    id="substation"
                                                     key={index}
                                                     value={substation.id}
                                                     className="text-sm font-thin text-gray-500 dark:text-gray-300"
@@ -203,7 +275,6 @@ export default function Anomali({
                                             )
                                         )}
                                     </Select>
-
                                     <InputError
                                         className="mt-2"
                                         message={errors.substation}
@@ -290,29 +361,21 @@ export default function Anomali({
                                     value="Bay"
                                     className="text-sm font-thin dark:text-gray-300"
                                 />
-
                                 <Select
                                     name="bay"
-                                    disabled={!selectedSubstations}
                                     value={data.bay}
                                     onChange={(e) =>
                                         setData("bay", e.target.value)
                                     }
                                     className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600"
                                 >
-                                    <option
-                                        value=""
-                                        className="text-sm font-thin text-gray-500 dark:text-gray-300"
-                                    >
-                                        Select Substation first
-                                    </option>
+                                    <option value="">Select Bay</option>
                                     {bays.map((bay) => (
                                         <option key={bay.id} value={bay.id}>
                                             {bay.name}
                                         </option>
                                     ))}
                                 </Select>
-
                                 <InputError
                                     className="mt-2"
                                     message={errors.bay}
@@ -472,7 +535,6 @@ export default function Anomali({
 
                 {/* Modal Detail */}
                 <Modal2
-                    size="3xl"
                     isOpen={openModalDetail}
                     onClose={() => setOpenModalDetail(false)}
                     title={selectedItem && selectedItem.titlename}
@@ -723,8 +785,8 @@ export default function Anomali({
                                     </>
                                 )}
                                 {!selectedItem.attachment_path && (
-                                    <p className="text-gray-500 italic dark:text-gray-400">
-                                        Tidak ada file yang tersedia
+                                    <p className="text-red-800 text-xs italic dark:text-gray-400">
+                                        No file available
                                     </p>
                                 )}
                             </div>
@@ -738,48 +800,168 @@ export default function Anomali({
                     onClose={() => setOpenFilterModal(false)}
                     title="Filter Tabel"
                 >
-                    <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                        Filter Tabel
-                    </h2>
                     <div className="mt-4">
-                        {/* Tambahkan form filter di sini */}
-                        <form onSubmit={handleFilterSubmit}>
-                            {/* Contoh filter berdasarkan tanggal */}
+                        <form onSubmit={applyFilters}>
                             <div className="mb-4">
-                                <label
-                                    htmlFor="startDate"
+                                <Label
+                                    htmlFor="substation"
+                                    value="Substation"
                                     className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                                >
-                                    Tanggal Mulai
-                                </label>
-                                <input
-                                    type="date"
-                                    id="startDate"
-                                    name="startDate"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 />
+                                <Select
+                                    id="substation"
+                                    name="substation"
+                                    value={filters.substation}
+                                    onChange={handleFilterChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                >
+                                    <option value="">All Substation</option>
+                                    {substations.map((substation) => (
+                                        <option
+                                            key={substation.id}
+                                            value={substation.id}
+                                        >
+                                            {substation.name}
+                                        </option>
+                                    ))}
+                                </Select>
                             </div>
                             <div className="mb-4">
-                                <label
-                                    htmlFor="endDate"
+                                <Label
+                                    htmlFor="section"
+                                    value="Section"
                                     className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-                                >
-                                    Tanggal Akhir
-                                </label>
-                                <input
-                                    type="date"
-                                    id="endDate"
-                                    name="endDate"
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 />
+                                <Select
+                                    id="section"
+                                    name="section"
+                                    value={filters.section}
+                                    onChange={handleFilterChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                >
+                                    <option value="">All Section</option>
+                                    {sections.map((section) => (
+                                        <option
+                                            key={section.id}
+                                            value={section.id}
+                                        >
+                                            {section.name}
+                                        </option>
+                                    ))}
+                                </Select>
                             </div>
-                            {/* Tambahkan filter lainnya sesuai kebutuhan */}
-                            <div className="mt-4">
+                            <div className="mb-4">
+                                <Label
+                                    htmlFor="type"
+                                    value="Type"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                />
+                                <Select
+                                    id="type"
+                                    name="type"
+                                    value={filters.type}
+                                    onChange={handleFilterChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                >
+                                    <option value="">All Type</option>
+                                    {types.map((type) => (
+                                        <option key={type.id} value={type.id}>
+                                            {type.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="mb-4">
+                                <Label
+                                    htmlFor="equipment"
+                                    value="Equipment"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                />
+                                <Select
+                                    id="equipment"
+                                    name="equipment"
+                                    value={filters.equipment}
+                                    onChange={handleFilterChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                >
+                                    <option value="">All Equipment</option>
+                                    {equipments.map((equipment) => (
+                                        <option
+                                            key={equipment.id}
+                                            value={equipment.id}
+                                        >
+                                            {equipment.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="mb-4">
+                                <Label
+                                    htmlFor="status"
+                                    value="Status"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                />
+                                <Select
+                                    id="status"
+                                    name="status"
+                                    value={filters.status}
+                                    onChange={handleFilterChange}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                >
+                                    <option value="">All Status</option>
+                                    {status.map((s) => (
+                                        <option key={s.id} value={s.name}>
+                                            {s.name}
+                                        </option>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="mb-4 flex space-x-4">
+                                <div className="flex-1">
+                                    <Label
+                                        htmlFor="start_date"
+                                        value="Tanggal Mulai"
+                                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    />
+                                    <input
+                                        type="date"
+                                        id="start_date"
+                                        name="start_date"
+                                        value={filters.start_date}
+                                        onChange={handleFilterChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <Label
+                                        htmlFor="end_date"
+                                        value="Tanggal Akhir"
+                                        className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                                    />
+                                    <input
+                                        type="date"
+                                        id="end_date"
+                                        name="end_date"
+                                        value={filters.end_date}
+                                        onChange={handleFilterChange}
+                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                                    />
+                                </div>
+                            </div>
+                            <div className="pt-6 flex justify-between">
                                 <button
                                     type="submit"
-                                    className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600"
+                                    className="inline-flex justify-center w-full px-3 py-2 items-center text-sm font-semibold text-white bg-cyan-600 rounded-md shadow-sm hover:bg-cyan-500 sm:w-auto"
                                 >
-                                    Terapkan Filter
+                                    <HiOutlineFilter className="mr-2" />
+                                    Apply Filter
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={resetFilters}
+                                    className="inline-flex justify-center w-full px-3 py-2 items-center text-sm font-semibold text-white bg-slate-600 rounded-md shadow-sm hover:bg-slate-500 sm:w-auto"
+                                >
+                                    Reset Filter
                                 </button>
                             </div>
                         </form>
@@ -788,7 +970,7 @@ export default function Anomali({
 
                 <div className="relative overflow-auto shadow-lg sm:rounded-lg">
                     <table className="w-full text-sm text-gray-500 dark:text-gray-400">
-                        <caption className="p-5 text-lg font-semibold text-left bg-gray-100 dark:bg-gray-800 rtl:text-right">
+                        <caption className="p-5 text-lg font-semibold text-left bg-gray-100 dark:bg-gray-800 rtl:text-right dark:text-gray-300">
                             <div className="inline-flex items-center gap-3">
                                 <button
                                     onClick={() => setOpenModal(true)}
@@ -809,7 +991,7 @@ export default function Anomali({
                                 </button>
                                 <button
                                     onClick={() => setOpenFilterModal(true)}
-                                    className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105"
+                                    className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105 dark:text-gray-300"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -846,8 +1028,8 @@ export default function Anomali({
                                         </div>
                                         <input
                                             type="search"
-                                            className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100"
-                                            placeholder="Cari Tiket"
+                                            className="block w-full text-xs font-thin border-none rounded-lg ps-14 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:text-gray-300"
+                                            placeholder="Cari Anomali"
                                             onChange={(e) => {
                                                 const searchTerm =
                                                     e.target.value;
@@ -865,7 +1047,7 @@ export default function Anomali({
                                 </form>
                             </div>
                         </caption>
-                        <thead className="text-xs text-gray-700 uppercase bg-slate-50">
+                        <thead className="text-xs text-gray-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-gray-400">
                             <tr className="text-left">
                                 <th scope="col" className="text-center">
                                     No
@@ -901,36 +1083,21 @@ export default function Anomali({
                         </thead>
                         <tbody>
                             {isLoading ? (
+                                <tr className="max-w-sm animate-pulse">
+                                    <td
+                                        colSpan="10"
+                                        className="text-center py-4 dark:text-gray-400"
+                                    >
+                                        Loading.....
+                                    </td>
+                                </tr>
+                            ) : anomalis.data.length === 0 ? (
                                 <tr>
-                                    <td>
-                                        <div className="mx-2 my-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
-                                    </td>
-                                    <td>
-                                        <div className="m-2 w-auto h-4 bg-slate-200 animate-pulse"></div>
+                                    <td
+                                        colSpan="10"
+                                        className="text-center py-4 dark:text-gray-400"
+                                    >
+                                        No data matches the filter
                                     </td>
                                 </tr>
                             ) : (
@@ -997,17 +1164,20 @@ export default function Anomali({
                             )}
                         </tbody>
                     </table>
-                    <div className="flex items-center justify-between mx-2">
-                        <p className="text-sm font-medium text-gray-700">
+                    <div className="flex items-center justify-between mx-2 dark:text-gray-400">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-400">
                             Showing {anomalis.from} to {anomalis.to} total{" "}
                             {anomalis.total}
                         </p>
                         <div className="inline-flex items-center justify-center my-2">
-                            <Label value="Filter" />
+                            <Label
+                                value="Filter"
+                                className="dark:text-gray-400"
+                            />
                             <select
                                 name="perpage"
                                 id="perpage"
-                                className="bg-transparent p-2 mx-2 text-sm border-none rounded-lg"
+                                className="bg-transparent p-2 mx-2 text-sm border-none rounded-lg dark:bg-gray-700 dark:text-gray-400"
                                 value={perpage.current}
                                 onChange={handleChangePerPage}
                             >

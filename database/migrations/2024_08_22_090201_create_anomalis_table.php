@@ -30,6 +30,9 @@ return new class extends Migration
             $table->string('approve_by')->nullable();
             $table->string('attachment_filename')->nullable();
             $table->string('attachment_path')->nullable();
+            $table->text('action')->nullable();
+            $table->string('official_report')->nullable();
+            $table->string('report_path')->nullable();
             $table->timestamps();
         });
     }

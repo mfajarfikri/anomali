@@ -16,9 +16,21 @@ class SubstationController extends Controller
      */
     public function index(Request $request)
     {
+        $query = Substation::with(['condition', 'bay']);
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('condition') && $request->condition !== '') {
+            $query->where('condition_id', $request->condition);
+        }
+
+        $substations = $query->paginate($request->perpage ?? 10);
+
         return Inertia::render('Substation/Substation', [
-            'substations' => Substation::with(['Condition','Bay'])->orderBy('name', 'asc')->Paginate($request->perpage ?? 15),
-            'conditions' => Condition::all()
+            'substations' => $substations,
+            'conditions' => Condition::all(),
         ]);
     }
 
@@ -62,17 +74,30 @@ class SubstationController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Substation $substation)
     {
-        //
+        return Inertia::render('Substation/Edit', [
+            'substation' => $substation->load('condition'),
+            'conditions' => Condition::all(),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Substation $substation)
     {
-        //
+        $request->validate([
+            'name' => 'required|unique:substations,name,' . $substation->id,
+            'condition' => 'required|exists:conditions,id',
+        ]);
+
+        $substation->update([
+            'name' => $request->name,
+            'condition_id' => $request->condition,
+        ]);
+
+        return redirect()->route('substation')->with('success', 'Substation updated successfully');
     }
 
     /**

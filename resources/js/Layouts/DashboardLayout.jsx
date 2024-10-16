@@ -108,7 +108,7 @@ export default function DashboardLayout({ children, user }) {
                         <div className="inline-flex items-center px-4 py-2">
                             <ApplicationLogo className="w-14 h-14" />
                             <span className="text-2xl font-bold dark:text-gray-300">
-                                UPT KARAWANG
+                                ULTG KARAWANG
                             </span>
                         </div>
                     </div>
@@ -240,7 +240,7 @@ export default function DashboardLayout({ children, user }) {
                                         <li className="items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex">
                                             <a
                                                 href={route("anomali")}
-                                                className="flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex "
+                                                className="flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500"
                                             >
                                                 Anomali
                                             </a>
@@ -248,7 +248,7 @@ export default function DashboardLayout({ children, user }) {
                                         <li className="items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex">
                                             <a
                                                 href={route("dashboard")}
-                                                className="flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex "
+                                                className="flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500"
                                             >
                                                 Dashboard
                                             </a>
