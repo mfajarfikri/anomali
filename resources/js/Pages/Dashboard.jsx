@@ -89,7 +89,9 @@ export default function Dashboard({
                     );
                     typeChartRef.current.render();
                 } else {
-                    typeChartRef.current.updateOptions(getChartAnomaliPerType());
+                    typeChartRef.current.updateOptions(
+                        getChartAnomaliPerType()
+                    );
                 }
             }
         }
@@ -113,7 +115,14 @@ export default function Dashboard({
                 typeChartRef.current = null;
             }
         };
-    }, [anomaliPerBulan, status, equipments, anomalis, anomaliPerType, anomaliPerTypeStatus]);
+    }, [
+        anomaliPerBulan,
+        status,
+        equipments,
+        anomalis,
+        anomaliPerType,
+        anomaliPerTypeStatus,
+    ]);
 
     const getEventColor = (status) => {
         switch (status) {
@@ -228,8 +237,7 @@ export default function Dashboard({
                 "#17becf",
                 "#ffcc00",
                 "#a52a2a",
-                "#555555"
-
+                "#555555",
             ],
             chart: {
                 height: 390,
@@ -272,7 +280,7 @@ export default function Dashboard({
             dataLabels: {
                 enabled: true,
                 style: {
-                    fontFamily: "Inter, sans-serif"
+                    fontFamily: "Inter, sans-serif",
                 },
             },
             legend: {
@@ -312,11 +320,12 @@ export default function Dashboard({
                 {
                     name: "Jumlah Anomali",
                     data: anomaliPerBulan.map((item) => item.jumlah),
+                    color: "#4CAF50",
                 },
             ],
             chart: {
                 height: 350,
-                type: "line",
+                type: "area",
                 zoom: {
                     enabled: true,
                 },
@@ -333,21 +342,57 @@ export default function Dashboard({
                     },
                     export: {
                         svg: {
-                            filename: "Anomali_Per_Month_svg",
+                            filename: "Anomali_Per_Bulan_svg",
                         },
                         png: {
-                            filename: "Anomali_Per_Month_png",
+                            filename: "Anomali_Per_Bulan_png",
                         },
+                    },
+                },
+                animations: {
+                    enabled: true,
+                    easing: "easeinout",
+                    speed: 800,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150,
+                    },
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350,
                     },
                 },
             },
             dataLabels: {
-                enabled: false,
+                enabled: true,
+                style: {
+                    colors: ["#333"],
+                },
+                background: {
+                    enabled: true,
+                    foreColor: "#fff",
+                    padding: 4,
+                    borderRadius: 2,
+                    borderWidth: 1,
+                    borderColor: "#fff",
+                    opacity: 0.9,
+                },
             },
             stroke: {
-                curve: "straight",
+                curve: "smooth",
+                width: 3,
+            },
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.9,
+                    stops: [0, 90, 100],
+                },
             },
             grid: {
+                borderColor: "#e7e7e7",
                 row: {
                     colors: ["#f3f3f3", "transparent"],
                     opacity: 0.5,
@@ -357,9 +402,42 @@ export default function Dashboard({
                 categories: anomaliPerBulan.map((item) => item.bulan_tahun),
                 labels: {
                     style: {
-                        colors: ["#000000"] // Menambahkan warna hitam pada label agar terlihat saat diekspor
-                    }
-                }
+                        colors: "#333",
+                        fontSize: "12px",
+                    },
+                    rotate: -45,
+                },
+                title: {
+                    text: "Bulan",
+                    style: {
+                        fontSize: "14px",
+                        fontWeight: 600,
+                    },
+                },
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (val) {
+                        return val.toFixed(0);
+                    },
+                },
+            },
+            tooltip: {
+                theme: "light",
+                y: {
+                    formatter: function (val) {
+                        return val + " anomali";
+                    },
+                },
+            },
+            markers: {
+                size: 5,
+                colors: ["#4CAF50"],
+                strokeColors: "#fff",
+                strokeWidth: 2,
+                hover: {
+                    size: 7,
+                },
             },
         };
     };
@@ -369,54 +447,58 @@ export default function Dashboard({
             return {
                 options: {
                     chart: {
-                        type: 'bar',
+                        type: "bar",
                         height: 350,
                     },
                     plotOptions: {
                         bar: {
                             horizontal: true,
-                        }
+                            borderRadius: 10, // Tambahkan radius pada bar
+                        },
                     },
                     series: [],
                     xaxis: {
-                        categories: []
-                    }
-                }
+                        categories: [],
+                    },
+                },
             };
         }
 
-        const series = anomaliPerTypeStatus.map(type => ({
+        const series = anomaliPerTypeStatus.map((type) => ({
             name: type.name,
-            data: type.data.map(status => status.jumlah)
+            data: type.data.map((status) => status.jumlah),
         }));
 
-        const categories = anomaliPerTypeStatus[0].data.map(status => status.name);
+        const categories = anomaliPerTypeStatus[0].data.map(
+            (status) => status.name
+        );
 
         return {
             series: series,
             chart: {
-                type: 'bar',
+                type: "bar",
                 height: 350,
                 stacked: true,
             },
             plotOptions: {
                 bar: {
                     horizontal: true,
+                    borderRadius: 10, // Tambahkan radius pada bar
                     dataLabels: {
                         total: {
                             enabled: true,
                             offsetX: 0,
                             style: {
-                                fontSize: '13px',
-                                fontWeight: 900
-                            }
-                        }
-                    }
+                                fontSize: "13px",
+                                fontWeight: 900,
+                            },
+                        },
+                    },
                 },
             },
             stroke: {
                 width: 1,
-                colors: ['#fff']
+                colors: ["#fff"],
             },
             xaxis: {
                 categories: categories,
@@ -424,37 +506,347 @@ export default function Dashboard({
             tooltip: {
                 y: {
                     formatter: function (val) {
-                        return val + " anomali"
-                    }
-                }
+                        return val + " anomali";
+                    },
+                },
             },
             fill: {
-                opacity: 1
+                opacity: 1,
             },
             legend: {
-                position: 'top',
-                horizontalAlign: 'left',
-                offsetX: 40
+                position: "top",
+                horizontalAlign: "left",
+                offsetX: 40,
             },
-            colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0']
+            colors: ["#008FFB", "#00E396", "#FEB019", "#FF4560", "#775DD0"],
         };
     };
+
+    console.log(auth);
 
     return (
         <>
             <Head title="Dashboard" />
             <DashboardLayout user={auth.user}>
+                {/* Modal2 untuk menampilkan detail event */}
+                <Modal2
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Detail Anomali"
+                >
+                    {selectedEvent && (
+                        <div className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 border-b pb-2">
+                                {selectedEvent.titlename}
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <p className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <svg
+                                            className="w-5 h-5 mr-2 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            ></path>
+                                        </svg>
+                                        <span className="font-semibold mr-2">
+                                            Tanggal Mulai:
+                                        </span>
+                                        <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800">
+                                            {dateFormat(
+                                                selectedEvent.date_plan_start,
+                                                "dd mmmm yyyy"
+                                            )}
+                                        </span>
+                                    </p>
+                                    <p className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <svg
+                                            className="w-5 h-5 mr-2 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            ></path>
+                                        </svg>
+                                        <span className="font-semibold mr-2">
+                                            Tanggal Selesai:
+                                        </span>
+                                        <span className="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900">
+                                            {dateFormat(
+                                                selectedEvent.date_plan_end,
+                                                "dd mmmm yyyy"
+                                            )}
+                                        </span>
+                                    </p>
+                                    <p className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <svg
+                                            className="w-5 h-5 mr-2 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            ></path>
+                                        </svg>
+                                        <span className="font-semibold mr-2">
+                                            Status:
+                                        </span>
+                                        <span className="bg-yellow-100 text-yellow-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-yellow-200 dark:text-yellow-900">
+                                            {selectedEvent.status.name}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div className="space-y-4">
+                                    <p className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <svg
+                                            className="w-5 h-5 mr-2 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                            ></path>
+                                        </svg>
+                                        <span className="font-semibold mr-2">
+                                            Pelapor:
+                                        </span>
+                                        <span>
+                                            {selectedEvent.user.name ||
+                                                "Tidak tersedia"}
+                                        </span>
+                                    </p>
+                                    <p className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <svg
+                                            className="w-5 h-5 mr-2 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                            ></path>
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                            ></path>
+                                        </svg>
+                                        <span className="font-semibold mr-2">
+                                            Lokasi:
+                                        </span>
+                                        <span>
+                                            {selectedEvent.substation.name ||
+                                                "Tidak tersedia"}
+                                        </span>
+                                    </p>
+                                    <p className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <svg
+                                            className="w-5 h-5 mr-2 text-blue-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                                            ></path>
+                                        </svg>
+                                        <span className="font-semibold mr-2">
+                                            Peralatan:
+                                        </span>
+                                        <span>
+                                            {selectedEvent.equipment.name ||
+                                                "Tidak tersedia"}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="mt-6">
+                                <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                                    <svg
+                                        className="w-5 h-5 mr-2 text-blue-500"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                                        ></path>
+                                    </svg>
+                                    Action:
+                                </h4>
+                                <p className="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+                                    {selectedEvent.action ||
+                                        "Tidak ada deskripsi"}
+                                </p>
+                            </div>
+                            {(selectedEvent.attachment_filename ||
+                                selectedEvent.official_report) && (
+                                <div className="mt-6 space-y-4">
+                                    {selectedEvent.attachment_filename && (
+                                        <div className="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
+                                            <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                                                <svg
+                                                    className="w-5 h-5 mr-2 text-blue-500"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                                                    ></path>
+                                                </svg>
+                                                File Terlampir
+                                            </h4>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                                                {
+                                                    selectedEvent.attachment_filename
+                                                }
+                                            </p>
+                                            <a
+                                                href={`/storage/${selectedEvent.attachment_path}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center px-3 py-1 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600 transition duration-150 ease-in-out"
+                                            >
+                                                <svg
+                                                    className="w-4 h-4 mr-2"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                                    ></path>
+                                                </svg>
+                                                Unduh File
+                                            </a>
+                                        </div>
+                                    )}
+                                    {selectedEvent.official_report && (
+                                        <div className="bg-green-50 dark:bg-green-900 p-4 rounded-lg">
+                                            <h4 className="font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                                                <svg
+                                                    className="w-5 h-5 mr-2 text-green-500"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    ></path>
+                                                </svg>
+                                                Laporan Resmi
+                                            </h4>
+                                            <a
+                                                href={`/storage/${selectedEvent.report_path}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center px-3 py-1 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 transition duration-150 ease-in-out"
+                                            >
+                                                <svg
+                                                    className="w-4 h-4 mr-2"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                    ></path>
+                                                </svg>
+                                                Lihat Laporan
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 flex items-center"
+                        >
+                            <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                ></path>
+                            </svg>
+                            Tutup
+                        </button>
+                    </div>
+                </Modal2>
                 <div className="p-4 space-y-4">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg shadow-lg text-white">
                         <div className="flex items-center">
                             <ApplicationLogo className="w-10 h-10 mr-3 text-white" />
                             <div>
                                 <h1 className="text-2xl font-bold">
-                                    Selamat Datang, {auth.user.name}!
+                                    Welcome, {auth.user.name}!
                                 </h1>
                                 <p className="text-sm opacity-90">
-                                    Mari kita lihat perkembangan anomali kita
-                                    hari ini.
+                                    Let's take a look at the development of our
+                                    anomaly today.
                                 </p>
                             </div>
                         </div>
@@ -462,7 +854,7 @@ export default function Dashboard({
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Status Anomali
+                                Status Anomaly
                             </h2>
                             <div id="radial-chart" className="h-44"></div>
                             <div className="grid grid-cols-4 gap-2 mt-2">
@@ -493,19 +885,19 @@ export default function Dashboard({
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Distribusi Equipment
+                                Distribution Equipment
                             </h2>
                             <div id="pie-chart" className="h-44"></div>
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Monthly Anomalies
+                                Monthly Anomaliy
                             </h2>
                             <div id="line-chart" className="h-44"></div>
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Distribusi Anomali per Tipe
+                                Distribution Anomali per Tipe
                             </h2>
                             <div id="type-chart" className="h-80"></div>
                         </div>
@@ -513,7 +905,7 @@ export default function Dashboard({
                     <div className="grid gap-4 lg:grid-cols-12">
                         <div className="lg:col-span-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Kalender Anomali
+                                Calender Plan Anomaly
                             </h2>
                             <div className="h-[650px] md:h-[460px] lg:h-[700px]">
                                 <FullCalendar
@@ -552,63 +944,70 @@ export default function Dashboard({
                         </div>
                         <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Ringkasan Anomali Terbaru
+                                Anomali Anda Terbaru
                             </h2>
-                            <div className="overflow-x-auto max-h-[400px] md:max-h-[450px] lg:max-h-[500px]">
-                                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50 dark:bg-gray-700">
                                         <tr>
                                             <th
                                                 scope="col"
-                                                className="px-3 py-2"
+                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                             >
-                                                Judul
+                                                Tipe Anomali
                                             </th>
                                             <th
                                                 scope="col"
-                                                className="px-3 py-2"
+                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                             >
-                                                Tanggal Mulai
+                                                Tanggal
                                             </th>
                                             <th
                                                 scope="col"
-                                                className="px-3 py-2"
-                                            >
-                                                Tanggal Selesai
-                                            </th>
-                                            <th
-                                                scope="col"
-                                                className="px-3 py-2"
+                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                                             >
                                                 Status
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {anomalis_date
+                                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        {anomalis
+                                            .filter(
+                                                (anomali) =>
+                                                    anomali.user_id ===
+                                                    auth.user.id
+                                            )
                                             .slice(0, 5)
-                                            .map((anomali, index) => (
-                                                <tr
-                                                    key={index}
-                                                    className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                                                >
-                                                    <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">
-                                                        {anomali.titlename}
+                                            .map((anomali) => (
+                                                <tr key={anomali.id}>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                            {anomali.titlename}
+                                                        </div>
                                                     </td>
-                                                    <td className="px-3 py-2">
-                                                        {dateFormat(
-                                                            anomali.date_plan_start,
-                                                            "dd mmm yyyy"
-                                                        )}
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm text-gray-500 dark:text-gray-300">
+                                                            {dateFormat(
+                                                                anomali.date_plan_start,
+                                                                "dd mmmm yyyy"
+                                                            )}
+                                                        </div>
                                                     </td>
-                                                    <td className="px-3 py-2">
-                                                        {dateFormat(
-                                                            anomali.date_plan_end,
-                                                            "dd mmm yyyy"
-                                                        )}
-                                                    </td>
-                                                    <td className="px-3 py-2">
-                                                        {anomali.status.name}
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <span
+                                                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                                anomali.status
+                                                                    .name ===
+                                                                "Open"
+                                                                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                                                                    : "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+                                                            }`}
+                                                        >
+                                                            {
+                                                                anomali.status
+                                                                    .name
+                                                            }
+                                                        </span>
                                                     </td>
                                                 </tr>
                                             ))}
@@ -618,53 +1017,6 @@ export default function Dashboard({
                         </div>
                     </div>
                 </div>
-                {/* Modal2 untuk menampilkan detail event */}
-                <Modal2
-                    isOpen={showModal}
-                    onClose={() => setShowModal(false)}
-                    title="Detail Anomali"
-                >
-                    {selectedEvent && (
-                        <div className="space-y-4">
-                            <p>
-                                <strong>Judul:</strong>{" "}
-                                {selectedEvent.titlename}
-                            </p>
-                            <p>
-                                <strong>Tanggal Mulai:</strong>{" "}
-                                {dateFormat(
-                                    selectedEvent.date_plan_start,
-                                    "dd mmmm yyyy"
-                                )}
-                            </p>
-                            <p>
-                                <strong>Tanggal Selesai:</strong>{" "}
-                                {dateFormat(
-                                    selectedEvent.date_plan_end,
-                                    "dd mmmm yyyy"
-                                )}
-                            </p>
-                            <p>
-                                <strong>Status:</strong>{" "}
-                                {selectedEvent.status.name}
-                            </p>
-                            <p>
-                                <strong>Deskripsi:</strong>{" "}
-                                {selectedEvent.description ||
-                                    "Tidak ada deskripsi"}
-                            </p>
-                            {/* Tambahkan field lain sesuai kebutuhan */}
-                        </div>
-                    )}
-                    <div className="mt-4 flex justify-end">
-                        <button
-                            onClick={() => setShowModal(false)}
-                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                        >
-                            Tutup
-                        </button>
-                    </div>
-                </Modal2>
             </DashboardLayout>
         </>
     );

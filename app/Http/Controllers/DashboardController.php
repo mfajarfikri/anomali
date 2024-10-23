@@ -69,7 +69,7 @@ class DashboardController extends Controller
             'type' => Type::with('Anomali')->get(),
             'status' => Status::with(['Anomali'])->get(),
             'anomalis' => Anomali::with(['Status'])->get(),
-            'anomalis_date' => Anomali::with(['Status'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
+            'anomalis_date' => Anomali::with(['Status', 'Substation', 'Equipment', 'User'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
             'anomaliPerBulan' => $anomaliPerBulan,
             'anomaliPerType' => $anomaliPerType,
             'anomaliPerTypeStatus' => $anomaliPerTypeStatus,

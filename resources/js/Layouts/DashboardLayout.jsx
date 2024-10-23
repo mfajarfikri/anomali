@@ -194,13 +194,14 @@ export default function DashboardLayout({ children, user }) {
                                         >
                                             <div className="">
                                                 <MenuButton className="inline-flex items-center justify-center w-full px-3 py-2 text-base font-semibold text-black dark:text-gray-300">
-                                                    <img
-                                                        src={
-                                                            "https://www.fivebranches.edu/wp-content/uploads/2021/08/default-image.jpg"
-                                                        }
-                                                        alt=""
-                                                        className="w-10 h-10 rounded-full"
-                                                    />
+                                                    <div className="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center">
+                                                        {user.name
+                                                            .split(" ")
+                                                            .map((n) =>
+                                                                n[0].toUpperCase()
+                                                            )
+                                                            .join("")}
+                                                    </div>
                                                     <p className="lg:hidden">
                                                         {user.name}
                                                     </p>
@@ -259,13 +260,9 @@ export default function DashboardLayout({ children, user }) {
                                         >
                                             <div className="">
                                                 <MenuButton className="inline-flex items-center justify-center w-full px-3 py-2 text-base font-semibold text-black dark:text-gray-300">
-                                                    <img
-                                                        src={
-                                                            "https://www.fivebranches.edu/wp-content/uploads/2021/08/default-image.jpg"
-                                                        }
-                                                        alt=""
-                                                        className="w-10 h-10 rounded-full"
-                                                    />
+                                                    <div className="w-10 h-10 rounded-full bg-gray-300 text-gray-600 flex items-center justify-center">
+                                                        {user.name[0].toUpperCase()}
+                                                    </div>
                                                     <p className="lg:hidden">
                                                         {user.name}
                                                     </p>

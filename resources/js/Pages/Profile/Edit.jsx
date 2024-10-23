@@ -36,7 +36,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                         </div>
                     </div>
                 </div>
-                <div className="col-span-1 mx-5">
+                {/* <div className="col-span-1 mx-5">
                     <div className="mt-7 p-2 bg-white shadow sm:p-8 sm:rounded-lg dark:bg-dark-400">
                         <div className="flex flex-col items-center">
                             <img
@@ -73,7 +73,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div> */}
             </div>
         </DashboardLayout>
     );

@@ -152,42 +152,40 @@ export default function Approval({ auth, anomalis }) {
 
     const handleClose = (e) => {
         e.preventDefault();
-        {
-            const formData = new FormData();
-            formData.append("date_execution", data.date_execution);
-            formData.append("action", data.action);
-            formData.append("officialReport", data.officialReport);
 
-            post(route("approval.close", editItem.id), formData, {
-                forceFormData: true,
-                preserveState: true,
-                preserveScroll: true,
-                onSuccess: () => {
-                    reset();
-                    setIsModalOpen(false);
-                    getData();
-                    // Menampilkan Swal ketika berhasil
-                    Swal.fire({
-                        title: "Berhasil",
-                        text: `${editItem.titlename} telah ditutup.`,
-                        icon: "success",
-                        confirmButtonText: "OK",
-                        confirmButtonColor: "#1C64F2",
-                    });
-                },
-                onError: (errors) => {
-                    Swal.fire({
-                        title: "Gagal",
-                        text: `Gagal menutup ${
-                            editItem.titlename
-                        }. ${Object.values(errors).join(", ")}`,
-                        icon: "error",
-                        confirmButtonText: "OK",
-                        confirmButtonColor: "#1C64F2",
-                    });
-                },
-            });
-        }
+        // const formData = new FormData();
+        // formData.append("date_execution", data.date_execution);
+        // formData.append("action", data.action);
+        // formData.append("officialReport", data.officialReport);
+
+        post(route("approval.close", editItem.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsModalOpen(false);
+                reset();
+                getData();
+                // Menampilkan Swal ketika berhasil
+                Swal.fire({
+                    title: "Berhasil",
+                    text: `${editItem.titlename} telah ditutup.`,
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#1C64F2",
+                });
+            },
+            onError: (errors) => {
+                // Menampilkan Swal ketika terjadi kesalahan
+                Swal.fire({
+                    title: "Gagal",
+                    text: `Gagal menutup ${editItem.titlename}. ${Object.values(
+                        errors
+                    ).join(", ")}`,
+                    icon: "error",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#1C64F2",
+                });
+            },
+        });
     };
 
     return (
