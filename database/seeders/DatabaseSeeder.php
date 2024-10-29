@@ -22,13 +22,13 @@ class DatabaseSeeder extends Seeder
             SubstationSeeder::class,
             UserSeeder::class,
             EquipmentSeeder::class,
-            // BaySeeder::class,
+            BaySeeder::class,
             SectionSeeder::class,
             StatusSeeder::class,
             TypeSeeder::class,
             ConditionSeeder::class
         ]);
-        // User::factory(40)->create();
-        // Anomali::factory(30)->create();
+        User::factory(40)->create();
+        Anomali::factory(30)->create();
     }
 }

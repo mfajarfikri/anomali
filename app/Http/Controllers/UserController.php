@@ -18,26 +18,27 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with(['Role', 'Substation'])->latest();
-
-        if ($request->has('search')) {
-            $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%")
-                  ->orWhereHas('Substation', function ($subQuery) use ($searchTerm) {
-                      $subQuery->where('name', 'like', "%{$searchTerm}%");
-                  })
-                  ->orWhereHas('Role', function ($subQuery) use ($searchTerm) {
-                      $subQuery->where('name', 'like', "%{$searchTerm}%");
-                  });
+        $query = User::with(['substation', 'role'])
+            ->when($request->search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhereHas('substation', function ($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('role', function ($q) use ($search) {
+                          $q->where('name', 'like', "%{$search}%");
+                      });
+                });
             });
-        }
+
+        $users = $query->paginate($request->input('perpage', 10));
 
         return Inertia::render('User/User', [
-            'users' => $query->paginate($request->perpage ?? 15),
-            'substations' => Substation::orderBy('name', 'asc')->get(),
+            'users' => $users,
+            'substations' => Substation::all(),
             'roles' => Role::all(),
+            'filters' => $request->only(['search', 'perpage']),
         ]);
     }
 

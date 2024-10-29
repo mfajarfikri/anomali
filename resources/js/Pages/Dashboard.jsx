@@ -18,7 +18,7 @@ export default function Dashboard({
     approve,
     anomalis,
     anomalis_date,
-    anomaliPerBulan, // Tambahkan prop baru
+    anomaliPerMinggu, // Tambahkan prop baru
     anomaliPerType, // Tambahkan prop baru
     anomaliPerTypeStatus, // Tambahkan prop baru
 }) {
@@ -67,7 +67,7 @@ export default function Dashboard({
                 pieChartRef.current.updateOptions(getChartEquipment());
             }
 
-            if (anomaliPerBulan && anomaliPerBulan.length > 0) {
+            if (anomaliPerMinggu && anomaliPerMinggu.length > 0) {
                 if (!lineChartRef.current) {
                     lineChartRef.current = new ApexCharts(
                         document.getElementById("line-chart"),
@@ -116,7 +116,7 @@ export default function Dashboard({
             }
         };
     }, [
-        anomaliPerBulan,
+        anomaliPerMinggu,
         status,
         equipments,
         anomalis,
@@ -311,7 +311,7 @@ export default function Dashboard({
     };
 
     const getChartAnomaliPerBulan = () => {
-        if (!anomaliPerBulan || anomaliPerBulan.length === 0) {
+        if (!anomaliPerMinggu || anomaliPerMinggu.length === 0) {
             return {}; // atau berikan konfigurasi default
         }
 
@@ -319,7 +319,7 @@ export default function Dashboard({
             series: [
                 {
                     name: "Jumlah Anomali",
-                    data: anomaliPerBulan.map((item) => item.jumlah),
+                    data: anomaliPerMinggu.map((item) => item.jumlah),
                     color: "#4CAF50",
                 },
             ],
@@ -342,10 +342,10 @@ export default function Dashboard({
                     },
                     export: {
                         svg: {
-                            filename: "Anomali_Per_Bulan_svg",
+                            filename: "Anomali_Per_Minggu_svg",
                         },
                         png: {
-                            filename: "Anomali_Per_Bulan_png",
+                            filename: "Anomali_Per_Minggu_png",
                         },
                     },
                 },
@@ -399,7 +399,7 @@ export default function Dashboard({
                 },
             },
             xaxis: {
-                categories: anomaliPerBulan.map((item) => item.bulan_tahun),
+                categories: anomaliPerMinggu.map((item) => item.minggu_tahun),
                 labels: {
                     style: {
                         colors: "#333",
@@ -408,7 +408,7 @@ export default function Dashboard({
                     rotate: -45,
                 },
                 title: {
-                    text: "Bulan",
+                    text: "Minggu",
                     style: {
                         fontSize: "14px",
                         fontWeight: 600,
@@ -444,34 +444,28 @@ export default function Dashboard({
 
     const getChartAnomaliPerType = () => {
         if (!anomaliPerTypeStatus || anomaliPerTypeStatus.length === 0) {
-            return {
-                options: {
-                    chart: {
-                        type: "bar",
-                        height: 350,
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: true,
-                            borderRadius: 10, // Tambahkan radius pada bar
-                        },
-                    },
-                    series: [],
-                    xaxis: {
-                        categories: [],
-                    },
-                },
-            };
+            return {};
         }
 
-        const series = anomaliPerTypeStatus.map((type) => ({
-            name: type.name,
-            data: type.data.map((status) => status.jumlah),
-        }));
+        // Mengorganisir data
+        const types = [
+            ...new Set(anomaliPerTypeStatus.map((item) => item.type_name)),
+        ];
+        const statuses = [
+            ...new Set(anomaliPerTypeStatus.map((item) => item.status_name)),
+        ];
 
-        const categories = anomaliPerTypeStatus[0].data.map(
-            (status) => status.name
-        );
+        // Menyiapkan series data
+        const series = statuses.map((status) => ({
+            name: status,
+            data: types.map((type) => {
+                const match = anomaliPerTypeStatus.find(
+                    (item) =>
+                        item.type_name === type && item.status_name === status
+                );
+                return match ? match.total : 0;
+            }),
+        }));
 
         return {
             series: series,
@@ -479,29 +473,70 @@ export default function Dashboard({
                 type: "bar",
                 height: 350,
                 stacked: true,
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    borderRadius: 10, // Tambahkan radius pada bar
-                    dataLabels: {
-                        total: {
-                            enabled: true,
-                            offsetX: 0,
-                            style: {
-                                fontSize: "13px",
-                                fontWeight: 900,
-                            },
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                    },
+                    export: {
+                        svg: {
+                            filename: "anomali_per_type_status_svg",
+                        },
+                        png: {
+                            filename: "anomali_per_type_status_png",
                         },
                     },
                 },
             },
-            stroke: {
-                width: 1,
-                colors: ["#fff"],
+            plotOptions: {
+                bar: {
+                    horizontal: true, // Ubah ke horizontal
+                    borderRadius: 4,
+                    dataLabels: {
+                        total: {
+                            enabled: true,
+                            style: {
+                                fontSize: "13px",
+                                fontWeight: 900,
+                            },
+                            offsetX: 10, // Tambahkan offset untuk label total
+                        },
+                    },
+                },
             },
             xaxis: {
-                categories: categories,
+                categories: types,
+                labels: {
+                    style: {
+                        fontSize: "12px",
+                    },
+                },
+            },
+            yaxis: {
+                labels: {
+                    style: {
+                        fontSize: "12px",
+                    },
+                },
+            },
+            legend: {
+                position: "top",
+                horizontalAlign: "left",
+            },
+            fill: {
+                opacity: 1,
+            },
+            colors: ["#EF4444", "#10B981", "#0EA5E9"], // Merah untuk New, Hijau untuk Open, Biru untuk Close
+            dataLabels: {
+                enabled: true,
+                formatter: function (val) {
+                    return val;
+                },
+                style: {
+                    fontSize: "12px",
+                    colors: ["#304758"],
+                },
+                offsetX: 5, // Tambahkan offset untuk label data
             },
             tooltip: {
                 y: {
@@ -510,19 +545,20 @@ export default function Dashboard({
                     },
                 },
             },
-            fill: {
-                opacity: 1,
+            grid: {
+                xaxis: {
+                    lines: {
+                        show: false,
+                    },
+                },
+                yaxis: {
+                    lines: {
+                        show: true,
+                    },
+                },
             },
-            legend: {
-                position: "top",
-                horizontalAlign: "left",
-                offsetX: 40,
-            },
-            colors: ["#008FFB", "#00E396", "#FEB019", "#FF4560", "#775DD0"],
         };
     };
-
-    console.log(auth);
 
     return (
         <>
@@ -897,9 +933,9 @@ export default function Dashboard({
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Distribution Anomali per Tipe
+                                Anomali per Type & Status
                             </h2>
-                            <div id="type-chart" className="h-80"></div>
+                            <div id="type-chart" className="h-44"></div>
                         </div>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-12">

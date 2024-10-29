@@ -20,49 +20,36 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $anomaliPerBulan = Anomali::select(
-            DB::raw("strftime('%m', created_at) as bulan"),
+        $anomaliPerMinggu = Anomali::select(
+            DB::raw("strftime('%W', created_at) as minggu"),
             DB::raw("strftime('%Y', created_at) as tahun"),
             DB::raw('COUNT(*) as jumlah')
         )
-        ->groupBy('tahun', 'bulan')
+        ->groupBy('tahun', 'minggu')
         ->orderBy('tahun', 'asc')
-        ->orderBy('bulan', 'asc')
+        ->orderBy('minggu', 'asc')
         ->get()
         ->map(function ($item) {
-            $item->bulan_tahun = Carbon::createFromDate($item->tahun, $item->bulan, 1)->format('M Y');
+            $date = Carbon::now()
+                ->setISODate($item->tahun, $item->minggu + 1)
+                ->startOfWeek();
+            
+            $item->minggu_tahun = $date->format('d M') . ' - ' . 
+                $date->copy()->endOfWeek()->format('d M Y');
+            
             return $item;
         });
 
-        $anomaliPerType = Anomali::select('type_id', DB::raw('COUNT(*) as jumlah'))
-            ->groupBy('type_id')
-            ->with('type') // Memastikan relasi 'type' dimuat
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'name' => $item->type->name, // Mengambil nama tipe
-                    'jumlah' => $item->jumlah
-                ];
-            });
-
-        $anomaliPerTypeStatus = Anomali::select('type_id', 'status_id', DB::raw('COUNT(*) as jumlah'))
-            ->groupBy('type_id', 'status_id')
-            ->with(['type', 'status'])
-            ->get()
-            ->groupBy('type_id')
-            ->map(function ($group) {
-                $type = $group->first()->type;
-                $statusCounts = $group->groupBy('status_id')->map(function ($statusGroup) {
-                    return [
-                        'name' => $statusGroup->first()->status->name,
-                        'jumlah' => $statusGroup->sum('jumlah')
-                    ];
-                })->values();
-                return [
-                    'name' => $type->name,
-                    'data' => $statusCounts
-                ];
-            })->values();
+        $anomaliPerTypeStatus = DB::table('anomalis')
+            ->join('types', 'anomalis.type_id', '=', 'types.id')
+            ->join('statuses', 'anomalis.status_id', '=', 'statuses.id')
+            ->select(
+                'types.name as type_name',
+                'statuses.name as status_name',
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('types.name', 'statuses.name')
+            ->get();
 
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
@@ -70,8 +57,7 @@ class DashboardController extends Controller
             'status' => Status::with(['Anomali'])->get(),
             'anomalis' => Anomali::with(['Status'])->get(),
             'anomalis_date' => Anomali::with(['Status', 'Substation', 'Equipment', 'User'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
-            'anomaliPerBulan' => $anomaliPerBulan,
-            'anomaliPerType' => $anomaliPerType,
+            'anomaliPerMinggu' => $anomaliPerMinggu,
             'anomaliPerTypeStatus' => $anomaliPerTypeStatus,
         ]);
     }

@@ -2,7 +2,7 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Pagination";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import { Select } from "@headlessui/react";
 import { Badge, Button, Label, Modal, TextInput } from "flowbite-react";
@@ -17,10 +17,11 @@ import {
     HiUserAdd,
 } from "react-icons/hi";
 import Modal2 from "@/Components/Modal2";
+import debounce from "lodash/debounce";
 
 export default function User({ auth, users, substations, roles }) {
     const [openModal, setOpenModal] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState("");
     const perpage = useRef(10);
     const [isLoading, setisLoading] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
@@ -29,33 +30,43 @@ export default function User({ auth, users, substations, roles }) {
         role_id: "",
     });
 
+    const getData = useCallback(
+        debounce((search) => {
+            setisLoading(true);
+            router.get(
+                route().current(),
+                {
+                    perpage: perpage.current,
+                    search: search,
+                },
+                {
+                    preserveScroll: true,
+                    preserveState: true,
+                    onFinish: () => setisLoading(false),
+                }
+            );
+        }, 300),
+        []
+    );
+
     const handleChangePerPage = (e) => {
         perpage.current = e.target.value;
-        getData();
-    };
-
-    const getData = () => {
-        setisLoading(true);
-        router.get(
-            route().current(),
-            {
-                perpage: perpage.current,
-                search: searchTerm,
-            },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                onFinish: () => setisLoading(false),
-            }
-        );
+        getData(searchTerm);
     };
 
     const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-        getData();
+        const value = e.target.value;
+        setSearchTerm(value);
+        getData(value);
     };
 
-    const { data: createData, setData: setCreateData, post, errors: createErrors, reset: resetCreate } = useForm({
+    const {
+        data: createData,
+        setData: setCreateData,
+        post,
+        errors: createErrors,
+        reset: resetCreate,
+    } = useForm({
         name: "",
         email: "",
         substation_id: "",
@@ -112,9 +123,10 @@ export default function User({ auth, users, substations, roles }) {
                     confirmButtonText: "OK",
                     confirmButtonColor: "#1C64F2",
                     customClass: {
-                        popup: 'dark:bg-gray-800 dark:text-white',
-                        confirmButton: 'dark:bg-blue-600 dark:hover:bg-blue-700'
-                    }
+                        popup: "dark:bg-gray-800 dark:text-white",
+                        confirmButton:
+                            "dark:bg-blue-600 dark:hover:bg-blue-700",
+                    },
                 });
             },
             onError: (errors) => {
@@ -126,9 +138,10 @@ export default function User({ auth, users, substations, roles }) {
                     confirmButtonText: "OK",
                     confirmButtonColor: "#1C64F2",
                     customClass: {
-                        popup: 'dark:bg-gray-800 dark:text-white',
-                        confirmButton: 'dark:bg-blue-600 dark:hover:bg-blue-700'
-                    }
+                        popup: "dark:bg-gray-800 dark:text-white",
+                        confirmButton:
+                            "dark:bg-blue-600 dark:hover:bg-blue-700",
+                    },
                 });
             },
         });
@@ -199,7 +212,10 @@ export default function User({ auth, users, substations, roles }) {
                                     className="w-full text-sm font-thin text-gray-500 border-gray-300 rounded-md shadow-sm bg-slate-50 focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                     value={createData.substation_id}
                                     onChange={(e) =>
-                                        setCreateData("substation_id", e.target.value)
+                                        setCreateData(
+                                            "substation_id",
+                                            e.target.value
+                                        )
                                     }
                                     required
                                 >
@@ -253,7 +269,10 @@ export default function User({ auth, users, substations, roles }) {
                                     value={createData.password}
                                     className="block w-full mt-1"
                                     onChange={(e) =>
-                                        setCreateData("password", e.target.value)
+                                        setCreateData(
+                                            "password",
+                                            e.target.value
+                                        )
                                     }
                                     required
                                     icon={HiLockClosed}
@@ -307,64 +326,82 @@ export default function User({ auth, users, substations, roles }) {
                 </Modal2>
 
                 {/* edit user */}
-                <Modal2 isOpen={editingUser !== null} onClose={closeEditModal} title="Edit User">
-                        <form onSubmit={submitEdit} className="space-y-6">
-                            <div className="mb-4">
-                                <Label htmlFor="name" value="Nama Pengguna" />
-                                <input
-                                    id="name"
-                                    value={editingUser?.name}
-                                    className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
-                                    disabled
-                                />
-                            </div>
+                <Modal2
+                    isOpen={editingUser !== null}
+                    onClose={closeEditModal}
+                    title="Edit User"
+                >
+                    <form onSubmit={submitEdit} className="space-y-6">
+                        <div className="mb-4">
+                            <Label htmlFor="name" value="Nama Pengguna" />
+                            <input
+                                id="name"
+                                value={editingUser?.name}
+                                className="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                                disabled
+                            />
+                        </div>
 
-                            <div className="mb-4">
-                                <Label htmlFor="substation" value="Substation" />
-                                <Select
-                                    id="substation"
-                                    name="substation_id"
-                                    value={data.substation_id}
-                                    onChange={(e) => setData("substation_id", e.target.value)}
-                                    required
-                                    className="block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
-                                >
-                                    <option value="">Pilih Substation</option>
-                                    {substations.map((s) => (
-                                        <option key={s.id} value={s.id}>
-                                            {s.name}
-                                        </option>
-                                    ))}
-                                </Select>
-                                <InputError message={errors.substation_id} className="mt-2" />
-                            </div>
+                        <div className="mb-4">
+                            <Label htmlFor="substation" value="Substation" />
+                            <Select
+                                id="substation"
+                                name="substation_id"
+                                value={data.substation_id}
+                                onChange={(e) =>
+                                    setData("substation_id", e.target.value)
+                                }
+                                required
+                                className="block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                            >
+                                <option value="">Pilih Substation</option>
+                                {substations.map((s) => (
+                                    <option key={s.id} value={s.id}>
+                                        {s.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError
+                                message={errors.substation_id}
+                                className="mt-2"
+                            />
+                        </div>
 
-                            <div className="mb-4">
-                                <Label htmlFor="role" value="Role" />
-                                <Select
-                                    id="role"
-                                    name="role_id"
-                                    value={data.role_id}
-                                    onChange={(e) => setData("role_id", e.target.value)}
-                                    required
-                                    className="block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
-                                >
-                                    <option value="">Pilih Role</option>
-                                    {roles.map((r) => (
-                                        <option key={r.id} value={r.id}>
-                                            {r.name}
-                                        </option>
-                                    ))}
-                                </Select>
-                                <InputError message={errors.role_id} className="mt-2" />
-                            </div>
+                        <div className="mb-4">
+                            <Label htmlFor="role" value="Role" />
+                            <Select
+                                id="role"
+                                name="role_id"
+                                value={data.role_id}
+                                onChange={(e) =>
+                                    setData("role_id", e.target.value)
+                                }
+                                required
+                                className="block w-full mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"
+                            >
+                                <option value="">Pilih Role</option>
+                                {roles.map((r) => (
+                                    <option key={r.id} value={r.id}>
+                                        {r.name}
+                                    </option>
+                                ))}
+                            </Select>
+                            <InputError
+                                message={errors.role_id}
+                                className="mt-2"
+                            />
+                        </div>
 
-                            <div className="flex items-center justify-end py-2 mt-4">
-                                <PrimaryButton type="submit" disabled={processing} className="p-2 text-sm text-white rounded-md focus:ring-4 focus:ring-sky-300 bg-sky-600 dark:bg-sky-700 dark:focus:ring-sky-800">
-                                    Save
-                                </PrimaryButton>
-                            </div>
-                        </form>
+                        <div className="flex items-center justify-end py-2 mt-4">
+                            <PrimaryButton
+                                type="submit"
+                                disabled={processing}
+                                className="p-2 text-sm text-white rounded-md focus:ring-4 focus:ring-sky-300 bg-sky-600 dark:bg-sky-700 dark:focus:ring-sky-800"
+                            >
+                                Save
+                            </PrimaryButton>
+                        </div>
+                    </form>
                 </Modal2>
 
                 <div className="relative overflow-x-auto shadow-2xl sm:rounded-lg">
@@ -389,31 +426,31 @@ export default function User({ auth, users, substations, roles }) {
                                     </svg>
                                 </button>
                                 <div className="relative bg-transparent flex-1">
-                                        <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
-                                            <svg
-                                                className="text-gray-700 size-5 dark:text-gray-400"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    strokeWidth="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                />
-                                            </svg>
-                                        </div>
-                                        <input
-                                            type="search"
-                                            className="block w-1/6 text-md font-thin border border-gray-300 rounded-lg ps-14 py-2 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-gray-600 dark:focus:border-gray-600"
-                                            placeholder="Search Anything"
-                                            value={searchTerm}
-                                            onChange={handleSearch}
-                                        />
+                                    <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
+                                        <svg
+                                            className="text-gray-700 size-5 dark:text-gray-400"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                            />
+                                        </svg>
                                     </div>
+                                    <input
+                                        type="search"
+                                        className="block w-1/6 text-md font-thin border border-gray-300 rounded-lg ps-14 py-2 focus:ring-gray-100 focus:border-gray-100 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-gray-600 dark:focus:border-gray-600"
+                                        placeholder="Search Anything"
+                                        value={searchTerm}
+                                        onChange={handleSearch}
+                                    />
+                                </div>
                             </div>
                         </caption>
 
@@ -434,7 +471,12 @@ export default function User({ auth, users, substations, roles }) {
                         <tbody>
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan="6" className="text-center py-4">Loading....</td>
+                                    <td
+                                        colSpan="6"
+                                        className="text-center py-4"
+                                    >
+                                        Loading....
+                                    </td>
                                 </tr>
                             ) : (
                                 users.data.map((user, index) => (
@@ -472,7 +514,10 @@ export default function User({ auth, users, substations, roles }) {
                                             )}
                                         </td>
                                         <td className="py-2">
-                                            <Button onClick={() => openEditModal(user)}
+                                            <Button
+                                                onClick={() =>
+                                                    openEditModal(user)
+                                                }
                                                 size="xs"
                                                 color="warning"
                                                 className="rounded-lg dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"

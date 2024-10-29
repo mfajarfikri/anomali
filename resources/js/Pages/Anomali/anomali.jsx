@@ -1,24 +1,15 @@
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { Head, useForm, router } from "@inertiajs/react";
-import {
-    Button,
-    Badge,
-    HR,
-    Label,
-    Modal,
-    Textarea,
-    TextInput,
-    FileInput,
-} from "flowbite-react";
+import { Badge, HR, Label, Textarea, TextInput } from "flowbite-react";
 import { useState, useRef, useEffect } from "react";
 import { HiUser, HiOutlineTicket, HiOutlineFilter } from "react-icons/hi";
-import { Input, Select } from "@headlessui/react";
+import { Select } from "@headlessui/react";
 import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import Pagination from "@/Components/Pagination";
 import Modal2 from "@/Components/Modal2";
 import dateFormat, { masks } from "dateformat";
-// import Swal from "sweetalert2";
+import Notiflix from "notiflix";
 
 export default function Anomali({
     auth,
@@ -115,22 +106,16 @@ export default function Anomali({
                 reset();
                 setOpenModal(false);
                 getData();
-                Swal.fire({
-                    title: "Success",
-                    text: data.titlename + " has been created.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.success("Success");
             },
             onError: (errors) => {
-                Swal.fire({
-                    title: "Error",
-                    text: "Error Create " + data.titlename,
-                    icon: "error",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.failure(
+                    "Error",
+                    `"Gagal menutup ${data.titlename}. ${Object.values(
+                        errors
+                    ).join(", ")} please call web administrator"`,
+                    "OK"
+                );
             },
         });
     };
@@ -203,7 +188,6 @@ export default function Anomali({
         setOpenFilterModal(false);
     };
 
-    console.log(data);
     // console.log(auth.user.role_id);
 
     return (

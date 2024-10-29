@@ -33,7 +33,7 @@ import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
 import dateFormat, { masks } from "dateformat";
 import debounce from "lodash/debounce";
-import Swal from "sweetalert2";
+import Notiflix from "notiflix";
 
 export default function Approval({ auth, anomalis }) {
     const perpage = useRef(15);
@@ -90,23 +90,11 @@ export default function Approval({ auth, anomalis }) {
                 reset();
                 setOpenApprove(false);
                 getData();
-                Swal.fire({
-                    title: "Success",
-                    text: selectedApprove.titlename + " has been Approved.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.success("Success", `"${selectedApprove.titlename} success approved"`, "OK")
             },
             onError: (errors) => {
                 setOpenApprove(true);
-                Swal.fire({
-                    title: errors,
-                    text: "Failed Approve " + selectedApprove.titlename,
-                    icon: "error",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.failure("Error", `"${selectedApprove.titlename} failed to be approved" - Web Admin`, "OK")
             },
         });
         setOpenApprove(false);
@@ -124,13 +112,7 @@ export default function Approval({ auth, anomalis }) {
             _method: "delete",
         });
         setOpenReject(false);
-        Swal.fire({
-            title: "Success",
-            text: "A anomali has been rejected.",
-            icon: "success",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#1C64F2",
-        });
+        Notiflix.Report.success("Success", `"${selectedApprove.titlename} rejected successfully"`)
     };
 
     const [editItem, setEditItem] = useState(null);
@@ -165,25 +147,13 @@ export default function Approval({ auth, anomalis }) {
                 reset();
                 getData();
                 // Menampilkan Swal ketika berhasil
-                Swal.fire({
-                    title: "Berhasil",
-                    text: `${editItem.titlename} telah ditutup.`,
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.success("Success", `"${editItem.titlename} close successfully"`, "OK")
             },
             onError: (errors) => {
                 // Menampilkan Swal ketika terjadi kesalahan
-                Swal.fire({
-                    title: "Gagal",
-                    text: `Gagal menutup ${editItem.titlename}. ${Object.values(
-                        errors
-                    ).join(", ")}`,
-                    icon: "error",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.failure("Error", `"Gagal menutup ${editItem.titlename}. ${Object.values(
+                    errors
+                ).join(", ")}"`, "OK")
             },
         });
     };
