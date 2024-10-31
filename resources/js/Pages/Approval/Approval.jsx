@@ -90,11 +90,19 @@ export default function Approval({ auth, anomalis }) {
                 reset();
                 setOpenApprove(false);
                 getData();
-                Notiflix.Report.success("Success", `"${selectedApprove.titlename} success approved"`, "OK")
+                Notiflix.Report.success(
+                    "Success",
+                    `"${selectedApprove.titlename} success approved"`,
+                    "OK"
+                );
             },
             onError: (errors) => {
                 setOpenApprove(true);
-                Notiflix.Report.failure("Error", `"${selectedApprove.titlename} failed to be approved" - Web Admin`, "OK")
+                Notiflix.Report.failure(
+                    "Error",
+                    `"${selectedApprove.titlename} failed to be approved" - Web Admin`,
+                    "OK"
+                );
             },
         });
         setOpenApprove(false);
@@ -112,7 +120,10 @@ export default function Approval({ auth, anomalis }) {
             _method: "delete",
         });
         setOpenReject(false);
-        Notiflix.Report.success("Success", `"${selectedApprove.titlename} rejected successfully"`)
+        Notiflix.Report.success(
+            "Success",
+            `"${selectedApprove.titlename} rejected successfully"`
+        );
     };
 
     const [editItem, setEditItem] = useState(null);
@@ -147,13 +158,21 @@ export default function Approval({ auth, anomalis }) {
                 reset();
                 getData();
                 // Menampilkan Swal ketika berhasil
-                Notiflix.Report.success("Success", `"${editItem.titlename} close successfully"`, "OK")
+                Notiflix.Report.success(
+                    "Success",
+                    `"${editItem.titlename} close successfully"`,
+                    "OK"
+                );
             },
             onError: (errors) => {
                 // Menampilkan Swal ketika terjadi kesalahan
-                Notiflix.Report.failure("Error", `"Gagal menutup ${editItem.titlename}. ${Object.values(
-                    errors
-                ).join(", ")}"`, "OK")
+                Notiflix.Report.failure(
+                    "Error",
+                    `"Gagal menutup ${editItem.titlename}. ${Object.values(
+                        errors
+                    ).join(", ")}"`,
+                    "OK"
+                );
             },
         });
     };
@@ -877,7 +896,7 @@ export default function Approval({ auth, anomalis }) {
                                         colSpan="12"
                                         className="text-center py-4 dark:text-gray-400"
                                     >
-                                        No data matches the filter
+                                        There is no data found
                                     </td>
                                 </tr>
                             ) : (

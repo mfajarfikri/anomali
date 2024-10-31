@@ -6,9 +6,9 @@ use Inertia\Inertia;
 use App\Models\Status;
 use App\Models\Anomali;
 use App\Models\Equipment;
-use App\Models\Substation;
+use App\Models\User;
 use App\Models\Type;
-use Illuminate\Container\Attributes\Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -20,6 +20,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $anomalis = Anomali::with(['status', 'equipment', 'user'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $anomaliPerMinggu = Anomali::select(
             DB::raw("WEEK(created_at) as minggu"),
             DB::raw("YEAR(created_at) as tahun"),
@@ -60,11 +65,13 @@ class DashboardController extends Controller
             ->groupBy('sections.name')
             ->get();
 
+            
+
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
             'type' => Type::with('Anomali')->get(),
             'status' => Status::with(['Anomali'])->get(),
-            'anomalis' => Anomali::with(['Status'])->get(),
+            'anomalis' => $anomalis,
             'anomalis_date' => Anomali::with(['Status', 'Substation', 'Equipment', 'User'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
             'anomaliPerMinggu' => $anomaliPerMinggu,
             'anomaliPerTypeStatus' => $anomaliPerTypeStatus,

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 
 class Anomali extends Model
 {
@@ -48,9 +49,9 @@ class Anomali extends Model
         return $this->belongsTo(Type::class);
     }
 
-    public function User() : BelongsTo {
-        return $this->belongsTo(User::class);
-    }
+    // public function User() : BelongsTo {
+    //     return $this->belongsTo(User::class);
+    // }
 
     public function Equipment() : BelongsTo {
         return $this->belongsTo(Equipment::class);
@@ -75,6 +76,11 @@ class Anomali extends Model
         }
 
         return $query;
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
 }

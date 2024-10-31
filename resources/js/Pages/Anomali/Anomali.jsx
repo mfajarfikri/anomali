@@ -1117,7 +1117,7 @@ export default function Anomali({
                                         colSpan="10"
                                         className="text-center py-4 dark:text-gray-400"
                                     >
-                                        No data matches the filter
+                                        There is no data found
                                     </td>
                                 </tr>
                             ) : (

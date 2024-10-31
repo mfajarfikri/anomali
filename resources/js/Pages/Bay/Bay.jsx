@@ -554,7 +554,7 @@ export default function Bay() {
                                         colSpan="5"
                                         className="text-center py-4"
                                     >
-                                        Memuat data...
+                                        Loading.....
                                     </td>
                                 </tr>
                             ) : bays.data.length === 0 ? (
@@ -563,7 +563,7 @@ export default function Bay() {
                                         colSpan="5"
                                         className="text-center py-4"
                                     >
-                                        Tidak ada data yang ditemukan.
+                                        There is no data found
                                     </td>
                                 </tr>
                             ) : (

@@ -117,33 +117,11 @@ export default function User({ auth, users, substations, roles }) {
             preserveScroll: true,
             onSuccess: () => {
                 closeEditModal();
-                Swal.fire({
-                    title: "Success",
-                    text: "User has been updated.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                    customClass: {
-                        popup: "dark:bg-gray-800 dark:text-white",
-                        confirmButton:
-                            "dark:bg-blue-600 dark:hover:bg-blue-700",
-                    },
-                });
+                Notiflix.Report.success("Success");
             },
             onError: (errors) => {
                 console.error("Error updating user:", errors);
-                Swal.fire({
-                    title: "Error",
-                    text: "Failed to update user.",
-                    icon: "error",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                    customClass: {
-                        popup: "dark:bg-gray-800 dark:text-white",
-                        confirmButton:
-                            "dark:bg-blue-600 dark:hover:bg-blue-700",
-                    },
-                });
+                Notiflix.Report.failure("Error", `${errors}`);
             },
         });
     };
@@ -476,7 +454,16 @@ export default function User({ auth, users, substations, roles }) {
                                         colSpan="6"
                                         className="text-center py-4"
                                     >
-                                        Loading....
+                                        Loading.....
+                                    </td>
+                                </tr>
+                            ) : users.data.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan="6"
+                                        className="text-center py-4"
+                                    >
+                                        There is no data found
                                     </td>
                                 </tr>
                             ) : (

@@ -37,6 +37,19 @@ export default function Dashboard({
     // Tambahkan state loading
     const [isLoading, setIsLoading] = useState(true);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 11;
+
+    // Hitung total halaman
+    const totalPages = Math.ceil(anomalis.length / itemsPerPage);
+
+    // Get current anomalis
+    const getCurrentAnomalies = () => {
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        return anomalis.slice(indexOfFirstItem, indexOfLastItem);
+    };
+
     useEffect(() => {
         setIsLoading(true);
         const formattedEvents = anomalis_date.map((anomali) => ({
@@ -128,6 +141,15 @@ export default function Dashboard({
         anomaliPerType,
         anomaliPerTypeStatus,
     ]);
+
+    useEffect(() => {
+        console.log("Anomalis:", anomalis);
+        console.log("Current User ID:", auth.user.id);
+        console.log(
+            "Filtered Anomalis:",
+            anomalis.filter((anomali) => anomali.user_id === auth.user.id)
+        );
+    }, [anomalis]);
 
     const getEventColor = (status) => {
         switch (status) {
@@ -703,6 +725,11 @@ export default function Dashboard({
         };
     };
 
+    // Tambahkan fungsi untuk mengubah halaman
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+
     return (
         <>
             <Head title="Dashboard" />
@@ -1046,7 +1073,7 @@ export default function Dashboard({
                                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                                     />
                                 </svg>
-                                Status Anomali per section
+                                Chart Anomali section
                             </h2>
                             <div id="radial-chart" className="h-44 mb-4"></div>
                         </div>
@@ -1071,7 +1098,7 @@ export default function Dashboard({
                                         d="M5 13l14-14m0 0l-14 14"
                                     />
                                 </svg>
-                                Status Anomali per section
+                                Chart Anomali Equipment
                             </h2>
                             <div id="pie-chart" className="h-44 mb-4"></div>
                         </div>
@@ -1090,7 +1117,7 @@ export default function Dashboard({
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                     />
                                 </svg>
-                                Status Anomali per section
+                                Chart Anomali Week
                             </h2>
                             <div id="line-chart" className="h-44"></div>
                         </div>
@@ -1109,7 +1136,7 @@ export default function Dashboard({
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                     />
                                 </svg>
-                                Status Anomali per section
+                                Chart Anomali Status
                             </h2>
                             <div id="type-chart" className="h-44"></div>
                         </div>
@@ -1155,13 +1182,32 @@ export default function Dashboard({
                             </div>
                         </div>
                         <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Anomali Anda Terbaru
+                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2 text-blue-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                                    />
+                                </svg>
+                                Anomali Anda
                             </h2>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50 dark:bg-gray-700">
                                         <tr>
+                                            <th
+                                                scope="col"
+                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                                            >
+                                                No
+                                            </th>
                                             <th
                                                 scope="col"
                                                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
@@ -1174,57 +1220,190 @@ export default function Dashboard({
                                             >
                                                 Tanggal
                                             </th>
-                                            <th
-                                                scope="col"
-                                                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                                            >
-                                                Status
-                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                        {anomalis
-                                            .filter(
-                                                (anomali) =>
-                                                    anomali.user_id ===
-                                                    auth.user.id
+                                        {anomalis && anomalis.length > 0 ? (
+                                            getCurrentAnomalies().map(
+                                                (anomali, index) => (
+                                                    <tr
+                                                        key={anomali.id}
+                                                        className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150"
+                                                    >
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                                            {index + 1}
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                                {
+                                                                    anomali.titlename
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap">
+                                                            <div className="text-sm text-gray-500 dark:text-gray-300">
+                                                                {dateFormat(
+                                                                    anomali.date_plan_start,
+                                                                    "dd mmmm yyyy"
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                )
                                             )
-                                            .slice(0, 5)
-                                            .map((anomali) => (
-                                                <tr key={anomali.id}>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                            {anomali.titlename}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm text-gray-500 dark:text-gray-300">
-                                                            {dateFormat(
-                                                                anomali.date_plan_start,
-                                                                "dd mmmm yyyy"
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <span
-                                                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                                                anomali.status
-                                                                    .name ===
-                                                                "Open"
-                                                                    ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                                                                    : "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
-                                                            }`}
-                                                        >
-                                                            {
-                                                                anomali.status
-                                                                    .name
-                                                            }
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                        ) : (
+                                            <tr>
+                                                <td
+                                                    colSpan="5"
+                                                    className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
+                                                >
+                                                    Tidak ada data anomali untuk
+                                                    ditampilkan
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
+
+                                {/* Pagination Controls */}
+                                {anomalis.length > itemsPerPage && (
+                                    <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-700">
+                                        <div className="flex-1 flex justify-between sm:hidden">
+                                            <button
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage - 1
+                                                    )
+                                                }
+                                                disabled={currentPage === 1}
+                                                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handlePageChange(
+                                                        currentPage + 1
+                                                    )
+                                                }
+                                                disabled={
+                                                    currentPage === totalPages
+                                                }
+                                                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                        <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                            <div>
+                                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                                    Showing{" "}
+                                                    <span className="font-medium">
+                                                        {(currentPage - 1) *
+                                                            itemsPerPage +
+                                                            1}
+                                                    </span>{" "}
+                                                    to{" "}
+                                                    <span className="font-medium">
+                                                        {Math.min(
+                                                            currentPage *
+                                                                itemsPerPage,
+                                                            anomalis.length
+                                                        )}
+                                                    </span>{" "}
+                                                    of{" "}
+                                                    <span className="font-medium">
+                                                        {anomalis.length}
+                                                    </span>{" "}
+                                                    results
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <nav
+                                                    className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                                                    aria-label="Pagination"
+                                                >
+                                                    <button
+                                                        onClick={() =>
+                                                            handlePageChange(
+                                                                currentPage - 1
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            currentPage === 1
+                                                        }
+                                                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        <span className="sr-only">
+                                                            Previous
+                                                        </span>
+                                                        <svg
+                                                            className="h-5 w-5"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20"
+                                                            fill="currentColor"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                                                clipRule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                    {[...Array(totalPages)].map(
+                                                        (_, index) => (
+                                                            <button
+                                                                key={index + 1}
+                                                                onClick={() =>
+                                                                    handlePageChange(
+                                                                        index +
+                                                                            1
+                                                                    )
+                                                                }
+                                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                                                                    currentPage ===
+                                                                    index + 1
+                                                                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                                                                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                                                                }`}
+                                                            >
+                                                                {index + 1}
+                                                            </button>
+                                                        )
+                                                    )}
+                                                    <button
+                                                        onClick={() =>
+                                                            handlePageChange(
+                                                                currentPage + 1
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            currentPage ===
+                                                            totalPages
+                                                        }
+                                                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    >
+                                                        <span className="sr-only">
+                                                            Next
+                                                        </span>
+                                                        <svg
+                                                            className="h-5 w-5"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20"
+                                                            fill="currentColor"
+                                                        >
+                                                            <path
+                                                                fillRule="evenodd"
+                                                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                                clipRule="evenodd"
+                                                            />
+                                                        </svg>
+                                                    </button>
+                                                </nav>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
