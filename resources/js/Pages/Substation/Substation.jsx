@@ -8,6 +8,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import { Button, Drawer, Badge, TextInput } from "flowbite-react";
 import { HiOutlinePlus } from "react-icons/hi";
 import { Select } from "@headlessui/react";
+import Notiflix from "notiflix";
 
 export default function Substation() {
     const { substations, conditions, auth } = usePage().props;
@@ -35,16 +36,16 @@ export default function Substation() {
                 reset();
                 setIsOpen(false);
                 getData();
-                Swal.fire({
-                    title: "Success",
-                    text: data.name + " has been created.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.success("Success");
             },
             onError: (errors) => {
-                console.error("Error creating user:", errors);
+                Notiflix.Report.failure(
+                    "Error",
+                    `"Error create ${data.titlename}. ${Object.values(
+                        errors
+                    ).join(", ")} please call web administrator"`,
+                    "OK"
+                );
             },
         });
     };

@@ -21,6 +21,7 @@ export default function Dashboard({
     anomaliPerMinggu, // Tambahkan prop baru
     anomaliPerType, // Tambahkan prop baru
     anomaliPerTypeStatus, // Tambahkan prop baru
+    anomaliPerSection,
 }) {
     const { auth } = usePage().props;
     const [events, setEvents] = useState([]);
@@ -50,11 +51,11 @@ export default function Dashboard({
             if (!radialChartRef.current) {
                 radialChartRef.current = new ApexCharts(
                     document.querySelector("#radial-chart"),
-                    getChartStatus()
+                    getChartSection()
                 );
                 radialChartRef.current.render();
             } else {
-                radialChartRef.current.updateOptions(getChartStatus());
+                radialChartRef.current.updateOptions(getChartSection());
             }
 
             if (!pieChartRef.current) {
@@ -140,25 +141,26 @@ export default function Dashboard({
         setShowModal(true);
     };
 
-    const getChartStatus = () => {
-        let statusNew = (status[0].anomali.length / anomalis.length) * 100;
-        let statusOpen = (status[1].anomali.length / anomalis.length) * 100;
-        let statusClose = (status[2].anomali.length / anomalis.length) * 100;
+    const getChartSection = () => {
+        if (!anomaliPerSection || anomaliPerSection.length === 0) {
+            return {};
+        }
+
+        // Mengorganisir data
+        const sections = [
+            ...new Set(anomaliPerSection.map((item) => item.section_name)),
+        ];
+        const sectionTotals = sections.map((section) => {
+            return anomaliPerSection
+                .filter((item) => item.section_name === section)
+                .reduce((sum, item) => sum + item.total, 0);
+        });
 
         return {
-            series: [
-                statusNew.toFixed(1),
-                statusOpen.toFixed(1),
-                statusClose.toFixed(1),
-            ],
-            colors: ["#EF4444", "#10B981", "#0EA5E9"],
+            series: sectionTotals,
             chart: {
-                height: 330,
-                width: "100%",
-                type: "radialBar",
-                sparkline: {
-                    enabled: true,
-                },
+                type: "donut",
+                height: 350,
                 toolbar: {
                     show: true,
                     tools: {
@@ -166,58 +168,98 @@ export default function Dashboard({
                     },
                     export: {
                         svg: {
-                            filename: "status_anomali_svg",
+                            filename: "anomali_per_section_svg",
                         },
                         png: {
-                            filename: "status_anomali_png",
+                            filename: "anomali_per_section_png",
                         },
                     },
                 },
             },
             plotOptions: {
-                radialBar: {
-                    track: {
-                        background: "#E5E7EB",
-                    },
-                    dataLabels: {
-                        show: false,
-                    },
-                    hollow: {
-                        margin: 0,
-                        size: "32%",
+                pie: {
+                    donut: {
+                        size: "70%",
+                        labels: {
+                            show: true,
+                            name: {
+                                show: true,
+                                fontSize: "16px",
+                                offsetY: -10,
+                            },
+                            value: {
+                                show: true,
+                                fontSize: "14px",
+                                formatter: function (val) {
+                                    return val + " anomali";
+                                },
+                            },
+                            total: {
+                                show: true,
+                                label: "Total Anomali",
+                                formatter: function () {
+                                    return (
+                                        sectionTotals.reduce(
+                                            (a, b) => a + b,
+                                            0
+                                        ) + " anomali"
+                                    );
+                                },
+                                color: "#373d3f",
+                            },
+                        },
                     },
                 },
             },
-            grid: {
-                show: false,
-                strokeDashArray: 4,
-                padding: {
-                    left: 2,
-                    right: 2,
-                    top: -23,
-                    bottom: -20,
-                },
-            },
-            labels: status.map((status) => status.name),
+            colors: ["#FF6347", "#20C997", "#4A90E2", "#FFD700", "#3B82F6"],
+            labels: sections,
             legend: {
                 show: true,
                 position: "bottom",
+                horizontalAlign: "center",
+                floating: false,
+                fontSize: "12px",
                 fontFamily: "Inter, sans-serif",
+                formatter: function (seriesName, opts) {
+                    return [
+                        seriesName,
+                        " - ",
+                        sectionTotals[opts.seriesIndex] + " anomali",
+                    ];
+                },
+                labels: {
+                    colors: undefined,
+                    useSeriesColors: true,
+                },
+                markers: {
+                    width: 12,
+                    height: 12,
+                    strokeWidth: 0,
+                    strokeColor: "#fff",
+                    radius: 12,
+                },
             },
             tooltip: {
                 enabled: true,
-                x: {
-                    show: false,
-                },
-            },
-            yaxis: {
-                show: false,
-                labels: {
-                    formatter: function (value) {
-                        return value + "%";
+                y: {
+                    formatter: function (val) {
+                        return val + " anomali";
                     },
                 },
             },
+            responsive: [
+                {
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            height: 280,
+                        },
+                        legend: {
+                            position: "bottom",
+                        },
+                    },
+                },
+            ],
         };
     };
 
@@ -526,7 +568,7 @@ export default function Dashboard({
             fill: {
                 opacity: 1,
             },
-            colors: ["#EF4444", "#10B981", "#0EA5E9"], // Merah untuk New, Hijau untuk Open, Biru untuk Close
+            colors: ["#10B981", "#EF4444", "#0EA5E9"], // Merah untuk New, Hijau untuk Open, Biru untuk Close
             dataLabels: {
                 enabled: true,
                 formatter: function (val) {
@@ -889,51 +931,84 @@ export default function Dashboard({
                     </div>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Status Anomaly
+                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2 text-blue-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                                    />
+                                </svg>
+                                Chart Anomali per section
                             </h2>
-                            <div id="radial-chart" className="h-44"></div>
-                            <div className="grid grid-cols-4 gap-2 mt-2">
-                                {status.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className={`p-2 rounded-lg text-center ${
-                                            index === 0
-                                                ? "bg-rose-100 dark:bg-rose-900 dark:text-white"
-                                                : index === 1
-                                                ? "bg-teal-100 dark:bg-teal-900 dark:text-white"
-                                                : "bg-blue-100 dark:bg-blue-900 dark:text-white"
-                                        }`}
-                                    >
-                                        <p className="text-sm font-semibold">
-                                            {item.anomali.length}
-                                        </p>
-                                        <p className="text-xs">{item.name}</p>
-                                    </div>
-                                ))}
-                                <div className="p-2 rounded-lg text-center bg-gray-100 dark:bg-gray-900 dark:text-white">
-                                    <p className="text-sm font-semibold">
-                                        {anomalis.length}
-                                    </p>
-                                    <p className="text-xs">Total</p>
-                                </div>
-                            </div>
+                            <div id="radial-chart" className="h-44 mb-4"></div>
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Distribution Equipment
+                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2 text-blue-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M19 13H5v-2h14v2z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M5 13l14-14m0 0l-14 14"
+                                    />
+                                </svg>
+                                Chart Anomali Equipment
                             </h2>
-                            <div id="pie-chart" className="h-44"></div>
+                            <div id="pie-chart" className="h-44 mb-4"></div>
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Monthly Anomaliy
+                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2 text-blue-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
+                                </svg>
+                                Chart Anomali per Week
                             </h2>
                             <div id="line-chart" className="h-44"></div>
                         </div>
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                            <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Anomali per Type & Status
+                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2 text-blue-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M15.172 2C12.364 2 10 4.364 10 7.172s2.364 5.172 5.172 5.172 5.172-2.364 5.172-5.172S17.64 2 15.172 2zm0 13.172a5.172 5.172 0 100-10.344 5.172 5.172 0 000 10.344zm0-2.172a3 3 0 100 6 3 3 0 000-6zm0 3a2 2 0 110-4 2 2 0 010 4zm0 3a1 1 0 100-2 1 1 0 000 2zm0 3a1 1 0 100-2 1 1 0 000 2z"
+                                    />
+                                </svg>
+                                Chart Anomali per Status
                             </h2>
                             <div id="type-chart" className="h-44"></div>
                         </div>

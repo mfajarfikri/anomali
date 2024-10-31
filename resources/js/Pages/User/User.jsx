@@ -18,6 +18,7 @@ import {
 } from "react-icons/hi";
 import Modal2 from "@/Components/Modal2";
 import debounce from "lodash/debounce";
+import Notiflix from "notiflix";
 
 export default function User({ auth, users, substations, roles }) {
     const [openModal, setOpenModal] = useState(false);
@@ -83,16 +84,16 @@ export default function User({ auth, users, substations, roles }) {
                 resetCreate();
                 setOpenModal(false);
                 getData();
-                Swal.fire({
-                    title: "Success",
-                    text: "A User has been created.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.success("Success");
             },
             onError: (errors) => {
-                console.error("Error creating user:", errors);
+                Notiflix.Report.failure(
+                    "Error",
+                    `"Error create ${data.titlename}. ${Object.values(
+                        errors
+                    ).join(", ")} please call web administrator"`,
+                    "OK"
+                );
             },
         });
     };

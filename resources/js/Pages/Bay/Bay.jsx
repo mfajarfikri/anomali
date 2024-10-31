@@ -9,7 +9,7 @@ import PrimaryButton from "@/Components/PrimaryButton";
 import { Button, Drawer, Badge, Select } from "flowbite-react";
 import { HiOutlinePlus } from "react-icons/hi";
 import debounce from "lodash/debounce";
-import Swal from "sweetalert2";
+import Notiflix from "notiflix";
 
 export default function Bay() {
     const { bays, auth, conditions, substations, filters } = usePage().props;
@@ -105,30 +105,16 @@ export default function Bay() {
                     perpage.current
                 );
                 setIsOpen(false);
-                Swal.fire({
-                    title: "Berhasil",
-                    text: data.bay + " telah dibuat.",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                    background: document.documentElement.classList.contains(
-                        "dark"
-                    )
-                        ? "#374151"
-                        : "#ffffff",
-                    color: document.documentElement.classList.contains("dark")
-                        ? "#ffffff"
-                        : "#000000",
-                });
+                Notiflix.Report.success("Success");
             },
             onError: (errors) => {
-                Swal.fire({
-                    title: "Gagal",
-                    text: "Terjadi kesalahan saat membuat bay.",
-                    icon: "error",
-                    confirmButtonText: "OK",
-                    confirmButtonColor: "#1C64F2",
-                });
+                Notiflix.Report.failure(
+                    "Error",
+                    `"Error create ${data.titlename}. ${Object.values(
+                        errors
+                    ).join(", ")} please call web administrator"`,
+                    "OK"
+                );
             },
         });
     };
@@ -151,22 +137,16 @@ export default function Bay() {
                         perpage.current
                     );
                     setOpenModalEdit(false);
-                    Swal.fire({
-                        title: "Berhasil",
-                        text: `${data.bay} telah diperbarui.`,
-                        icon: "success",
-                        confirmButtonText: "OK",
-                        confirmButtonColor: "#1C64F2",
-                    });
+                    Notiflix.Report.success("Success");
                 },
                 onError: (errors) => {
-                    Swal.fire({
-                        title: "Gagal",
-                        text: "Terjadi kesalahan saat memperbarui bay.",
-                        icon: "error",
-                        confirmButtonText: "OK",
-                        confirmButtonColor: "#1C64F2",
-                    });
+                    Notiflix.Report.failure(
+                        "Error",
+                        `"Error update ${data.titlename}. ${Object.values(
+                            errors
+                        ).join(", ")} please call web administrator"`,
+                        "OK"
+                    );
                 },
             }
         );

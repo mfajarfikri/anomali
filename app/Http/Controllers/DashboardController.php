@@ -31,7 +31,7 @@ class DashboardController extends Controller
         ->get()
         ->map(function ($item) {
             $date = Carbon::now()
-                ->setISODate($item->tahun, $item->minggu + 1)
+                ->setISODate($item->tahun, $item->minggu)
                 ->startOfWeek();
             
             $item->minggu_tahun = $date->format('d M') . ' - ' . 
@@ -51,6 +51,15 @@ class DashboardController extends Controller
             ->groupBy('types.name', 'statuses.name')
             ->get();
 
+        $anomaliPerSection = DB::table('anomalis')
+            ->join('sections', 'anomalis.section_id', '=', 'sections.id')
+            ->select(
+                'sections.name as section_name',
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('sections.name')
+            ->get();
+
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
             'type' => Type::with('Anomali')->get(),
@@ -59,6 +68,7 @@ class DashboardController extends Controller
             'anomalis_date' => Anomali::with(['Status', 'Substation', 'Equipment', 'User'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
             'anomaliPerMinggu' => $anomaliPerMinggu,
             'anomaliPerTypeStatus' => $anomaliPerTypeStatus,
+            'anomaliPerSection' => $anomaliPerSection,
         ]);
     }
 

@@ -727,45 +727,58 @@ export default function Anomali({
                                 </span>
                                 {selectedItem.attachment_path && (
                                     <>
-                                        {selectedItem.attachment_path
-                                            .toLowerCase()
-                                            .endsWith(".pdf") ? (
-                                            <embed
-                                                src={`/storage/${selectedItem.attachment_path}`}
-                                                type="application/pdf"
-                                                width="100%"
-                                                height="600px"
-                                                className="rounded-lg shadow-md"
-                                            />
-                                        ) : (
+                                        {selectedItem.attachment_path.endsWith(
+                                            ".pdf"
+                                        ) ? (
                                             <div className="relative">
-                                                <img
-                                                    src={`/storage/${selectedItem.attachment_path}`}
-                                                    alt="attachment"
-                                                    className="max-w-full h-auto rounded-lg shadow-md"
+                                                <embed
+                                                    src={`/storage/${selectedItem.attachment_path.replace(
+                                                        "public/",
+                                                        ""
+                                                    )}`}
+                                                    type="application/pdf"
+                                                    width="100%"
+                                                    height="600px"
+                                                    className="rounded-lg shadow-md"
                                                 />
+                                            </div>
+                                        ) : selectedItem.attachment_path.match(
+                                              /\.(jpeg|jpg|gif|png)$/
+                                          ) ? (
+                                            <div className="relative">
                                                 <a
-                                                    href={`/storage/${selectedItem.attachment_path}`}
+                                                    href={`/storage/${selectedItem.attachment_path.replace(
+                                                        "public/",
+                                                        ""
+                                                    )}`}
                                                     download
-                                                    className="absolute top-1 left-1 bg-gray-500 bg-opacity-50 hover:bg-gray-600 hover:bg-opacity-70 text-white font-bold py-1 px-2 rounded-md"
+                                                    className="absolute top-2 right-2 bg-gray-500 bg-opacity-50 hover:bg-gray-600 hover:bg-opacity-70 text-white font-bold py-2 px-3 rounded-md transition duration-300 ease-in-out flex items-center gap-2"
                                                 >
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         fill="none"
                                                         viewBox="0 0 24 24"
+                                                        strokeWidth={2}
                                                         stroke="currentColor"
-                                                        className="w-6 h-6"
+                                                        className="w-5 h-5"
                                                     >
                                                         <path
                                                             strokeLinecap="round"
                                                             strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
                                                         />
                                                     </svg>
                                                 </a>
+                                                <img
+                                                    src={`/storage/${selectedItem.attachment_path.replace(
+                                                        "public/",
+                                                        ""
+                                                    )}`}
+                                                    alt="attachment"
+                                                    className="max-w-full h-auto rounded-lg shadow-md"
+                                                />
                                             </div>
-                                        )}
+                                        ) : null}
                                     </>
                                 )}
                                 {!selectedItem.attachment_path && (
@@ -780,7 +793,10 @@ export default function Anomali({
                                             Berita Acara :
                                         </span>
                                         <embed
-                                            src={`/storage/${selectedItem.report_path}`}
+                                            src={`/storage/${selectedItem.report_path.replace(
+                                                "public/",
+                                                ""
+                                            )}`}
                                             type="application/pdf"
                                             width="100%"
                                             height="600px"
