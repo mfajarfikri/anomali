@@ -21,8 +21,8 @@ class DashboardController extends Controller
     public function index()
     {
         $anomaliPerMinggu = Anomali::select(
-            DB::raw("strftime('%W', created_at) as minggu"),
-            DB::raw("strftime('%Y', created_at) as tahun"),
+            DB::raw("WEEK(created_at) as minggu"),
+            DB::raw("YEAR(created_at) as tahun"),
             DB::raw('COUNT(*) as jumlah')
         )
         ->groupBy('tahun', 'minggu')

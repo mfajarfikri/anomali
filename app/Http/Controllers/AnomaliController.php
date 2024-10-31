@@ -6,7 +6,7 @@ use Closure;
 use App\Models\Bay;
 use App\Models\Type;
 use Inertia\Inertia;
-use App\Models\status;
+use App\Models\Status;
 use App\Models\Anomali;
 use App\Models\Section;
 use App\Models\Document;

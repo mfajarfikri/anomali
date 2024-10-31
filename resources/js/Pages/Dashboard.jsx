@@ -34,7 +34,11 @@ export default function Dashboard({
     const lineChartRef = useRef(null);
     const typeChartRef = useRef(null);
 
+    // Tambahkan state loading
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
+        setIsLoading(true);
         const formattedEvents = anomalis_date.map((anomali) => ({
             id: anomali.id,
             title: anomali.titlename,
@@ -51,11 +55,11 @@ export default function Dashboard({
             if (!radialChartRef.current) {
                 radialChartRef.current = new ApexCharts(
                     document.querySelector("#radial-chart"),
-                    getChartSection()
+                    getChartStatus()
                 );
                 radialChartRef.current.render();
             } else {
-                radialChartRef.current.updateOptions(getChartSection());
+                radialChartRef.current.updateOptions(getChartStatus());
             }
 
             if (!pieChartRef.current) {
@@ -141,26 +145,59 @@ export default function Dashboard({
         setShowModal(true);
     };
 
-    const getChartSection = () => {
+    const getChartStatus = () => {
         if (!anomaliPerSection || anomaliPerSection.length === 0) {
-            return {};
+            return {
+                series: [0],
+                chart: {
+                    height: 330,
+                    type: "radialBar",
+                },
+                plotOptions: {
+                    radialBar: {
+                        hollow: {
+                            size: "70%",
+                        },
+                    },
+                },
+                labels: ["Tidak ada data"],
+                noData: {
+                    text: "Tidak ada data tersedia",
+                    align: "center",
+                    verticalAlign: "middle",
+                    style: {
+                        fontSize: "16px",
+                    },
+                },
+            };
         }
 
-        // Mengorganisir data
+        // Mengorganisir data dengan cara yang berbeda
         const sections = [
             ...new Set(anomaliPerSection.map((item) => item.section_name)),
         ];
+        const statuses = [
+            ...new Set(anomaliPerSection.map((item) => item.status_name)),
+        ];
+
+        // Menghitung total per section
         const sectionTotals = sections.map((section) => {
             return anomaliPerSection
                 .filter((item) => item.section_name === section)
                 .reduce((sum, item) => sum + item.total, 0);
         });
 
+        // Menghitung persentase untuk setiap section
+        const maxTotal = Math.max(...sectionTotals);
+        const seriesData = sectionTotals.map((total) =>
+            Math.round((total / maxTotal) * 100)
+        );
+
         return {
-            series: sectionTotals,
+            series: seriesData,
             chart: {
-                type: "donut",
-                height: 350,
+                type: "radialBar",
+                height: 330,
                 toolbar: {
                     show: true,
                     tools: {
@@ -177,41 +214,50 @@ export default function Dashboard({
                 },
             },
             plotOptions: {
-                pie: {
-                    donut: {
-                        size: "70%",
-                        labels: {
+                radialBar: {
+                    offsetY: 0,
+                    startAngle: 0,
+                    endAngle: 270,
+                    hollow: {
+                        margin: 5,
+                        size: "30%",
+                        background: "transparent",
+                    },
+                    dataLabels: {
+                        name: {
                             show: true,
-                            name: {
-                                show: true,
-                                fontSize: "16px",
-                                offsetY: -10,
+                            fontSize: "16px",
+                            offsetY: -10,
+                        },
+                        value: {
+                            show: true,
+                            fontSize: "14px",
+                            formatter: function (val, opts) {
+                                // Mengembalikan nilai asli, bukan persentase
+                                return (
+                                    sectionTotals[opts.dataPointIndex] +
+                                    " anomali"
+                                );
                             },
-                            value: {
-                                show: true,
-                                fontSize: "14px",
-                                formatter: function (val) {
-                                    return val + " anomali";
-                                },
-                            },
-                            total: {
-                                show: true,
-                                label: "Total Anomali",
-                                formatter: function () {
-                                    return (
-                                        sectionTotals.reduce(
-                                            (a, b) => a + b,
-                                            0
-                                        ) + " anomali"
-                                    );
-                                },
-                                color: "#373d3f",
+                        },
+                        total: {
+                            show: true,
+                            label: "Total Anomali",
+                            formatter: function () {
+                                return sectionTotals.reduce((a, b) => a + b, 0);
                             },
                         },
                     },
+                    track: {
+                        show: true,
+                        background: "#f2f2f2",
+                        strokeWidth: "97%",
+                        opacity: 1,
+                        margin: 5,
+                    },
                 },
             },
-            colors: ["#FF6347", "#20C997", "#4A90E2", "#FFD700", "#3B82F6"],
+            colors: ["#FF6347", "#20C997", "#4A90E2", "#FFD700", "#3B82F6"], // Mengganti warna menjadi lebih enak dilihat
             labels: sections,
             legend: {
                 show: true,
@@ -221,6 +267,7 @@ export default function Dashboard({
                 fontSize: "12px",
                 fontFamily: "Inter, sans-serif",
                 formatter: function (seriesName, opts) {
+                    // Menampilkan nama section dan jumlah anomali
                     return [
                         seriesName,
                         " - ",
@@ -239,31 +286,41 @@ export default function Dashboard({
                     radius: 12,
                 },
             },
+            stroke: {
+                lineCap: "round",
+            },
             tooltip: {
                 enabled: true,
                 y: {
-                    formatter: function (val) {
-                        return val + " anomali";
+                    formatter: function (val, opts) {
+                        // Menampilkan jumlah anomali asli di tooltip
+                        return sectionTotals[opts.dataPointIndex] + " anomali";
                     },
                 },
             },
-            responsive: [
-                {
-                    breakpoint: 480,
-                    options: {
-                        chart: {
-                            height: 280,
-                        },
-                        legend: {
-                            position: "bottom",
-                        },
-                    },
-                },
-            ],
         };
     };
 
     const getChartEquipment = () => {
+        if (!equipments || equipments.length === 0) {
+            return {
+                series: [0],
+                chart: {
+                    height: 390,
+                    type: "pie",
+                },
+                labels: ["Tidak ada data"],
+                noData: {
+                    text: "Tidak ada data tersedia",
+                    align: "center",
+                    verticalAlign: "middle",
+                    style: {
+                        fontSize: "16px",
+                    },
+                },
+            };
+        }
+
         return {
             series: equipments.map((equipment) => equipment.anomali.length),
             colors: [
@@ -354,7 +411,29 @@ export default function Dashboard({
 
     const getChartAnomaliPerBulan = () => {
         if (!anomaliPerMinggu || anomaliPerMinggu.length === 0) {
-            return {}; // atau berikan konfigurasi default
+            return {
+                series: [
+                    {
+                        name: "Jumlah Anomali",
+                        data: [0],
+                    },
+                ],
+                chart: {
+                    height: 350,
+                    type: "area",
+                },
+                xaxis: {
+                    categories: ["Tidak ada data"],
+                },
+                noData: {
+                    text: "Tidak ada data tersedia",
+                    align: "center",
+                    verticalAlign: "middle",
+                    style: {
+                        fontSize: "16px",
+                    },
+                },
+            };
         }
 
         return {
@@ -486,7 +565,29 @@ export default function Dashboard({
 
     const getChartAnomaliPerType = () => {
         if (!anomaliPerTypeStatus || anomaliPerTypeStatus.length === 0) {
-            return {};
+            return {
+                series: [
+                    {
+                        name: "Tidak ada data",
+                        data: [0],
+                    },
+                ],
+                chart: {
+                    type: "bar",
+                    height: 350,
+                },
+                xaxis: {
+                    categories: ["Tidak ada data"],
+                },
+                noData: {
+                    text: "Tidak ada data tersedia",
+                    align: "center",
+                    verticalAlign: "middle",
+                    style: {
+                        fontSize: "16px",
+                    },
+                },
+            };
         }
 
         // Mengorganisir data
@@ -945,7 +1046,7 @@ export default function Dashboard({
                                         d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                                     />
                                 </svg>
-                                Chart Anomali per section
+                                Status Anomali per section
                             </h2>
                             <div id="radial-chart" className="h-44 mb-4"></div>
                         </div>
@@ -970,7 +1071,7 @@ export default function Dashboard({
                                         d="M5 13l14-14m0 0l-14 14"
                                     />
                                 </svg>
-                                Chart Anomali Equipment
+                                Status Anomali per section
                             </h2>
                             <div id="pie-chart" className="h-44 mb-4"></div>
                         </div>
@@ -989,7 +1090,7 @@ export default function Dashboard({
                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                     />
                                 </svg>
-                                Chart Anomali per Week
+                                Status Anomali per section
                             </h2>
                             <div id="line-chart" className="h-44"></div>
                         </div>
@@ -1005,10 +1106,10 @@ export default function Dashboard({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        d="M15.172 2C12.364 2 10 4.364 10 7.172s2.364 5.172 5.172 5.172 5.172-2.364 5.172-5.172S17.64 2 15.172 2zm0 13.172a5.172 5.172 0 100-10.344 5.172 5.172 0 000 10.344zm0-2.172a3 3 0 100 6 3 3 0 000-6zm0 3a2 2 0 110-4 2 2 0 010 4zm0 3a1 1 0 100-2 1 1 0 000 2zm0 3a1 1 0 100-2 1 1 0 000 2z"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                     />
                                 </svg>
-                                Chart Anomali per Status
+                                Status Anomali per section
                             </h2>
                             <div id="type-chart" className="h-44"></div>
                         </div>
