@@ -31,6 +31,7 @@ Route::middleware(['auth','verified', 'is_role:Admin'])->group(function () {
     Route::post('/substation/create', [SubstationController::class, 'create'])->name('substation.create');
     Route::post('/substation', [SubstationController::class, 'store'])->name('substation.store');
     Route::delete('/substation/{id}/delete', [SubstationController::class, 'destroy'])->name('substation.delete');
+    Route::put('/substation/{id}', [SubstationController::class, 'update'])->name('substation.update');
 
     Route::get('/bay', [BayController::class, 'index'])->name('bay');
     Route::post('/bay', [BayController::class, 'store'])->name('bay.store');

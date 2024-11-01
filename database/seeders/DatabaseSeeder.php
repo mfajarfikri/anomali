@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\anomali;
+use App\Models\Anomali;
 use App\Models\User;
 use Database\Factories\AnomaliFactory;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;

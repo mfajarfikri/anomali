@@ -85,20 +85,21 @@ class SubstationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Substation $substation)
-    {
-        $request->validate([
-            'name' => 'required|unique:substations,name,' . $substation->id,
-            'condition' => 'required|exists:conditions,id',
-        ]);
+    public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'condition' => 'required|exists:conditions,id',
+    ]);
 
-        $substation->update([
-            'name' => $request->name,
-            'condition_id' => $request->condition,
-        ]);
+    $substation = Substation::findOrFail($id);
+    $substation->update([
+        'name' => $validated['name'],
+        'condition_id' => $validated['condition'],
+    ]);
 
-        return redirect()->route('substation')->with('success', 'Substation updated successfully');
-    }
+    return redirect()->back();
+}
 
     /**
      * Remove the specified resource from storage.

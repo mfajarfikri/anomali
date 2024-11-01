@@ -521,7 +521,7 @@ export default function Anomali({
                 <Modal2
                     isOpen={openModalDetail}
                     onClose={() => setOpenModalDetail(false)}
-                    title={`Preview`.selectedItem && selectedItem.titlename}
+                    title={selectedItem && selectedItem.titlename}
                 >
                     {selectedItem && (
                         <>

@@ -10,17 +10,16 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ApplicationLogo from "@/Components/ApplicationLogo";
-import Modal2 from "@/Components/Modal2"; // Pastikan path import sesuai
+import Modal2 from "@/Components/Modal2";
 
 export default function Dashboard({
     status,
     equipments,
-    approve,
     anomalis,
     anomalis_date,
-    anomaliPerMinggu, // Tambahkan prop baru
-    anomaliPerType, // Tambahkan prop baru
-    anomaliPerTypeStatus, // Tambahkan prop baru
+    anomaliPerMinggu,
+    anomaliPerType,
+    anomaliPerTypeStatus,
     anomaliPerSection,
 }) {
     const { auth } = usePage().props;
@@ -28,22 +27,16 @@ export default function Dashboard({
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
-    // Gunakan useRef untuk menyimpan referensi chart
+    // untuk menyimpan referensi chart
     const radialChartRef = useRef(null);
     const pieChartRef = useRef(null);
     const lineChartRef = useRef(null);
     const typeChartRef = useRef(null);
-
-    // Tambahkan state loading
     const [isLoading, setIsLoading] = useState(true);
-
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 11;
-
-    // Hitung total halaman
     const totalPages = Math.ceil(anomalis.length / itemsPerPage);
 
-    // Get current anomalis
     const getCurrentAnomalies = () => {
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -141,15 +134,6 @@ export default function Dashboard({
         anomaliPerType,
         anomaliPerTypeStatus,
     ]);
-
-    useEffect(() => {
-        console.log("Anomalis:", anomalis);
-        console.log("Current User ID:", auth.user.id);
-        console.log(
-            "Filtered Anomalis:",
-            anomalis.filter((anomali) => anomali.user_id === auth.user.id)
-        );
-    }, [anomalis]);
 
     const getEventColor = (status) => {
         switch (status) {
@@ -1276,7 +1260,7 @@ export default function Dashboard({
                                                     )
                                                 }
                                                 disabled={currentPage === 1}
-                                                className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 Previous
                                             </button>
@@ -1289,7 +1273,7 @@ export default function Dashboard({
                                                 disabled={
                                                     currentPage === totalPages
                                                 }
-                                                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 Next
                                             </button>
@@ -1332,7 +1316,7 @@ export default function Dashboard({
                                                         disabled={
                                                             currentPage === 1
                                                         }
-                                                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <span className="sr-only">
                                                             Previous
@@ -1350,6 +1334,8 @@ export default function Dashboard({
                                                             />
                                                         </svg>
                                                     </button>
+
+                                                    {/* Page Numbers */}
                                                     {[...Array(totalPages)].map(
                                                         (_, index) => (
                                                             <button
@@ -1360,17 +1346,20 @@ export default function Dashboard({
                                                                             1
                                                                     )
                                                                 }
-                                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                                    currentPage ===
-                                                                    index + 1
-                                                                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                                                                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
-                                                                }`}
+                                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                                                                    ${
+                                                                        currentPage ===
+                                                                        index +
+                                                                            1
+                                                                            ? "z-10 bg-blue-50 dark:bg-blue-900 border-blue-500 text-blue-600 dark:text-blue-200"
+                                                                            : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                                    }`}
                                                             >
                                                                 {index + 1}
                                                             </button>
                                                         )
                                                     )}
+
                                                     <button
                                                         onClick={() =>
                                                             handlePageChange(
@@ -1381,7 +1370,7 @@ export default function Dashboard({
                                                             currentPage ===
                                                             totalPages
                                                         }
-                                                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <span className="sr-only">
                                                             Next

@@ -23,31 +23,75 @@ export default function Substation() {
     const [isOpen, setIsOpen] = useState(false);
     const handleClose = () => setIsOpen(false);
 
-    const { data, setData, processing, post, errors, reset } = useForm({
+    const [isEditMode, setIsEditMode] = useState(false);
+
+    const { data, setData, processing, post, put, errors, reset } = useForm({
+        id: "",
         name: "",
         condition: "",
     });
 
+    const handleEdit = (substation) => {
+        setData({
+            id: substation.id,
+            name: substation.name,
+            condition: substation.condition.id,
+        });
+        setIsEditMode(true);
+        setIsOpen(true);
+    };
+
     const submit = (e) => {
         e.preventDefault();
-        post(route("substation.create"), {
-            preserveScroll: true,
-            onSuccess: () => {
-                reset();
-                setIsOpen(false);
-                getData();
-                Notiflix.Report.success("Success");
-            },
-            onError: (errors) => {
-                Notiflix.Report.failure(
-                    "Error",
-                    `"Error create ${data.titlename}. ${Object.values(
-                        errors
-                    ).join(", ")} please call web administrator"`,
-                    "OK"
-                );
-            },
-        });
+
+        if (isEditMode) {
+            put(route("substation.update", data.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setIsOpen(false);
+                    setIsEditMode(false);
+                    getData();
+                    Notiflix.Report.success(
+                        "Success",
+                        "Data berhasil diperbarui",
+                        "OK"
+                    );
+                },
+                onError: (errors) => {
+                    Notiflix.Report.failure(
+                        "Error",
+                        `Error update data. ${Object.values(errors).join(
+                            ", "
+                        )}`,
+                        "OK"
+                    );
+                },
+            });
+        } else {
+            post(route("substation.create"), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    reset();
+                    setIsOpen(false);
+                    getData();
+                    Notiflix.Report.success(
+                        "Success",
+                        "Data berhasil ditambahkan",
+                        "OK"
+                    );
+                },
+                onError: (errors) => {
+                    Notiflix.Report.failure(
+                        "Error",
+                        `Error create data. ${Object.values(errors).join(
+                            ", "
+                        )}`,
+                        "OK"
+                    );
+                },
+            });
+        }
     };
 
     const getData = () => {
@@ -75,7 +119,11 @@ export default function Substation() {
             <Head title="Substation" />
             <DashboardLayout user={auth.user}>
                 <Drawer open={isOpen} onClose={handleClose} position="top">
-                    <Drawer.Header title="Substation" />
+                    <Drawer.Header
+                        title={
+                            isEditMode ? "Edit Substation" : "Add Substation"
+                        }
+                    />
                     <Drawer.Items>
                         <form onSubmit={submit}>
                             <div className="grid grid-cols-3 gap-4">
@@ -145,7 +193,9 @@ export default function Substation() {
                                         disabled={processing}
                                     >
                                         <HiOutlinePlus className="w-4 h-4 mr-2" />
-                                        Add substation
+                                        {isEditMode
+                                            ? "Update Substation"
+                                            : "Add Substation"}
                                     </PrimaryButton>
                                 </div>
                             </div>
@@ -230,7 +280,7 @@ export default function Substation() {
                                             ) : (
                                                 <Badge
                                                     color="failure"
-                                                    className="justify-center dark:bg-red-900 dark:text-red-300"
+                                                    className="justify-center w-24 dark:bg-red-900 dark:text-red-300"
                                                 >
                                                     {substation.condition.name}
                                                 </Badge>
@@ -238,34 +288,29 @@ export default function Substation() {
                                         </td>
                                         <td className="flex items-center justify-end mx-4 mt-2">
                                             <div className="flex">
-                                                <Link
-                                                    href={route(
-                                                        "substation.edit",
-                                                        substation.id
-                                                    )}
-                                                    className="mx-1"
+                                                <Button
+                                                    size="xs"
+                                                    color="warning"
+                                                    className="rounded-lg dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+                                                    onClick={() =>
+                                                        handleEdit(substation)
+                                                    }
                                                 >
-                                                    <Button
-                                                        size="xs"
-                                                        color="warning"
-                                                        className="rounded-lg dark:bg-yellow-600 dark:hover:bg-yellow-700 dark:focus:ring-yellow-800"
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="w-4 h-4"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
                                                     >
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            className="w-4 h-4"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            stroke="currentColor"
-                                                            strokeWidth="2"
-                                                        >
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                                                            />
-                                                        </svg>
-                                                    </Button>
-                                                </Link>
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                        />
+                                                    </svg>
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
