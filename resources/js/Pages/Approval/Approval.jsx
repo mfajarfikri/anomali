@@ -467,6 +467,8 @@ export default function Approval({ auth, anomalis }) {
                                                 e.target.value
                                             )
                                         }
+                                        min={editItem.date_plan_start}
+                                        max={editItem.date_plan_end}
                                     />
                                     <InputError
                                         message={errors.date_execution}
@@ -697,6 +699,13 @@ export default function Approval({ auth, anomalis }) {
                                                             value={
                                                                 data.date_plan_start
                                                             }
+                                                            min={
+                                                                new Date()
+                                                                    .toISOString()
+                                                                    .split(
+                                                                        "T"
+                                                                    )[0]
+                                                            }
                                                             onChange={(e) =>
                                                                 setData(
                                                                     "date_plan_start",
@@ -732,6 +741,13 @@ export default function Approval({ auth, anomalis }) {
                                                                     e.target
                                                                         .value
                                                                 )
+                                                            }
+                                                            min={
+                                                                new Date()
+                                                                    .toISOString()
+                                                                    .split(
+                                                                        "T"
+                                                                    )[0]
                                                             }
                                                             className="text-gray-500"
                                                         />

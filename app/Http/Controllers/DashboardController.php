@@ -25,26 +25,6 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $anomaliPerMinggu = Anomali::select(
-            DB::raw("WEEK(created_at) as minggu"),
-            DB::raw("YEAR(created_at) as tahun"),
-            DB::raw('COUNT(*) as jumlah')
-        )
-        ->groupBy('tahun', 'minggu')
-        ->orderBy('tahun', 'asc')
-        ->orderBy('minggu', 'asc')
-        ->get()
-        ->map(function ($item) {
-            $date = Carbon::now()
-                ->setISODate($item->tahun, $item->minggu)
-                ->startOfWeek();
-            
-            $item->minggu_tahun = $date->format('d M') . ' - ' . 
-                $date->copy()->endOfWeek()->format('d M Y');
-            
-            return $item;
-        });
-
         $anomaliPerTypeStatus = DB::table('anomalis')
             ->join('types', 'anomalis.type_id', '=', 'types.id')
             ->join('statuses', 'anomalis.status_id', '=', 'statuses.id')
@@ -65,15 +45,17 @@ class DashboardController extends Controller
             ->groupBy('sections.name')
             ->get();
 
-            
+        
 
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
             'type' => Type::with('Anomali')->get(),
             'status' => Status::with(['Anomali'])->get(),
             'anomalis' => $anomalis,
-            'anomalis_date' => Anomali::with(['Status', 'Substation', 'Equipment', 'User'])->nonEmptyColumns(['date_plan_start', 'date_plan_end'])->get(),
-            'anomaliPerMinggu' => $anomaliPerMinggu,
+            'anomalis_date' => Anomali::with(['Status', 'Substation', 'Equipment', 'User'])
+                ->whereNotNull('date_plan_start')
+                ->whereNotNull('date_plan_end')
+                ->get(),
             'anomaliPerTypeStatus' => $anomaliPerTypeStatus,
             'anomaliPerSection' => $anomaliPerSection,
         ]);

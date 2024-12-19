@@ -4,7 +4,6 @@ import { Head, usePage } from "@inertiajs/react";
 import ApexCharts from "apexcharts";
 import dateFormat from "dateformat";
 import { Tooltip } from "flowbite-react";
-import CountUp from "react-countup";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -17,17 +16,14 @@ export default function Dashboard({
     equipments,
     anomalis,
     anomalis_date,
-    anomaliPerMinggu,
     anomaliPerType,
     anomaliPerTypeStatus,
     anomaliPerSection,
 }) {
     const { auth } = usePage().props;
-    const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
-    // untuk menyimpan referensi chart
     const radialChartRef = useRef(null);
     const pieChartRef = useRef(null);
     const lineChartRef = useRef(null);
@@ -38,6 +34,8 @@ export default function Dashboard({
     const totalPages = Math.ceil(anomalis.length / itemsPerPage);
 
     const getCurrentAnomalies = () => {
+        if (!Array.isArray(anomalis)) return [];
+
         const indexOfLastItem = currentPage * itemsPerPage;
         const indexOfFirstItem = indexOfLastItem - itemsPerPage;
         return anomalis.slice(indexOfFirstItem, indexOfLastItem);
@@ -45,16 +43,6 @@ export default function Dashboard({
 
     useEffect(() => {
         setIsLoading(true);
-        const formattedEvents = anomalis_date.map((anomali) => ({
-            id: anomali.id,
-            title: anomali.titlename,
-            start: anomali.date_plan_start,
-            end: anomali.date_plan_end,
-            backgroundColor: getEventColor(anomali.status.name),
-            borderColor: getEventColor(anomali.status.name),
-            extendedProps: { ...anomali },
-        }));
-        setEvents(formattedEvents);
 
         // Inisialisasi chart
         if (typeof ApexCharts !== "undefined") {
@@ -78,20 +66,6 @@ export default function Dashboard({
                 pieChartRef.current.updateOptions(getChartEquipment());
             }
 
-            if (anomaliPerMinggu && anomaliPerMinggu.length > 0) {
-                if (!lineChartRef.current) {
-                    lineChartRef.current = new ApexCharts(
-                        document.getElementById("line-chart"),
-                        getChartAnomaliPerBulan()
-                    );
-                    lineChartRef.current.render();
-                } else {
-                    lineChartRef.current.updateOptions(
-                        getChartAnomaliPerBulan()
-                    );
-                }
-            }
-
             if (anomaliPerTypeStatus && anomaliPerTypeStatus.length > 0) {
                 if (!typeChartRef.current) {
                     typeChartRef.current = new ApexCharts(
@@ -107,7 +81,6 @@ export default function Dashboard({
             }
         }
 
-        // Cleanup function
         return () => {
             if (radialChartRef.current) {
                 radialChartRef.current.destroy();
@@ -126,14 +99,7 @@ export default function Dashboard({
                 typeChartRef.current = null;
             }
         };
-    }, [
-        anomaliPerMinggu,
-        status,
-        equipments,
-        anomalis,
-        anomaliPerType,
-        anomaliPerTypeStatus,
-    ]);
+    }, [status, equipments, anomalis, anomaliPerType, anomaliPerTypeStatus]);
 
     const getEventColor = (status) => {
         switch (status) {
@@ -178,25 +144,19 @@ export default function Dashboard({
             };
         }
 
-        // Mengorganisir data dengan cara yang berbeda
+        // Perbaikan pada perhitungan persentase
         const sections = [
             ...new Set(anomaliPerSection.map((item) => item.section_name)),
         ];
-        const statuses = [
-            ...new Set(anomaliPerSection.map((item) => item.status_name)),
-        ];
-
-        // Menghitung total per section
         const sectionTotals = sections.map((section) => {
             return anomaliPerSection
                 .filter((item) => item.section_name === section)
-                .reduce((sum, item) => sum + item.total, 0);
+                .reduce((sum, item) => sum + parseInt(item.total), 0); // Tambahkan parseInt
         });
 
-        // Menghitung persentase untuk setiap section
-        const maxTotal = Math.max(...sectionTotals);
-        const seriesData = sectionTotals.map((total) =>
-            Math.round((total / maxTotal) * 100)
+        const totalAnomali = sectionTotals.reduce((a, b) => a + b, 0);
+        const seriesData = sectionTotals.map(
+            (total) => Math.round((total / totalAnomali) * 100) // Hitung persentase dari total keseluruhan
         );
 
         return {
@@ -235,17 +195,6 @@ export default function Dashboard({
                             fontSize: "16px",
                             offsetY: -10,
                         },
-                        value: {
-                            show: true,
-                            fontSize: "14px",
-                            formatter: function (val, opts) {
-                                // Mengembalikan nilai asli, bukan persentase
-                                return (
-                                    sectionTotals[opts.dataPointIndex] +
-                                    " anomali"
-                                );
-                            },
-                        },
                         total: {
                             show: true,
                             label: "Total Anomali",
@@ -263,7 +212,7 @@ export default function Dashboard({
                     },
                 },
             },
-            colors: ["#FF6347", "#20C997", "#4A90E2", "#FFD700", "#3B82F6"], // Mengganti warna menjadi lebih enak dilihat
+            colors: ["#FF6347", "#20C997", "#4A90E2", "#FFD700", "#3B82F6"],
             labels: sections,
             legend: {
                 show: true,
@@ -273,7 +222,6 @@ export default function Dashboard({
                 fontSize: "12px",
                 fontFamily: "Inter, sans-serif",
                 formatter: function (seriesName, opts) {
-                    // Menampilkan nama section dan jumlah anomali
                     return [
                         seriesName,
                         " - ",
@@ -299,7 +247,6 @@ export default function Dashboard({
                 enabled: true,
                 y: {
                     formatter: function (val, opts) {
-                        // Menampilkan jumlah anomali asli di tooltip
                         return sectionTotals[opts.dataPointIndex] + " anomali";
                     },
                 },
@@ -310,123 +257,14 @@ export default function Dashboard({
     const getChartEquipment = () => {
         if (!equipments || equipments.length === 0) {
             return {
-                series: [0],
-                chart: {
-                    height: 390,
-                    type: "pie",
-                },
-                labels: ["Tidak ada data"],
-                noData: {
-                    text: "Tidak ada data tersedia",
-                    align: "center",
-                    verticalAlign: "middle",
-                    style: {
-                        fontSize: "16px",
-                    },
-                },
-            };
-        }
-
-        return {
-            series: equipments.map((equipment) => equipment.anomali.length),
-            colors: [
-                "#1f77b4",
-                "#ff7f0e",
-                "#2ca02c",
-                "#d62728",
-                "#9467bd",
-                "#8c564b",
-                "#e377c2",
-                "#7f7f7f",
-                "#bcbd22",
-                "#17becf",
-                "#ffcc00",
-                "#a52a2a",
-                "#555555",
-            ],
-            chart: {
-                height: 390,
-                width: "100%",
-                type: "pie",
-                zoom: {
-                    enabled: true,
-                },
-                toolbar: {
-                    show: true,
-                    tools: {
-                        download: true,
-                    },
-                    export: {
-                        svg: {
-                            filename: "distribusi_equipment_svg",
-                        },
-                        png: {
-                            filename: "distribusi_equipment_png",
-                        },
-                    },
-                },
-            },
-            stroke: {
-                colors: ["white"],
-                lineCap: "",
-            },
-            plotOptions: {
-                pie: {
-                    labels: {
-                        show: true,
-                    },
-                    size: "100%",
-                    dataLabels: {
-                        offset: -25,
-                    },
-                },
-            },
-            labels: equipments.map((equipment) => equipment.name),
-            dataLabels: {
-                enabled: true,
-                style: {
-                    fontFamily: "Inter, sans-serif",
-                },
-            },
-            legend: {
-                position: "bottom",
-                fontFamily: "Inter, sans-serif",
-            },
-            yaxis: {
-                labels: {
-                    formatter: function (value) {
-                        return value;
-                    },
-                },
-            },
-            xaxis: {
-                labels: {
-                    formatter: function (value) {
-                        return value;
-                    },
-                },
-                axisTicks: {
-                    show: false,
-                },
-                axisBorder: {
-                    show: false,
-                },
-            },
-        };
-    };
-
-    const getChartAnomaliPerBulan = () => {
-        if (!anomaliPerMinggu || anomaliPerMinggu.length === 0) {
-            return {
                 series: [
                     {
-                        name: "Jumlah Anomali",
                         data: [0],
                     },
                 ],
                 chart: {
-                    height: 350,
-                    type: "area",
+                    height: 390,
+                    type: "bar",
                 },
                 xaxis: {
                     categories: ["Tidak ada data"],
@@ -442,128 +280,98 @@ export default function Dashboard({
             };
         }
 
+        // Pastikan data anomali ada sebelum mapping
+        const data = equipments.map((equipment) => ({
+            x: equipment.name,
+            y: Array.isArray(equipment.anomali) ? equipment.anomali.length : 0,
+        }));
+
         return {
             series: [
                 {
                     name: "Jumlah Anomali",
-                    data: anomaliPerMinggu.map((item) => item.jumlah),
-                    color: "#4CAF50",
+                    data: data,
                 },
             ],
             chart: {
-                height: 350,
-                type: "area",
-                zoom: {
-                    enabled: true,
-                },
+                height: 390,
+                type: "bar",
                 toolbar: {
                     show: true,
                     tools: {
                         download: true,
-                        selection: true,
-                        zoom: true,
-                        zoomin: true,
-                        zoomout: true,
-                        pan: true,
-                        reset: true,
                     },
                     export: {
                         svg: {
-                            filename: "Anomali_Per_Minggu_svg",
+                            filename: "distribusi_equipment_svg",
                         },
                         png: {
-                            filename: "Anomali_Per_Minggu_png",
+                            filename: "distribusi_equipment_png",
                         },
                     },
                 },
-                animations: {
-                    enabled: true,
-                    easing: "easeinout",
-                    speed: 800,
-                    animateGradually: {
-                        enabled: true,
-                        delay: 150,
-                    },
-                    dynamicAnimation: {
-                        enabled: true,
-                        speed: 350,
+            },
+            plotOptions: {
+                bar: {
+                    borderRadius: 4,
+                    columnWidth: "50%",
+                    distributed: true,
+                    dataLabels: {
+                        position: "top",
                     },
                 },
             },
             dataLabels: {
                 enabled: true,
+                formatter: function (val) {
+                    return val;
+                },
                 style: {
-                    colors: ["#333"],
-                },
-                background: {
-                    enabled: true,
-                    foreColor: "#fff",
-                    padding: 4,
-                    borderRadius: 2,
-                    borderWidth: 1,
-                    borderColor: "#fff",
-                    opacity: 0.9,
+                    fontSize: "12px",
+                    colors: ["#304758"],
                 },
             },
-            stroke: {
-                curve: "smooth",
-                width: 3,
+            legend: {
+                show: false,
             },
-            fill: {
-                type: "gradient",
-                gradient: {
-                    shadeIntensity: 1,
-                    opacityFrom: 0.7,
-                    opacityTo: 0.9,
-                    stops: [0, 90, 100],
-                },
-            },
-            grid: {
-                borderColor: "#e7e7e7",
-                row: {
-                    colors: ["#f3f3f3", "transparent"],
-                    opacity: 0.5,
-                },
-            },
+            colors: [
+                "#3498db",
+                "#2ecc71",
+                "#e74c3c",
+                "#f1c40f",
+                "#9b59b6",
+                "#1abc9c",
+                "#e67e22",
+                "#34495e",
+                "#27ae60",
+                "#8e44ad",
+                "#d35400",
+                "#c0392b",
+                "#16a085",
+            ],
             xaxis: {
-                categories: anomaliPerMinggu.map((item) => item.minggu_tahun),
+                categories: equipments.map((equipment) => equipment.name),
                 labels: {
                     style: {
-                        colors: "#333",
                         fontSize: "12px",
+                        fontFamily: "Inter, sans-serif",
                     },
                     rotate: -45,
-                },
-                title: {
-                    text: "Minggu",
-                    style: {
-                        fontSize: "14px",
-                        fontWeight: 600,
-                    },
-                },
-            },
-            yaxis: {
-                labels: {
-                    formatter: function (val) {
-                        return val.toFixed(0);
-                    },
+                    rotateAlways: false,
+                    trim: true,
+                    maxHeight: 120,
                 },
             },
             tooltip: {
-                theme: "light",
                 y: {
                     formatter: function (val) {
                         return val + " anomali";
                     },
                 },
             },
-            markers: {
-                size: 5,
-                colors: ["#4CAF50"],
-                strokeColors: "#fff",
-                strokeWidth: 2,
-                hover: {
-                    size: 7,
+            grid: {
+                padding: {
+                    top: 40,
                 },
             },
         };
@@ -747,7 +555,7 @@ export default function Dashboard({
                                             ></path>
                                         </svg>
                                         <span className="font-semibold mr-2">
-                                            Tanggal Mulai:
+                                            Initial Plan :
                                         </span>
                                         <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800">
                                             {dateFormat(
@@ -772,7 +580,7 @@ export default function Dashboard({
                                             ></path>
                                         </svg>
                                         <span className="font-semibold mr-2">
-                                            Tanggal Selesai:
+                                            Final Plan:
                                         </span>
                                         <span className="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded dark:bg-green-200 dark:text-green-900">
                                             {dateFormat(
@@ -821,7 +629,7 @@ export default function Dashboard({
                                             ></path>
                                         </svg>
                                         <span className="font-semibold mr-2">
-                                            Pelapor:
+                                            Reporter:
                                         </span>
                                         <span>
                                             {selectedEvent.user.name ||
@@ -850,7 +658,7 @@ export default function Dashboard({
                                             ></path>
                                         </svg>
                                         <span className="font-semibold mr-2">
-                                            Lokasi:
+                                            Location:
                                         </span>
                                         <span>
                                             {selectedEvent.substation.name ||
@@ -873,7 +681,7 @@ export default function Dashboard({
                                             ></path>
                                         </svg>
                                         <span className="font-semibold mr-2">
-                                            Peralatan:
+                                            Equipment:
                                         </span>
                                         <span>
                                             {selectedEvent.equipment.name ||
@@ -925,7 +733,7 @@ export default function Dashboard({
                                                         d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
                                                     ></path>
                                                 </svg>
-                                                File Terlampir
+                                                Attachment
                                             </h4>
                                             <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
                                                 {
@@ -973,7 +781,7 @@ export default function Dashboard({
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                     ></path>
                                                 </svg>
-                                                Laporan Resmi
+                                                News Report
                                             </h4>
                                             <a
                                                 href={`/storage/${selectedEvent.report_path}`}
@@ -1061,7 +869,7 @@ export default function Dashboard({
                             </h2>
                             <div id="radial-chart" className="h-44 mb-4"></div>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 lg:col-span-2">
                             <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
                                 <svg
                                     className="w-5 h-5 mr-2 text-blue-500"
@@ -1073,13 +881,7 @@ export default function Dashboard({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        d="M19 13H5v-2h14v2z"
-                                    />
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M5 13l14-14m0 0l-14 14"
+                                        d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"
                                     />
                                 </svg>
                                 Chart Anomali Equipment
@@ -1098,26 +900,7 @@ export default function Dashboard({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    />
-                                </svg>
-                                Chart Anomali Week
-                            </h2>
-                            <div id="line-chart" className="h-44"></div>
-                        </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
-                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
-                                <svg
-                                    className="w-5 h-5 mr-2 text-blue-500"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </svg>
                                 Chart Anomali Status
@@ -1128,7 +911,7 @@ export default function Dashboard({
                     <div className="grid gap-4 lg:grid-cols-12">
                         <div className="lg:col-span-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-                                Calender Plan Anomaly
+                                Calender Plan Anomali
                             </h2>
                             <div className="h-[650px] md:h-[460px] lg:h-[700px]">
                                 <FullCalendar
@@ -1143,24 +926,42 @@ export default function Dashboard({
                                         center: "title",
                                         right: "dayGridMonth,timeGridWeek,timeGridDay",
                                     }}
-                                    events={events}
-                                    eventClick={handleEventClick}
-                                    height="100%"
-                                    eventMouseEnter={(info) => {
-                                        info.el.style.cursor = "pointer";
-                                    }}
-                                    dayMaxEvents={3} // Menampilkan maksimal 3 event per hari
-                                    eventDisplay="block" // Menampilkan event sebagai blok
-                                    slotEventOverlap={false} // Mencegah event saling tumpang tindih
-                                    eventContent={(arg) => {
-                                        return (
-                                            <div className="p-1 text-xs">
-                                                <div className="font-bold">
-                                                    {arg.timeText}
-                                                </div>
-                                                <div>{arg.event.title}</div>
-                                            </div>
+                                    events={anomalis_date.map((anomali) => {
+                                        const endDate = new Date(
+                                            anomali.date_plan_end
                                         );
+                                        endDate.setDate(endDate.getDate() + 1);
+
+                                        return {
+                                            id: anomali.id,
+                                            title: anomali.titlename,
+                                            start: anomali.date_plan_start,
+                                            end: endDate,
+                                            backgroundColor: getEventColor(
+                                                anomali.status.name
+                                            ),
+                                            borderColor: getEventColor(
+                                                anomali.status.name
+                                            ),
+                                            extendedProps: { ...anomali },
+                                            allDay: true,
+                                        };
+                                    })}
+                                    eventClick={handleEventClick}
+                                    height="auto"
+                                    eventDidMount={(info) => {
+                                        // Gunakan vanilla tooltip jika Flowbite tooltip bermasalah
+                                        info.el.title = `${info.event.title}\nStatus: ${info.event.extendedProps.status.name}`;
+                                    }}
+                                    locale="id"
+                                    firstDay={1}
+                                    dayMaxEvents={true}
+                                    moreLinkText="lihat {n} lainnya"
+                                    noEventsText="Tidak ada anomali"
+                                    businessHours={{
+                                        daysOfWeek: [1, 2, 3, 4, 5],
+                                        startTime: "07:00",
+                                        endTime: "17:00",
                                     }}
                                 />
                             </div>
