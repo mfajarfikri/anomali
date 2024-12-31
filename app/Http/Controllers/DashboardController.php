@@ -25,27 +25,28 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $anomaliPerTypeStatus = DB::table('anomalis')
-            ->join('types', 'anomalis.type_id', '=', 'types.id')
+        $anomaliPerEquipmentStatus = DB::table('anomalis')
+            ->join('equipment', 'anomalis.equipment_id', '=', 'equipment.id')
             ->join('statuses', 'anomalis.status_id', '=', 'statuses.id')
             ->select(
-                'types.name as type_name',
+                'equipment.name as equipment_name',
                 'statuses.name as status_name',
                 DB::raw('COUNT(*) as total')
             )
-            ->groupBy('types.name', 'statuses.name')
+            ->groupBy('equipment.name', 'statuses.name')
             ->get();
 
-        $anomaliPerSection = DB::table('anomalis')
+        $anomaliPerSectionType = DB::table('anomalis')
             ->join('sections', 'anomalis.section_id', '=', 'sections.id')
+            ->join('types', 'anomalis.type_id', '=', 'types.id')
             ->select(
                 'sections.name as section_name',
+                'types.name as type_name',
                 DB::raw('COUNT(*) as total')
             )
-            ->groupBy('sections.name')
+            ->groupBy('sections.name', 'types.name')
+            ->orderBy('sections.name')
             ->get();
-
-        
 
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
@@ -56,8 +57,8 @@ class DashboardController extends Controller
                 ->whereNotNull('date_plan_start')
                 ->whereNotNull('date_plan_end')
                 ->get(),
-            'anomaliPerTypeStatus' => $anomaliPerTypeStatus,
-            'anomaliPerSection' => $anomaliPerSection,
+            'anomaliPerEquipmentStatus' => $anomaliPerEquipmentStatus,
+            'anomaliPerSectionType' => $anomaliPerSectionType,
         ]);
     }
 
