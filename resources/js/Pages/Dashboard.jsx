@@ -101,6 +101,8 @@ export default function Dashboard({
             },
             plotOptions: {
                 bar: {
+                    borderRadius: 4,
+                    columnWidth: "50%",
                     horizontal: true,
                     dataLabels: {
                         total: {
@@ -228,8 +230,9 @@ export default function Dashboard({
             },
             plotOptions: {
                 bar: {
+                    borderRadius: 4,
                     horizontal: false, // Ubah ke false untuk membuat vertikal
-                    columnWidth: "60%",
+                    columnWidth: "50%",
                     endingShape: "rounded",
                     dataLabels: {
                         total: {
