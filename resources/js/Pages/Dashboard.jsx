@@ -18,10 +18,14 @@ export default function Dashboard({
     anomalis_date,
     anomaliPerEquipmentStatus,
     anomaliPerSectionType,
+    anomaliPerStatus,
+    maintenance_schedule,
 }) {
     const { auth } = usePage().props;
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [selectedMaintenance, setSelectedMaintenance] = useState(null);
+    const [showMaintenanceModal, setShowMaintenanceModal] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 11;
@@ -47,8 +51,18 @@ export default function Dashboard({
     };
 
     const handleEventClick = (clickInfo) => {
-        setSelectedEvent(clickInfo.event.extendedProps);
-        setShowModal(true);
+        // Handle klik event berdasarkan tipenya
+        const eventType = clickInfo.event.extendedProps.type;
+        if (eventType === "anomali") {
+            // Handle klik event anomali
+            setSelectedEvent(clickInfo.event.extendedProps);
+            setShowModal(true);
+        } else if (eventType === "maintenance") {
+            // Handle klik event maintenance
+            // Misalnya menampilkan modal yang berbeda
+            setSelectedMaintenance(clickInfo.event.extendedProps);
+            setShowMaintenanceModal(true);
+        }
     };
 
     // Tambahkan fungsi untuk mengubah halaman
@@ -302,6 +316,76 @@ export default function Dashboard({
             chart.destroy();
         };
     }, [anomaliPerEquipmentStatus]);
+
+    useEffect(() => {
+        if (!anomaliPerStatus || anomaliPerStatus.length === 0) return;
+
+        const chartElement = document.querySelector("#radar-chart");
+        if (!chartElement) return;
+
+        const options = {
+            series: anomaliPerStatus.map((item) => item.total),
+            chart: {
+                type: "pie",
+                height: 350,
+            },
+            labels: anomaliPerStatus.map((item) => item.status_name),
+            colors: ["#B81414", "#F59E0B", "#0EA5E9", "#10B981"],
+            legend: {
+                position: "bottom",
+                labels: {
+                    colors: "#9ca3af",
+                },
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: "50%",
+                    },
+                    expandOnClick: true,
+                },
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val, opts) {
+                    return opts.w.config.series[opts.seriesIndex];
+                },
+                style: {
+                    fontSize: "12px",
+                },
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return val + " anomali";
+                    },
+                },
+            },
+            responsive: [
+                {
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200,
+                        },
+                        legend: {
+                            position: "bottom",
+                        },
+                    },
+                },
+            ],
+            theme: {
+                mode: "light",
+            },
+        };
+
+        const chart = new ApexCharts(chartElement, options);
+        chart.render();
+
+        return () => {
+            chart.destroy();
+        };
+    }, [anomaliPerStatus]);
 
     return (
         <>
@@ -615,6 +699,24 @@ export default function Dashboard({
                         </button>
                     </div>
                 </Modal2>
+
+                {/* Modal untuk maintenance */}
+                <Modal2
+                    isOpen={showMaintenanceModal}
+                    onClose={() => setShowMaintenanceModal(false)}
+                    title="Detail Maintenance"
+                >
+                    {selectedMaintenance && (
+                        <div className="space-y-4">
+                            {/* Render detail maintenance */}
+                            <p>Maintenance ID: {selectedMaintenance.id}</p>
+                            <p>Title: {selectedMaintenance.title}</p>
+                            <p>Start Date: {selectedMaintenance.start_date}</p>
+                            <p>End Date: {selectedMaintenance.end_date}</p>
+                        </div>
+                    )}
+                </Modal2>
+
                 <div className="p-4 space-y-4">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 rounded-lg shadow-lg text-white">
                         <div className="flex items-center">
@@ -630,7 +732,7 @@ export default function Dashboard({
                             </div>
                         </div>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
                             <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
                                 <svg
@@ -643,7 +745,7 @@ export default function Dashboard({
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2"
+                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2"
                                     />
                                 </svg>
                                 Chart Anomali section
@@ -672,6 +774,28 @@ export default function Dashboard({
                             </h2>
                             <div id="pie-chart" className="h-44 mb-4"></div>
                         </div>
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
+                            <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-white flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2 text-blue-500"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
+                                </svg>
+                                Status Distribution
+                            </h2>
+                            <div id="radar-chart" className="h-[350px]"></div>
+                            <p className="text-center text-gray-800 font-semibold text-lg pt-4">
+                                Total Anomali : {anomalis.length}
+                            </p>
+                        </div>
                     </div>
                     <div className="grid gap-4 lg:grid-cols-12">
                         <div className="lg:col-span-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4">
@@ -691,33 +815,74 @@ export default function Dashboard({
                                         center: "title",
                                         right: "dayGridMonth,timeGridWeek,timeGridDay",
                                     }}
-                                    events={anomalis_date.map((anomali) => {
-                                        const endDate = new Date(
-                                            anomali.date_plan_end
-                                        );
-                                        endDate.setDate(endDate.getDate() + 1);
-
-                                        return {
-                                            id: anomali.id,
+                                    events={[
+                                        // Events dari tabel pertama (anomalis_date)
+                                        ...anomalis_date.map((anomali) => ({
+                                            id: `anomali-${anomali.id}`,
                                             title: anomali.titlename,
                                             start: anomali.date_plan_start,
-                                            end: endDate,
+                                            end: (() => {
+                                                const endDate = new Date(
+                                                    anomali.date_plan_end
+                                                );
+                                                endDate.setDate(
+                                                    endDate.getDate() + 1
+                                                );
+                                                return endDate;
+                                            })(),
                                             backgroundColor: getEventColor(
                                                 anomali.status.name
                                             ),
                                             borderColor: getEventColor(
                                                 anomali.status.name
                                             ),
-                                            extendedProps: { ...anomali },
+                                            extendedProps: {
+                                                type: "anomali",
+                                                ...anomali,
+                                            },
                                             allDay: true,
-                                        };
-                                    })}
+                                        })),
+
+                                        // Events dari tabel kedua (misalnya: maintenance_schedule)
+                                        ...[
+                                            {
+                                                id: 2,
+                                                title: "Pemeliharaan Rutin",
+                                                start: "2025-01-15",
+                                                end: (() => {
+                                                    const endDate = new Date(
+                                                        "2025-01-17"
+                                                    );
+                                                    endDate.setDate(
+                                                        endDate.getDate() + 1
+                                                    );
+                                                    return endDate;
+                                                })(),
+                                                backgroundColor: "#FF9800",
+                                                borderColor: "#F57C00",
+                                                extendedProps: {
+                                                    type: "maintenance",
+                                                    description:
+                                                        "Pemeliharaan rutin peralatan",
+                                                },
+                                                allDay: true,
+                                            },
+                                        ],
+                                    ]}
                                     eventClick={handleEventClick}
-                                    height="auto"
                                     eventDidMount={(info) => {
-                                        // Gunakan vanilla tooltip jika Flowbite tooltip bermasalah
-                                        info.el.title = `${info.event.title}\nStatus: ${info.event.extendedProps.status.name}`;
+                                        // Custom tooltip berdasarkan tipe event
+                                        const eventType =
+                                            info.event.extendedProps.type;
+                                        if (eventType === "anomali") {
+                                            info.el.title = `${info.event.title}\nStatus: ${info.event.extendedProps.status.name}`;
+                                        } else if (
+                                            eventType === "maintenance"
+                                        ) {
+                                            info.el.title = `Maintenance: ${info.event.title}\nSchedule: ${info.event.start} - ${info.event.end}`;
+                                        }
                                     }}
+                                    height="auto"
                                     locale="id"
                                     firstDay={1}
                                     dayMaxEvents={true}

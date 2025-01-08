@@ -48,6 +48,15 @@ class DashboardController extends Controller
             ->orderBy('sections.name')
             ->get();
 
+        $anomaliPerStatus = DB::table('anomalis')
+            ->join('statuses', 'anomalis.status_id', '=', 'statuses.id')
+            ->select(
+                'statuses.name as status_name',
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('statuses.name')
+            ->get();
+
         return Inertia::render('Dashboard', [
             'equipments' => Equipment::with('Anomali')->get(),
             'type' => Type::with('Anomali')->get(),
@@ -59,6 +68,7 @@ class DashboardController extends Controller
                 ->get(),
             'anomaliPerEquipmentStatus' => $anomaliPerEquipmentStatus,
             'anomaliPerSectionType' => $anomaliPerSectionType,
+            'anomaliPerStatus' => $anomaliPerStatus,
         ]);
     }
 
