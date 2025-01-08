@@ -19,6 +19,7 @@ export default function Dashboard({
     anomaliPerEquipmentStatus,
     anomaliPerSectionType,
     anomaliPerStatus,
+    anomaliAll,
     maintenance_schedule,
 }) {
     const { auth } = usePage().props;
@@ -330,7 +331,7 @@ export default function Dashboard({
                 height: 350,
             },
             labels: anomaliPerStatus.map((item) => item.status_name),
-            colors: ["#B81414", "#F59E0B", "#0EA5E9", "#10B981"],
+            colors: ["#B81414", "#10B981", "#0EA5E9", "#F59E0B"],
             legend: {
                 position: "bottom",
                 labels: {
@@ -844,30 +845,30 @@ export default function Dashboard({
                                         })),
 
                                         // Events dari tabel kedua (misalnya: maintenance_schedule)
-                                        ...[
-                                            {
-                                                id: 2,
-                                                title: "Pemeliharaan Rutin",
-                                                start: "2025-01-15",
-                                                end: (() => {
-                                                    const endDate = new Date(
-                                                        "2025-01-17"
-                                                    );
-                                                    endDate.setDate(
-                                                        endDate.getDate() + 1
-                                                    );
-                                                    return endDate;
-                                                })(),
-                                                backgroundColor: "#FF9800",
-                                                borderColor: "#F57C00",
-                                                extendedProps: {
-                                                    type: "maintenance",
-                                                    description:
-                                                        "Pemeliharaan rutin peralatan",
-                                                },
-                                                allDay: true,
-                                            },
-                                        ],
+                                        // ...[
+                                        //     {
+                                        //         id: 2,
+                                        //         title: "Pemeliharaan Rutin",
+                                        //         start: "2025-01-15",
+                                        //         end: (() => {
+                                        //             const endDate = new Date(
+                                        //                 "2025-01-17"
+                                        //             );
+                                        //             endDate.setDate(
+                                        //                 endDate.getDate() + 1
+                                        //             );
+                                        //             return endDate;
+                                        //         })(),
+                                        //         backgroundColor: "#FF9800",
+                                        //         borderColor: "#F57C00",
+                                        //         extendedProps: {
+                                        //             type: "maintenance",
+                                        //             description:
+                                        //                 "Pemeliharaan rutin peralatan",
+                                        //         },
+                                        //         allDay: true,
+                                        //     },
+                                        // ],
                                     ]}
                                     eventClick={handleEventClick}
                                     eventDidMount={(info) => {

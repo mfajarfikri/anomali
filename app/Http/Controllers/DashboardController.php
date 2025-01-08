@@ -20,6 +20,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
+
         $anomalis = Anomali::with(['status', 'equipment', 'user'])
             ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
@@ -69,6 +70,7 @@ class DashboardController extends Controller
             'anomaliPerEquipmentStatus' => $anomaliPerEquipmentStatus,
             'anomaliPerSectionType' => $anomaliPerSectionType,
             'anomaliPerStatus' => $anomaliPerStatus,
+            'anomaliAll' => Anomali::all()
         ]);
     }
 
