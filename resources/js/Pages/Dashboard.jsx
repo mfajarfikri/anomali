@@ -324,18 +324,22 @@ export default function Dashboard({
         const chartElement = document.querySelector("#radar-chart");
         if (!chartElement) return;
 
+        const isDarkMode = document.documentElement.classList.contains("dark");
+
         const options = {
             series: anomaliPerStatus.map((item) => item.total),
             chart: {
                 type: "pie",
                 height: 350,
+                background: "transparent",
+                foreColor: isDarkMode ? "#fff" : "#374151",
             },
             labels: anomaliPerStatus.map((item) => item.status_name),
             colors: ["#B81414", "#10B981", "#0EA5E9", "#F59E0B"],
             legend: {
                 position: "bottom",
                 labels: {
-                    colors: "#9ca3af",
+                    colors: isDarkMode ? "#fff" : "#374151",
                 },
             },
             plotOptions: {
@@ -353,9 +357,11 @@ export default function Dashboard({
                 },
                 style: {
                     fontSize: "12px",
+                    colors: [isDarkMode ? "#fff" : "#374151"],
                 },
             },
             tooltip: {
+                theme: isDarkMode ? "dark" : "light",
                 y: {
                     formatter: function (val) {
                         return val + " anomali";
@@ -364,10 +370,10 @@ export default function Dashboard({
             },
             responsive: [
                 {
-                    breakpoint: 480,
                     options: {
                         chart: {
                             width: 200,
+                            background: "transparent",
                         },
                         legend: {
                             position: "bottom",
@@ -375,9 +381,6 @@ export default function Dashboard({
                     },
                 },
             ],
-            theme: {
-                mode: "light",
-            },
         };
 
         const chart = new ApexCharts(chartElement, options);
@@ -793,7 +796,7 @@ export default function Dashboard({
                                 Status Distribution
                             </h2>
                             <div id="radar-chart" className="h-[350px]"></div>
-                            <p className="text-center text-gray-800 font-semibold text-lg pt-4">
+                            <p className="text-center text-gray-800 font-semibold dark:text-white text-lg pt-4">
                                 Total Anomali : {anomalis.length}
                             </p>
                         </div>
