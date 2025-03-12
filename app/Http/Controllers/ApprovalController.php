@@ -14,6 +14,17 @@ class ApprovalController extends Controller
      */
     public function index(Request $request)
     {
+        $perpage = $request->input('perpage', 15);
+        
+        // Tambahkan pengecekan dan update status anomali yang expired
+        $today = now()->startOfDay();
+        Anomali::where('status_id', 2) // Status Approve
+            ->where('date_plan_end', '<', $today)
+            ->update([
+                'is_approve' => false,
+                'status_id' => 4, // Status Pending
+            ]);
+
         $query = Anomali::with([
             'Substation',
             'Section',
@@ -22,7 +33,7 @@ class ApprovalController extends Controller
             'Equipment',
             'Bay',
             'Status',
-        ])->whereNot('status_id', 3);
+        ])->whereIn('status_id', [1, 4]); // Tampilkan status New (1) dan Pending (4)
 
         if ($request->has('search')) {
             $searchTerm = $request->search;
@@ -46,7 +57,19 @@ class ApprovalController extends Controller
             });
         }
 
-        $anomalis = $query->latest()->paginate($request->perpage ?? 15);
+        // Tambahkan kondisi untuk 'all'
+        if ($perpage === 'all') {
+            $data = $query->latest()->get();
+            $anomalis = [
+                'data' => $data,
+                'from' => 1,
+                'to' => $data->count(),
+                'total' => $data->count(),
+                'links' => []
+            ];
+        } else {
+            $anomalis = $query->latest()->paginate($perpage);
+        }
 
         return Inertia::render('Approval/Approval', [
             'anomalis' => $anomalis

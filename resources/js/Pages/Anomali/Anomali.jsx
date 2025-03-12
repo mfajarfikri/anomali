@@ -10,6 +10,8 @@ import Pagination from "@/Components/Pagination";
 import Modal2 from "@/Components/Modal2";
 import dateFormat, { masks } from "dateformat";
 import Notiflix from "notiflix";
+import { Link } from "@inertiajs/react";
+import * as XLSX from "xlsx";
 
 export default function Anomali({
     auth,
@@ -41,6 +43,7 @@ export default function Anomali({
             {
                 preserveScroll: true,
                 preserveState: true,
+                only: ["anomalis"],
                 onFinish: () => setIsLoading(false),
             }
         );
@@ -154,6 +157,33 @@ export default function Anomali({
             ...prevFilters,
             [name]: value,
         }));
+
+        // Apply filter immediately for live rendering
+        if (name !== "start_date" && name !== "end_date") {
+            applyFilterLive(name, value);
+        }
+    };
+
+    const applyFilterLive = (name, value) => {
+        setIsLoading(true);
+        const updatedFilters = {
+            ...filters,
+            [name]: value,
+        };
+
+        router.get(
+            route().current(),
+            {
+                ...updatedFilters,
+                perpage: perpage.current,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ["anomalis"],
+                onFinish: () => setIsLoading(false),
+            }
+        );
     };
 
     const applyFilters = (e) => {
@@ -167,6 +197,8 @@ export default function Anomali({
             },
             {
                 preserveState: true,
+                preserveScroll: true,
+                only: ["anomalis"],
                 replace: true,
                 onFinish: () => setIsLoading(false),
             }
@@ -184,11 +216,58 @@ export default function Anomali({
             start_date: "",
             end_date: "",
         });
-        router.get(route().current(), { perpage: perpage.current });
+        setIsLoading(true);
+        router.get(
+            route().current(),
+            { perpage: perpage.current },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ["anomalis"],
+                onFinish: () => setIsLoading(false),
+            }
+        );
         setOpenFilterModal(false);
     };
 
-    // console.log(auth.user.role_id);
+    const handleExport = () => {
+        const fileType =
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+        const fileExtension = ".xlsx";
+
+        // Format data untuk excel
+        const excelData = anomalis.data.map((item, index) => ({
+            No: index + 1,
+            Title: item.titlename,
+            Substation: item.substation.name,
+            Section: item.section.name,
+            Type: item.type.name,
+            User: item.user.name,
+            Equipment: item.equipment.name,
+            Bay: item.bay.name,
+            Additional_Information: item.additional_information,
+            "Tanggal Temuan": dateFormat(item.date_find, "dd mmmm yyyy"),
+            "Tanggal Perencanaan": dateFormat(
+                item.date_plan_start,
+                "dd mmmm yyyy"
+            ),
+            "Tanggal Selesai": dateFormat(item.date_plan_end, "dd mmmm yyyy"),
+            Status: item.status.name,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const data = new Blob([excelBuffer], { type: fileType });
+
+        // Download file
+        const fileName =
+            "Anomali " + dateFormat(new Date(), "dd-mm-yyyy") + fileExtension;
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(data);
+        link.download = fileName;
+        link.click();
+    };
 
     return (
         <>
@@ -1027,6 +1106,26 @@ export default function Anomali({
                                         />
                                     </svg>
                                 </button>
+                                <button
+                                    onClick={handleExport}
+                                    className="inline-flex items-center justify-center w-8 h-8 mr-2 transition-colors duration-150 border-none hover:scale-105 dark:text-gray-300"
+                                    title="Export to Excel"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={1.5}
+                                        className="stroke-gray-700 size-6 dark:stroke-gray-300"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"
+                                        />
+                                    </svg>
+                                </button>
+
                                 <form onSubmit={(e) => e.preventDefault()}>
                                     <div className="relative bg-transparent">
                                         <div className="absolute inset-y-0 flex items-center pointer-events-none start-0 ps-3">
@@ -1053,12 +1152,21 @@ export default function Anomali({
                                             onChange={(e) => {
                                                 const searchTerm =
                                                     e.target.value;
+                                                setIsLoading(true);
                                                 router.get(
                                                     route(route().current()),
-                                                    { search: searchTerm },
+                                                    {
+                                                        search: searchTerm,
+                                                        perpage:
+                                                            perpage.current,
+                                                    },
                                                     {
                                                         preserveState: true,
+                                                        preserveScroll: true,
+                                                        only: ["anomalis"],
                                                         replace: true,
+                                                        onFinish: () =>
+                                                            setIsLoading(false),
                                                     }
                                                 );
                                             }}
@@ -1173,6 +1281,11 @@ export default function Anomali({
                                                 <p className="flex justify-center py-0.5 font-semibold text-xs text-sky-800 bg-sky-100 rounded-[4px] dark:bg-transparent dark:border dark:border-sky-300 dark:text-sky-500">
                                                     {anomali.status.name}
                                                 </p>
+                                            ) : anomali.status.name ===
+                                              "Pending" ? (
+                                                <p className="flex justify-center py-0.5 font-semibold text-xs text-orange-800 bg-orange-400 rounded-[4px] dark:bg-transparent dark:border dark:border-orange-300 dark:text-orange-500">
+                                                    {anomali.status.name}
+                                                </p>
                                             ) : (
                                                 <p className="flex justify-center py-0.5 font-semibold text-xs text-rose-800 bg-rose-100 rounded-[4px] dark:bg-transparent dark:border dark:border-rose-300 dark:text-rose-500">
                                                     {anomali.status.name}
@@ -1206,7 +1319,11 @@ export default function Anomali({
                                 <option value={anomalis.total}>All</option>
                             </select>
                         </div>
-                        <Pagination links={anomalis.links} />
+                        <Pagination
+                            links={anomalis.links}
+                            only={["anomalis"]}
+                            preserveScroll={true}
+                        />
                     </div>
                 </div>
             </DashboardLayout>

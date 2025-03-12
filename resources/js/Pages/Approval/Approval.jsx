@@ -177,6 +177,25 @@ export default function Approval({ auth, anomalis }) {
         });
     };
 
+    const handlePageChange = (url) => {
+        setIsLoading(true);
+        router.get(
+            url,
+            {
+                search: search,
+                perpage: perpage.current,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ["anomalis"],
+                onFinish: () => setIsLoading(false),
+            }
+        );
+    };
+
+    console.log(anomalis);
+
     return (
         <>
             <Head title="Anomali" />
@@ -1069,10 +1088,39 @@ export default function Approval({ auth, anomalis }) {
                             >
                                 <option>10</option>
                                 <option>20</option>
-                                <option>50</option>
+                                <option>All</option>
                             </select>
                         </div>
-                        <Pagination links={anomalis.links} />
+                        {anomalis.links && anomalis.links.length > 3 && (
+                            <div className="flex items-center gap-1">
+                                {anomalis.links.map((link, key) => (
+                                    <div key={key}>
+                                        {link.url === null ? (
+                                            <span
+                                                className="px-2 py-1 text-sm rounded-md cursor-not-allowed text-gray-500 dark:text-gray-400"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ) : (
+                                            <button
+                                                onClick={() =>
+                                                    handlePageChange(link.url)
+                                                }
+                                                className={`px-2 py-1 text-sm rounded-md ${
+                                                    link.active
+                                                        ? "bg-cyan-600 text-white dark:bg-cyan-700"
+                                                        : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                                }`}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </DashboardLayout>

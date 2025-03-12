@@ -46,6 +46,8 @@ export default function Dashboard({
                 return "#10B981";
             case "Close":
                 return "#0EA5E9";
+            case "Pending":
+                return "#F59E0B";
             default:
                 return "#10B981";
         }

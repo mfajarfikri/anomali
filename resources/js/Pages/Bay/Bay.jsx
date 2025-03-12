@@ -37,10 +37,16 @@ export default function Bay() {
             setIsLoading(true);
             router.get(
                 route(route().current()),
-                { search, substation, condition, perpage },
+                {
+                    search,
+                    substation,
+                    condition,
+                    perpage,
+                },
                 {
                     preserveState: true,
-                    replace: true,
+                    preserveScroll: true,
+                    only: ["bays"],
                     onFinish: () => setIsLoading(false),
                 }
             );
@@ -177,6 +183,25 @@ export default function Bay() {
     }, [selectedItem]);
 
     console.log(data);
+
+    const handlePageChange = (url) => {
+        setIsLoading(true);
+        router.get(
+            url,
+            {
+                search: searchTerm,
+                substation: filterSubstation,
+                condition: filterCondition,
+                perpage: perpage.current,
+            },
+            {
+                preserveState: true,
+                preserveScroll: true,
+                only: ["bays"],
+                onFinish: () => setIsLoading(false),
+            }
+        );
+    };
 
     return (
         <>
@@ -649,7 +674,36 @@ export default function Bay() {
                                 <option>30</option>
                             </select>
                         </div>
-                        <Pagination className="rounded-sm" links={bays.links} />
+                        {bays.links && bays.links.length > 3 && (
+                            <div className="flex items-center gap-1">
+                                {bays.links.map((link, key) => (
+                                    <div key={key}>
+                                        {link.url === null ? (
+                                            <span
+                                                className="px-2 py-1 text-sm rounded-md cursor-not-allowed text-gray-500 dark:text-gray-400"
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        ) : (
+                                            <button
+                                                onClick={() =>
+                                                    handlePageChange(link.url)
+                                                }
+                                                className={`px-2 py-1 text-sm rounded-md ${
+                                                    link.active
+                                                        ? "bg-cyan-600 text-white dark:bg-cyan-700"
+                                                        : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                                }`}
+                                                dangerouslySetInnerHTML={{
+                                                    __html: link.label,
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             </DashboardLayout>

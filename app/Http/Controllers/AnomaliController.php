@@ -22,6 +22,16 @@ class AnomaliController extends Controller
      */
     public function index(Request $request)
     {
+        $perpage = $request->input('perpage', 15);
+        
+        // Tambahkan pengecekan dan update status anomali yang melewati batas
+        $today = now()->startOfDay();
+        Anomali::where('status_id', 2) // Status Approve
+            ->where('date_plan_end', '<', $today)
+            ->update([
+                'status_id' => 4, // Status Pending
+            ]);
+
         $query = Anomali::with(['Substation', 'Section', 'Type', 'User', 'Equipment', 'Bay', 'Status'])->latest();
 
         if ($request->filled('substation')) {
@@ -82,7 +92,7 @@ class AnomaliController extends Controller
             });
         }
 
-        $anomalis = $query->paginate($request->input('perpage', 15));
+        $anomalis = $query->paginate($perpage);
 
         return Inertia::render('Anomali/Anomali', [
             'anomalis' => $anomalis,
