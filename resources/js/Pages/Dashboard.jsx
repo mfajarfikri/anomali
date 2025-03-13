@@ -799,7 +799,7 @@ export default function Dashboard({
                             </h2>
                             <div id="radar-chart" className="h-[350px]"></div>
                             <p className="text-center text-gray-800 font-semibold dark:text-white text-lg pt-4">
-                                Total Anomali : {anomalis.length}
+                                Total Anomali : {anomaliAll.length}
                             </p>
                         </div>
                     </div>

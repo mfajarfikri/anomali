@@ -235,38 +235,71 @@ export default function Anomali({
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
         const fileExtension = ".xlsx";
 
-        // Format data untuk excel
+        // Format data untuk excel dengan pengecekan null
         const excelData = anomalis.data.map((item, index) => ({
             No: index + 1,
-            Title: item.titlename,
-            Substation: item.substation.name,
-            Section: item.section.name,
-            Type: item.type.name,
-            User: item.user.name,
-            Equipment: item.equipment.name,
-            Bay: item.bay.name,
-            Additional_Information: item.additional_information,
-            "Tanggal Temuan": dateFormat(item.date_find, "dd mmmm yyyy"),
-            "Tanggal Perencanaan": dateFormat(
-                item.date_plan_start,
-                "dd mmmm yyyy"
-            ),
-            "Tanggal Selesai": dateFormat(item.date_plan_end, "dd mmmm yyyy"),
-            Status: item.status.name,
+            Title: item.titlename || "-",
+            Substation: item.substation?.name || "-",
+            Section: item.section?.name || "-",
+            Type: item.type?.name || "-",
+            User: item.user?.name || "-",
+            Equipment: item.equipment?.name || "-",
+            Bay: item.bay?.name || "-",
+            "Additional Information": item.additional_information || "-",
+            "Date Found": item.date_find
+                ? dateFormat(item.date_find, "dd mmmm yyyy")
+                : "-",
+            "Date Plan Start": item.date_plan_start
+                ? dateFormat(item.date_plan_start, "dd mmmm yyyy")
+                : "-",
+            "Date Plan End": item.date_plan_end
+                ? dateFormat(item.date_plan_end, "dd mmmm yyyy")
+                : "-",
+            Status: item.status?.name || "-",
         }));
 
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-        const data = new Blob([excelBuffer], { type: fileType });
+        try {
+            const ws = XLSX.utils.json_to_sheet(excelData);
+            const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
 
-        // Download file
-        const fileName =
-            "Anomali " + dateFormat(new Date(), "dd-mm-yyyy") + fileExtension;
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(data);
-        link.download = fileName;
-        link.click();
+            // Atur lebar kolom
+            const colWidths = [
+                { wch: 5 }, // No
+                { wch: 30 }, // Title
+                { wch: 20 }, // Substation
+                { wch: 15 }, // Section
+                { wch: 10 }, // Type
+                { wch: 20 }, // User
+                { wch: 15 }, // Equipment
+                { wch: 15 }, // Bay
+                { wch: 40 }, // Additional Information
+                { wch: 15 }, // Date Found
+                { wch: 15 }, // Date Plan Start
+                { wch: 15 }, // Date Plan End
+                { wch: 10 }, // Status
+            ];
+            ws["!cols"] = colWidths;
+
+            const excelBuffer = XLSX.write(wb, {
+                bookType: "xlsx",
+                type: "array",
+            });
+            const data = new Blob([excelBuffer], { type: fileType });
+
+            const fileName =
+                "Anomali_" +
+                dateFormat(new Date(), "dd-mm-yyyy") +
+                fileExtension;
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(data);
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error("Export error:", error);
+            Notiflix.Notify.failure("Failed to export data");
+        }
     };
 
     return (

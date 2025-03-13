@@ -18,11 +18,11 @@ class ApprovalController extends Controller
         
         // Tambahkan pengecekan dan update status anomali yang expired
         $today = now()->startOfDay();
-        Anomali::where('status_id', 2) // Status Approve
+        Anomali::where('status_id', 2)
             ->where('date_plan_end', '<', $today)
             ->update([
                 'is_approve' => false,
-                'status_id' => 4, // Status Pending
+                'status_id' => 4,
             ]);
 
         $query = Anomali::with([
@@ -33,7 +33,7 @@ class ApprovalController extends Controller
             'Equipment',
             'Bay',
             'Status',
-        ])->whereIn('status_id', [1, 4]); // Tampilkan status New (1) dan Pending (4)
+        ])->whereIn('status_id', [1, 2, 4]);
 
         if ($request->has('search')) {
             $searchTerm = $request->search;
@@ -57,19 +57,26 @@ class ApprovalController extends Controller
             });
         }
 
-        // Tambahkan kondisi untuk 'all'
+        // Perbaikan untuk handle 'all'
         if ($perpage === 'all') {
             $data = $query->latest()->get();
-            $anomalis = [
-                'data' => $data,
-                'from' => 1,
-                'to' => $data->count(),
-                'total' => $data->count(),
-                'links' => []
-            ];
-        } else {
-            $anomalis = $query->latest()->paginate($perpage);
+            $total = $data->count();
+            return Inertia::render('Approval/Approval', [
+                'anomalis' => [
+                    'data' => $data,
+                    'from' => $total > 0 ? 1 : 0,
+                    'to' => $total,
+                    'total' => $total,
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'per_page' => $total,
+                    'links' => []
+                ]
+            ]);
         }
+
+        // Jika bukan 'all', gunakan pagination normal
+        $anomalis = $query->latest()->paginate((int)$perpage);
 
         return Inertia::render('Approval/Approval', [
             'anomalis' => $anomalis
@@ -148,7 +155,7 @@ class ApprovalController extends Controller
         $request->validate([
             'date_execution' => 'required|date',
             'action' => 'required|string',
-            'officialReport' => 'required|file|mimes:pdf|max:2000',
+            'officialReport' => 'required|file|mimes:pdf|max:3072',
         ]);
 
         $anomaly = Anomali::findOrFail($id);

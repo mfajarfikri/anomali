@@ -552,7 +552,7 @@ export default function Approval({ auth, anomalis }) {
                                                 or drag and drop
                                             </p>
                                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                PDF Only (MAKS. 2000kb)
+                                                PDF Only (MAX. 3MB)
                                             </p>
                                         </div>
                                         <FileInput
@@ -1086,9 +1086,9 @@ export default function Approval({ auth, anomalis }) {
                                 value={perpage.current}
                                 onChange={handleChangePerPage}
                             >
-                                <option>10</option>
-                                <option>20</option>
-                                <option>All</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="all">All</option>
                             </select>
                         </div>
                         {anomalis.links && anomalis.links.length > 3 && (
