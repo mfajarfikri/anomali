@@ -8,6 +8,7 @@ use App\Http\Controllers\AnomaliController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HarController;
 use App\Http\Controllers\SubstationController;
 
 Route::get('/', function () {
@@ -26,6 +27,9 @@ Route::middleware(['auth', 'verified' ])->group(function () {
 });
 
 Route::middleware(['auth','verified', 'is_role:Admin'])->group(function () {
+
+    Route::get('har', [HarController::class, 'index'])->name('har');
+    Route::post('har', [HarController::class, 'store'])->name('har.store');
 
     Route::get('/substation', [SubstationController::class, 'index'])->name('substation');
     Route::post('/substation/create', [SubstationController::class, 'create'])->name('substation.create');

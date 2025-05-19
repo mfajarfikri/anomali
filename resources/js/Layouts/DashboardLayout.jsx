@@ -141,6 +141,14 @@ export default function DashboardLayout({ children, user }) {
                                         </li>
                                         <li className="items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex">
                                             <a
+                                                href={route("har")}
+                                                className="flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500"
+                                            >
+                                                Har
+                                            </a>
+                                        </li>
+                                        <li className="items-center dark:hover:bg-slate-700 lg:dark:hover:bg-transparent lg:flex">
+                                            <a
                                                 href={route("anomali")}
                                                 className="flex py-2 mx-4 text-base text-black dark:text-gray-300 dark:hover:text-cyan-500 lg:inline-flex hover:text-cyan-500"
                                             >

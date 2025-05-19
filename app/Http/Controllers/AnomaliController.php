@@ -9,7 +9,6 @@ use Inertia\Inertia;
 use App\Models\Status;
 use App\Models\Anomali;
 use App\Models\Section;
-use App\Models\Document;
 use App\Models\Equipment;
 use App\Models\Substation;
 use Illuminate\Http\Request;
@@ -23,7 +22,7 @@ class AnomaliController extends Controller
     public function index(Request $request)
     {
         $perpage = $request->input('perpage', 15);
-        
+
         // Tambahkan pengecekan dan update status anomali yang melewati batas
         $today = now()->startOfDay();
         Anomali::where('status_id', 2) // Status Approve
@@ -37,6 +36,7 @@ class AnomaliController extends Controller
         if ($request->filled('substation')) {
             $query->where('substation_id', $request->substation);
         }
+
 
         if ($request->filled('section')) {
             $query->where('section_id', $request->section);

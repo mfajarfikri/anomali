@@ -12,16 +12,27 @@ import ApplicationLogo from "@/Components/ApplicationLogo";
 import Modal2 from "@/Components/Modal2";
 
 export default function Dashboard({
-    status,
-    equipments,
     anomalis,
     anomalis_date,
     anomaliPerEquipmentStatus,
     anomaliPerSectionType,
     anomaliPerStatus,
     anomaliAll,
-    maintenance_schedule,
+    har,
 }) {
+    // Add CSS style for FullCalendar event cursor pointer
+    useEffect(() => {
+        const style = document.createElement("style");
+        style.innerHTML = `
+            .fc-event {
+                cursor: pointer !important;
+            }
+        `;
+        document.head.appendChild(style);
+        return () => {
+            document.head.removeChild(style);
+        };
+    }, []);
     const { auth } = usePage().props;
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -300,7 +311,7 @@ export default function Dashboard({
                 offsetX: 0,
                 offsetY: 0,
             },
-            colors: ["#B81414", "#10B981", "#0EA5E9"],
+            colors: ["#B81414", "#10B981", "#0EA5E9", "F59E0B"],
             dataLabels: {
                 enabled: true,
                 formatter: function (val) {
@@ -392,6 +403,8 @@ export default function Dashboard({
             chart.destroy();
         };
     }, [anomaliPerStatus]);
+
+    console.log(selectedMaintenance);
 
     return (
         <>
@@ -713,12 +726,191 @@ export default function Dashboard({
                     title="Detail Maintenance"
                 >
                     {selectedMaintenance && (
-                        <div className="space-y-4">
-                            {/* Render detail maintenance */}
-                            <p>Maintenance ID: {selectedMaintenance.id}</p>
-                            <p>Title: {selectedMaintenance.title}</p>
-                            <p>Start Date: {selectedMaintenance.start_date}</p>
-                            <p>End Date: {selectedMaintenance.end_date}</p>
+                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm max-h-[800px] overflow-y-auto">
+                            <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                                    {selectedMaintenance.title ||
+                                        "Maintenance Detail"}
+                                </h2>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-6">
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900 flex items-center justify-center">
+                                            <svg
+                                                className="w-4 h-4 text-blue-600 dark:text-blue-300"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Maintenance Title
+                                            </p>
+                                            <p className="font-medium text-gray-900 dark:text-white break-words">
+                                                {selectedMaintenance.titlename ||
+                                                    "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center">
+                                        <div className="w-8 h-8 rounded-full bg-green-50 dark:bg-green-900 flex items-center justify-center mr-3">
+                                            <svg
+                                                className="w-4 h-4 text-green-600 dark:text-green-300"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Date
+                                            </p>
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                {dateFormat(
+                                                    selectedMaintenance.date,
+                                                    "dd mmmm yyyy"
+                                                ) || "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center">
+                                        <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900 flex items-center justify-center mr-3">
+                                            <svg
+                                                className="w-4 h-4 text-purple-600 dark:text-purple-300"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Responsible Person
+                                            </p>
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                {selectedMaintenance.responsible_person ||
+                                                    "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center">
+                                        <div className="w-8 h-8 rounded-full bg-cyan-50 dark:bg-cyan-900 flex items-center justify-center mr-3">
+                                            <svg
+                                                className="w-4 h-4 text-cyan-600 dark:text-cyan-300"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Equipment
+                                            </p>
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                {selectedMaintenance.equipment
+                                                    .name || "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center">
+                                        <div className="w-8 h-8 rounded-full bg-yellow-50 dark:bg-yellow-900 flex items-center justify-center mr-3">
+                                            <svg
+                                                className="w-4 h-4 text-yellow-600 dark:text-yellow-300"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                                />
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Location
+                                            </p>
+                                            <p className="font-medium text-gray-900 dark:text-white">
+                                                {selectedMaintenance.substation
+                                                    .name || "N/A"}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center mb-3">
+                                            <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900 flex items-center justify-center mr-3">
+                                                <svg
+                                                    className="w-4 h-4 text-indigo-600 dark:text-indigo-300"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="2"
+                                                        d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                Description
+                                            </p>
+                                        </div>
+                                        <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                                            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                                {selectedMaintenance.description ||
+                                                    "No description available."}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </Modal2>
@@ -849,31 +1041,28 @@ export default function Dashboard({
                                             allDay: true,
                                         })),
 
-                                        // Events dari tabel kedua (misalnya: maintenance_schedule)
-                                        // ...[
-                                        //     {
-                                        //         id: 2,
-                                        //         title: "Pemeliharaan Rutin",
-                                        //         start: "2025-01-15",
-                                        //         end: (() => {
-                                        //             const endDate = new Date(
-                                        //                 "2025-01-17"
-                                        //             );
-                                        //             endDate.setDate(
-                                        //                 endDate.getDate() + 1
-                                        //             );
-                                        //             return endDate;
-                                        //         })(),
-                                        //         backgroundColor: "#FF9800",
-                                        //         borderColor: "#F57C00",
-                                        //         extendedProps: {
-                                        //             type: "maintenance",
-                                        //             description:
-                                        //                 "Pemeliharaan rutin peralatan",
-                                        //         },
-                                        //         allDay: true,
-                                        //     },
-                                        // ],
+                                        // Events dari tabel kedua (misalnya: har)
+                                        ...har.map((item) => ({
+                                            id: `har-${item.id}`,
+                                            title: item.titlename,
+                                            start: item.date,
+                                            end: (() => {
+                                                const endDate = new Date(
+                                                    item.date
+                                                );
+                                                endDate.setDate(
+                                                    endDate.getDate() + 1
+                                                );
+                                                return endDate;
+                                            })(),
+                                            backgroundColor: "#6b4312",
+                                            borderColor: "#6b4312",
+                                            extendedProps: {
+                                                type: "maintenance",
+                                                ...item,
+                                            },
+                                            allDay: true,
+                                        })),
                                     ]}
                                     eventClick={handleEventClick}
                                     eventDidMount={(info) => {

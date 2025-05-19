@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Anomali;
 use App\Models\User;
 use App\Models\Bay;
+use App\Models\Har;
 use Database\Factories\AnomaliFactory;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -32,5 +33,6 @@ class DatabaseSeeder extends Seeder
         // User::factory(40)->create();
         Anomali::factory(30)->create();
         Bay::factory(100)->create();
+        Har::factory(50)->create();
     }
 }

@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Models\Status;
 use App\Models\Anomali;
 use App\Models\Equipment;
+use App\Models\Har;
 use App\Models\User;
 use App\Models\Type;
 use Illuminate\Support\Facades\Auth;
@@ -70,7 +71,8 @@ class DashboardController extends Controller
             'anomaliPerEquipmentStatus' => $anomaliPerEquipmentStatus,
             'anomaliPerSectionType' => $anomaliPerSectionType,
             'anomaliPerStatus' => $anomaliPerStatus,
-            'anomaliAll' => Anomali::all()
+            'anomaliAll' => Anomali::all(),
+            'har' => Har::with(['substation',  'equipment', 'user'])->get()
         ]);
     }
 
